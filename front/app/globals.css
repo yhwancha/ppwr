@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans KR", -apple-system, "system-ui", "Segoe UI", sans-serif;
+
+  /* RESTUDIO PPWR — Figma 시안 색상 */
+  --color-primary: #43554a;        /* 짙은 포레스트 그린 (버튼·강조) */
+  --color-primary-dark: #374539;   /* hover */
+  --color-primary-light: #9fb0a5;
+  --color-primary-soft: #eef1ef;   /* 사이드바 active / soft bg */
+  --color-ink: #1a2620;            /* 다크 텍스트/섹션 */
+  --color-ink-soft: #2a3831;
+  --color-danger: #dc2626;
+
+  /* 신규 반영(diagram 누락분: 포장 개선 요청 / 알림)을 구분하기 위한 accent 컬러 */
+  --color-accent: #7c3aed;
+  --color-accent-dark: #6d28d9;
+  --color-accent-soft: #ede9fe;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
