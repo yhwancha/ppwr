@@ -6,6 +6,7 @@ import {
   Activity,
   BookOpen,
   Boxes,
+  CreditCard,
   LayoutGrid,
   Package,
   Settings,
@@ -22,6 +23,7 @@ const mainNav: Item[] = [
 ];
 
 const subNav: Item[] = [
+  { label: "결제·구독", href: "/app/billing", icon: CreditCard, ready: true },
   { label: "리소스", href: "/app/resources", icon: BookOpen },
   { label: "설정", href: "/app/settings", icon: Settings },
 ];
