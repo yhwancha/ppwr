@@ -12,13 +12,19 @@ import { PORTONE, type Product } from "./config";
 
 export type Buyer = { name: string; email: string; phone?: string };
 
-/** 고유 결제 아이디 (고객사 관리) */
+/**
+ * 고유 결제 아이디 (고객사 관리).
+ * ⚠️ 일부 PG는 paymentId에 영문·숫자만 허용(하이픈 등 특수문자 불가)하므로
+ *    영숫자만으로 생성한다.
+ */
 export function newPaymentId(prefix = "ppwr"): string {
   const rand =
     typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
+      ? crypto.randomUUID().replace(/-/g, "")
       : Math.random().toString(36).slice(2);
-  return `${prefix}-${rand}`;
+  // prefix 도 영숫자만 유지
+  const safePrefix = prefix.replace(/[^A-Za-z0-9]/g, "");
+  return `${safePrefix}${rand}`;
 }
 
 /** 일반(단건) 결제창 호출. 성공 시 { paymentId } 반환, 실패 시 throw. */
