@@ -14,17 +14,21 @@ export type Buyer = { name: string; email: string; phone?: string };
 
 /**
  * 고유 결제 아이디 (고객사 관리).
- * ⚠️ 일부 PG는 paymentId에 영문·숫자만 허용(하이픈 등 특수문자 불가)하므로
- *    영숫자만으로 생성한다.
+ * ⚠️ PG 제약 두 가지를 동시에 만족해야 한다:
+ *   1) 영문·숫자만 허용 (하이픈 등 특수문자 불가)
+ *   2) 빌링키 발급 issueId(MxIssueNO 등)는 최대 32byte
+ * → 영숫자만으로 만들고 32자 이하로 자른다.
  */
+const MAX_ID_LEN = 32;
+
 export function newPaymentId(prefix = "ppwr"): string {
   const rand =
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID().replace(/-/g, "")
-      : Math.random().toString(36).slice(2);
+      : Math.random().toString(36).slice(2) + Date.now().toString(36);
   // prefix 도 영숫자만 유지
   const safePrefix = prefix.replace(/[^A-Za-z0-9]/g, "");
-  return `${safePrefix}${rand}`;
+  return `${safePrefix}${rand}`.slice(0, MAX_ID_LEN);
 }
 
 /** 일반(단건) 결제창 호출. 성공 시 { paymentId } 반환, 실패 시 throw. */
