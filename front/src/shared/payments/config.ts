@@ -107,6 +107,21 @@ export const PRODUCTS: Product[] = [
     ],
     badge: "정기 결제",
   },
+  // ⚠️ PG 실결제 심사용 임시 상품. 심사 통과 후 제거하세요.
+  {
+    id: "review-test-100",
+    type: "onetime",
+    name: "결제 테스트 (심사용 100원)",
+    tagline: "PG 실결제 심사용 100원 결제입니다. 결제 확인 후 취소·환불하세요.",
+    price: 100,
+    unit: "1회",
+    features: [
+      "PG 실결제 flow 확인용(실물 카드)",
+      "결제 후 즉시 취소·환불 가능",
+      "심사 완료 후 제거 예정",
+    ],
+    badge: "심사용",
+  },
 ];
 
 export function getProduct(id: string): Product | undefined {
