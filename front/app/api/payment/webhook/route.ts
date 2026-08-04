@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPayment } from "@/src/shared/payments/server";
+import { recordWebhook } from "@/src/shared/payments/persist";
 
 /**
  * PortOne 결제 웹훅 수신 엔드포인트.
@@ -29,7 +30,13 @@ export async function POST(req: Request) {
           paymentId,
           status: payment.status,
         });
-        // TODO: 여기서 주문/구독 상태를 DB에 반영
+        // 웹훅 이력 적재 + 해당 결제 상태 갱신 (complete/charge 가 만든 행)
+        await recordWebhook({
+          eventType: body.type,
+          paymentId,
+          portoneStatus: payment.status,
+          rawPayload: body,
+        });
       } catch (e) {
         console.warn("[portone webhook] 조회 실패", paymentId, (e as Error).message);
       }

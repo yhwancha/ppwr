@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getProduct } from "@/src/shared/payments/config";
 import { payWithBillingKey } from "@/src/shared/payments/server";
+import { resolveUserId, recordSubscriptionCharge } from "@/src/shared/payments/persist";
 
 /**
  * 구독(정기결제) 최초 청구.
@@ -43,6 +44,17 @@ export async function POST(req: Request) {
 
     const paid =
       result.status === "PAID" || result.status.toLowerCase() === "paid";
+
+    // ── DB 적재: 구독(Subscription) + 회차 결제(Payment) ──
+    const userId = await resolveUserId();
+    await recordSubscriptionCharge({
+      userId,
+      productId,
+      paymentId,
+      billingKey,
+      amount: product.price,
+      portoneStatus: result.status,
+    });
 
     return NextResponse.json({
       ok: paid,

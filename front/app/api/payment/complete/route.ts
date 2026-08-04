@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getProduct } from "@/src/shared/payments/config";
 import { getPayment } from "@/src/shared/payments/server";
+import { resolveUserId, recordOneTimePayment } from "@/src/shared/payments/persist";
 
 /**
  * 일반결제 완료 검증.
@@ -41,6 +42,19 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
+
+    // ── DB 적재 (admin "결제·환불 조회" 가 읽는 ppwr.Payment) ──
+    // 결제자(user_id)는 위변조 방지를 위해 서버 세션(쿠키)에서 확보. best-effort.
+    const userId = await resolveUserId();
+    await recordOneTimePayment({
+      userId,
+      productId,
+      paymentId,
+      amount: payment.amount?.total ?? product.price,
+      portoneStatus: payment.status,
+      method: payment.method?.type ?? null,
+      receiptUrl: payment.receiptUrl ?? null,
+    });
 
     const paid = payment.status === "PAID";
     return NextResponse.json({
