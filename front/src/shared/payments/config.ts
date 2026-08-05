@@ -54,6 +54,7 @@ export type Product = {
   price: number; // KRW (실제 카드 결제 금액)
   unit: string; // "1회" | "월"
   priceNote?: string; // 가격 부가설명 (예: "+ SKU당 8만원")
+  listPrice?: number; // 개별 합계(정가) — 패키지 할인 표시용 취소선
   billingCycle?: "monthly"; // 구독 주기
   features: string[];
   badge?: string;
@@ -106,20 +107,67 @@ export const PRODUCTS: Product[] = [
     badge: "정기 결제",
     highlight: true,
   },
-  // ── 단건 문서 패키지 (미구독 고객) ──
+  // ── 건별 서비스 단가 (무료형: 구독 없이 필요한 서비스만 건별 결제) ──
+  {
+    id: "svc-ai-diagnosis",
+    type: "onetime",
+    name: "PPWR AI 진단 (1건)",
+    tagline: "제품 1건에 대한 PPWR 사전진단",
+    price: 100000,
+    unit: "건",
+    priceNote: "무료형 월 1회 무료, 이후 건당",
+    features: [
+      "제품·포장재 정보 기반 대응 수준 점검",
+      "누락 정보·공급사 요청자료 구분 안내",
+    ],
+    badge: "건별 결제",
+  },
+  {
+    id: "svc-doc",
+    type: "onetime",
+    name: "DoC 발행 (1건)",
+    tagline: "SKU별 EU 적합성 선언서(DoC) 발행",
+    price: 400000,
+    unit: "건",
+    features: ["TD·증빙 기반 DoC 발행", "발행 이력·버전 관리"],
+    badge: "건별 결제",
+  },
+  {
+    id: "svc-td",
+    type: "onetime",
+    name: "TD 작성 (1건)",
+    tagline: "SKU별 기술문서(TD) 작성",
+    price: 800000,
+    unit: "건",
+    features: ["포장재 PPWR 대응 근거 정리", "증빙자료 목록 포함"],
+    badge: "건별 결제",
+  },
+  {
+    id: "svc-doc-td",
+    type: "onetime",
+    name: "DoC·TD 통합 발행",
+    tagline: "기술문서(TD)와 적합성 선언서(DoC)를 통합 발행",
+    price: 1000000,
+    unit: "건",
+    features: ["TD + DoC 통합 발행", "EPR 기초자료 연계"],
+    badge: "건별 결제",
+    highlight: true,
+  },
+  // ── 미구독 고객 1차 패키지 (여러 서비스 묶음 · 개별 합산 대비 할인) ──
   {
     id: "pkg-self",
     type: "onetime",
     name: "직접 등록형 문서 패키지",
     tagline: "고객이 직접 정보를 등록하고 문서를 통합 발행하는 기본 패키지",
     price: 1000000,
-    unit: "1건",
+    listPrice: 1000000,
+    unit: "건",
     features: [
       "고객 직접 제품·포장 정보 등록",
       "DoC·TD 통합 발행",
       "EPR 기초 레포트 제공",
     ],
-    badge: "단건 패키지",
+    badge: "미구독 패키지",
   },
   {
     id: "pkg-supplement",
@@ -127,13 +175,14 @@ export const PRODUCTS: Product[] = [
     name: "자료 보완형 패키지",
     tagline: "직접 등록에 증빙자료 정리·매핑을 더한 패키지",
     price: 1400000,
-    unit: "1건",
+    listPrice: 1500000,
+    unit: "건",
     features: [
       "고객 직접 정보 등록",
       "증빙자료 정리·매핑",
       "DoC·TD 발행 + EPR 기초 레포트",
     ],
-    badge: "단건 패키지",
+    badge: "미구독 패키지",
   },
   {
     id: "pkg-agency",
@@ -141,13 +190,14 @@ export const PRODUCTS: Product[] = [
     name: "등록 대행형 문서 패키지",
     tagline: "제품·포장 정보 등록을 대행하고 증빙까지 매핑하는 패키지",
     price: 2100000,
-    unit: "1건",
+    listPrice: 2300000,
+    unit: "건",
     features: [
       "제품·포장 정보 등록 대행",
       "증빙자료 매핑",
       "DoC·TD 발행 + EPR 기초 레포트",
     ],
-    badge: "단건 패키지",
+    badge: "미구독 패키지",
   },
   {
     id: "pkg-total",
@@ -155,13 +205,14 @@ export const PRODUCTS: Product[] = [
     name: "PPWR 통합 대응 패키지",
     tagline: "등록 대행 문서 패키지에 친환경 전환 제안을 더한 통합 패키지",
     price: 2500000,
-    unit: "1건",
+    listPrice: 2800000,
+    unit: "건",
     features: [
       "등록 대행형 문서 패키지 전체",
       "친환경 전환 기본 제안",
       "DoC·TD 발행 + EPR 기초 레포트",
     ],
-    badge: "단건 패키지",
+    badge: "미구독 패키지",
     highlight: true,
   },
   // ⚠️ PG 실결제 심사용 임시 상품. 심사 통과 후 제거하세요.
@@ -271,10 +322,11 @@ export function getProduct(id: string): Product | undefined {
   return PRODUCTS.find((p) => p.id === id);
 }
 
-/** 결제 페이지에 노출할 단건 문서 패키지 (심사용 제외) */
-export const DOC_PACKAGES = PRODUCTS.filter(
-  (p) => p.type === "onetime" && !p.id.startsWith("review-"),
-);
+/** 무료형(건별 결제)에서 노출할 서비스별 단가 */
+export const SERVICE_ITEMS = PRODUCTS.filter((p) => p.id.startsWith("svc-"));
+
+/** 미구독 고객 1차 패키지 (묶음 · 등록 대행 포함) */
+export const PACKAGES = PRODUCTS.filter((p) => p.id.startsWith("pkg-"));
 
 export function formatKRW(n: number): string {
   return n.toLocaleString("ko-KR") + "원";

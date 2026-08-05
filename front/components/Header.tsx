@@ -32,6 +32,12 @@ export default function Header() {
 
         <nav className="hidden items-center gap-7 md:flex">
           <Link
+            href="/service"
+            className="text-sm font-semibold text-slate-600 transition-colors hover:text-primary"
+          >
+            서비스 소개
+          </Link>
+          <Link
             href="/pricing"
             className="text-sm font-semibold text-slate-600 transition-colors hover:text-primary"
           >

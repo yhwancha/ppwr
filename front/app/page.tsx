@@ -3,12 +3,12 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  ClipboardCheck,
+  BadgeCheck,
   FileText,
   Gauge,
   LayoutGrid,
   LogIn,
-  RefreshCw,
+  Recycle,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -17,41 +17,41 @@ import { useSession } from "@/src/features/auth/session";
 const steps = [
   {
     n: "01",
-    title: "제품·포장 정보 입력",
-    desc: "제품과 포장 구조(재질·구성·중량 등)를 입력합니다. 복잡한 규정 지식은 필요 없습니다.",
+    title: "제품·포장재 등록",
+    desc: "제품과 포장 구성품(용기·캡·라벨·완충재·박스 등)을 SKU 단위로 등록합니다.",
   },
   {
     n: "02",
-    title: "AI 규제 적합성 진단",
-    desc: "EU 2025/40 PPWR 기준으로 미이행 리스크와 누락 항목을 즉시 분석합니다.",
+    title: "AI 사전진단 · 자료 보완",
+    desc: "PPWR 대응 수준과 보완 필요 항목을 확인하고, 공급사에 요청할 자료를 정리합니다.",
   },
   {
     n: "03",
-    title: "리포트 · RFI 자동 생성",
-    desc: "결과 리포트와 공급사 제출용 정보요청서(RFI)를 자동으로 매핑해 드립니다.",
+    title: "TD · DoC · EPR 발행",
+    desc: "기술문서(TD)·적합성 선언서(DoC)·EPR 기초자료를 연결된 데이터로 생성합니다.",
   },
 ];
 
 const features = [
   {
     icon: Gauge,
-    title: "즉시 리스크 진단",
-    desc: "제품 단위로 PPWR 적합성 리스크를 점수화해 어디부터 대응할지 명확히 합니다.",
-  },
-  {
-    icon: ClipboardCheck,
-    title: "RFI 자동 매핑",
-    desc: "공급사에 요청해야 할 자료를 항목별로 정리해 수집 부담을 크게 줄입니다.",
-  },
-  {
-    icon: RefreshCw,
-    title: "최신 규정 반영",
-    desc: "EU 포장폐기물 규정(2025/40) 업데이트를 자동 반영해 항상 최신 기준으로 진단합니다.",
+    title: "AI 기반 PPWR 사전진단",
+    desc: "보유한 정보만으로 대응 수준을 점검하고, 누락 정보·공급사 요청자료·시험 필요 항목을 구분해 안내합니다.",
   },
   {
     icon: FileText,
-    title: "리포트 · 히스토리",
-    desc: "진단 결과를 문서로 보관하고 제출용 자료로 바로 활용할 수 있습니다.",
+    title: "기술문서(TD) 작성 지원",
+    desc: "진단과 증빙자료를 근거로 포장재 PPWR 대응 기술문서를 작성하고, 데이터 변경 시 업데이트로 관리합니다.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "EU 적합성 선언서(DoC)",
+    desc: "TD와 증빙을 기반으로 DoC 발행을 지원하고 문서 버전·발행 이력을 체계적으로 관리합니다.",
+  },
+  {
+    icon: Recycle,
+    title: "EPR 기초자료 제공",
+    desc: "소재·중량 정보를 표준화해 국가별 EPR 등록·보고 준비용 기초 데이터로 연결합니다.",
   },
 ];
 
@@ -74,8 +74,8 @@ export default function HomePage() {
             <span className="text-primary-light">AI로 미리 진단</span>하고 대응하세요
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-300">
-            제품과 포장 구조만 입력하면 규제 미이행 리스크를 즉시 진단하고,
-            공급사 제출용 정보요청서(RFI)까지 자동으로 매핑해 드립니다.
+            포장재 정보를 한 번 입력하면 AI 사전진단부터 기술문서(TD)·적합성 선언서(DoC)·
+            EPR 기초자료까지 하나의 과정으로 연결됩니다.
           </p>
 
           <div className="mt-9 flex min-h-[52px] flex-wrap items-center justify-center gap-3">
@@ -147,11 +147,14 @@ export default function HomePage() {
         <div className="mx-auto w-full max-w-6xl px-6 py-24">
           <div className="text-center">
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
-              Features
+              Core Services
             </span>
             <h2 className="mt-3 text-3xl font-extrabold text-ink md:text-4xl">
-              규제 대응에 필요한 모든 것
+              핵심 서비스
             </h2>
+            <p className="mx-auto mt-3 max-w-xl text-slate-500">
+              한 번 등록한 제품·포장재 데이터를 진단부터 문서 발행까지 연결해 활용합니다.
+            </p>
           </div>
 
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -170,6 +173,15 @@ export default function HomePage() {
                 </div>
               );
             })}
+          </div>
+
+          <div className="mt-10 text-center">
+            <Link
+              href="/service"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary"
+            >
+              서비스 자세히 보기 <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>
