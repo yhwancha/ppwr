@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/src/shared/supabase/client";
 import type { Database } from "@/src/types/database.types";
 import { PpwrProductService } from "@/src/lib/ppwr-product-service";
+import { PpwrPackagingService } from "@/src/lib/ppwr-packaging-service";
+import { PpwrComponentService } from "@/src/lib/ppwr-component-service";
 
 /**
  * RESTUDIO와 동일한 Supabase 브라우저(쿠키 세션) 클라이언트를 공유한다.
@@ -53,4 +55,16 @@ let _productService: PpwrProductService | null = null;
 export function getPpwrProductService() {
   if (!_productService) _productService = new PpwrProductService(client());
   return _productService;
+}
+
+let _packagingService: PpwrPackagingService | null = null;
+export function getPpwrPackagingService() {
+  if (!_packagingService) _packagingService = new PpwrPackagingService(client());
+  return _packagingService;
+}
+
+let _componentService: PpwrComponentService | null = null;
+export function getPpwrComponentService() {
+  if (!_componentService) _componentService = new PpwrComponentService(client());
+  return _componentService;
 }
