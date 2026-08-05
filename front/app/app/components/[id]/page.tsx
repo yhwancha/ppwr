@@ -49,7 +49,7 @@ export default function ComponentDetailPage({ params }: { params: Promise<{ id: 
 
   return (
     <>
-      <Topbar crumbs={[{ label: "부자재 라이브러리", href: "/app/components" }, { label: data?.name ?? "부품 상세" }]} />
+      <Topbar crumbs={[{ label: "부품 라이브러리", href: "/app/components" }, { label: data?.name ?? "부품 상세" }]} />
       {isLoading && <p className="p-8 text-sm text-slate-400">불러오는 중…</p>}
       {error && (
         <p className="m-8 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">부품을 불러오지 못했습니다.</p>

@@ -35,7 +35,7 @@ const groups: Group[] = [
     title: "데이터",
     items: [
       { label: "제품 (SKU)", href: "/app/products", icon: Package, ready: true },
-      { label: "부자재 라이브러리", href: "/app/components", icon: Boxes, ready: true },
+      { label: "부품 라이브러리", href: "/app/components", icon: Boxes, ready: true },
     ],
   },
   {

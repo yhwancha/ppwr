@@ -23,7 +23,7 @@ export default function ComponentNewPage() {
 
   return (
     <>
-      <Topbar crumbs={[{ label: "부자재 라이브러리", href: "/app/components" }, { label: "부품 등록" }]} />
+      <Topbar crumbs={[{ label: "부품 라이브러리", href: "/app/components" }, { label: "부품 등록" }]} />
       <ComponentMasterForm
         title="부품 등록"
         subtitle="부품 기본 정보를 저장한 뒤, 상세 화면에서 소재를 추가할 수 있습니다."
