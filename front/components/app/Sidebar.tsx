@@ -18,7 +18,7 @@ type Item = { label: string; href: string; icon: React.ElementType; ready?: bool
 const mainNav: Item[] = [
   { label: "대시보드", href: "/app", icon: LayoutGrid, ready: true },
   { label: "제품 관리", href: "/app/products", icon: Package, ready: true },
-  { label: "부품 관리", href: "/app/components", icon: Boxes },
+  { label: "부품 관리", href: "/app/components", icon: Boxes, ready: true },
   { label: "진단 관리", href: "/app/diagnosis", icon: Activity },
 ];
 
