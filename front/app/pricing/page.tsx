@@ -6,18 +6,20 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { PRODUCTS, formatKRW, MERCHANT } from "@/src/shared/payments/config";
+import {
+  DOC_PACKAGES,
+  SUBSCRIPTION_TIERS,
+  formatKRW,
+  MERCHANT,
+} from "@/src/shared/payments/config";
 
 export const metadata = {
   title: "요금제 – PPWR AI",
   description:
-    "PPWR AI 셀프진단권(단건)과 매니지드 정기구독 요금제. 신용카드 결제·정기결제 지원.",
+    "PPWR AI 구독 요금제(무료형·기본형·성장형·기업형)와 단건 문서 패키지. 신용카드 결제·정기결제 지원.",
 };
 
 export default function PricingPage() {
-  // 공개 페이지에는 심사용 테스트 상품은 노출하지 않는다.
-  const plans = PRODUCTS.filter((p) => !p.id.startsWith("review-"));
-
   return (
     <div className="bg-slate-50">
       {/* Hero */}
@@ -29,52 +31,121 @@ export default function PricingPage() {
           <h1 className="mt-6 text-4xl font-extrabold leading-tight md:text-5xl">
             필요한 만큼, 합리적으로
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-slate-300">
-            제품 1건만 빠르게 진단하는 단건 이용권부터, 매월 진단과 전문가 지원을 받는
-            정기구독까지. 모든 결제는 포트원(PortOne)으로 안전하게 처리됩니다.
+          <p className="mx-auto mt-4 max-w-2xl text-slate-300">
+            SKU 규모에 맞춘 월 구독부터, 구독 없이 이용하는 단건 문서 패키지까지.
+            모든 결제는 포트원(PortOne)으로 안전하게 처리됩니다.
           </p>
         </div>
       </section>
 
-      {/* 요금제 카드 */}
-      <section className="mx-auto -mt-12 w-full max-w-6xl px-6 pb-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {plans.map((p) => (
+      {/* ── 구독 요금제 ── */}
+      <section className="mx-auto w-full max-w-6xl px-6 pt-16">
+        <div className="text-center">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+            Subscription
+          </span>
+          <h2 className="mt-3 text-3xl font-extrabold text-ink">구독 요금제</h2>
+          <p className="mt-2 text-sm text-slate-500">
+            관리 SKU 규모에 따라 선택하세요. 구독 상품은 매월 자동 결제되며 언제든 해지할 수 있습니다.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {SUBSCRIPTION_TIERS.map((t) => (
+            <div
+              key={t.id}
+              className={
+                "relative flex flex-col rounded-2xl border bg-white p-6 " +
+                (t.highlight
+                  ? "border-primary shadow-lg ring-1 ring-primary/20"
+                  : "border-slate-200 shadow-sm")
+              }
+            >
+              {t.highlight && (
+                <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-white">
+                  추천
+                </span>
+              )}
+              <h3 className="text-lg font-extrabold text-ink">{t.name}</h3>
+              <p className="mt-1 min-h-[52px] text-xs leading-relaxed text-slate-500">
+                {t.audience}
+              </p>
+
+              <div className="mt-3">
+                <span className="text-2xl font-black text-ink">{t.priceLabel}</span>
+                <p className="mt-1 text-xs text-slate-400">{t.priceSub}</p>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                <Tag>{t.sku}</Tag>
+                <Tag>{t.accounts}</Tag>
+              </div>
+
+              <ul className="mt-4 flex-1 space-y-2 border-t border-slate-100 pt-4">
+                {t.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href={t.cta.href}
+                className={
+                  "mt-5 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-bold transition-colors " +
+                  (t.highlight
+                    ? "bg-primary text-white hover:bg-primary-dark"
+                    : "bg-primary-soft text-primary hover:bg-primary-light/50")
+                }
+              >
+                {t.cta.label}
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 단건 문서 패키지 ── */}
+      <section className="mx-auto w-full max-w-6xl px-6 pt-20">
+        <div className="text-center">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+            One-time
+          </span>
+          <h2 className="mt-3 text-3xl font-extrabold text-ink">단건 문서 패키지</h2>
+          <p className="mt-2 text-sm text-slate-500">
+            구독 없이, 필요한 제품에 대해 문서 발행과 진단을 1회성으로 이용합니다.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {DOC_PACKAGES.map((p) => (
             <div
               key={p.id}
               className={
-                "relative flex flex-col rounded-2xl border bg-white p-7 shadow-sm " +
+                "flex flex-col rounded-2xl border bg-white p-6 " +
                 (p.highlight
                   ? "border-primary shadow-lg ring-1 ring-primary/20"
-                  : "border-slate-200")
+                  : "border-slate-200 shadow-sm")
               }
             >
-              {p.highlight && (
-                <span className="absolute -top-3 left-7 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-white">
-                  가장 인기
-                </span>
-              )}
               <span className="inline-flex w-fit items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-500">
-                {p.type === "subscription" ? (
-                  <Repeat className="h-3 w-3" />
-                ) : (
-                  <CreditCard className="h-3 w-3" />
-                )}
-                {p.badge}
+                <CreditCard className="h-3 w-3" /> {p.badge}
               </span>
+              <h3 className="mt-3 text-base font-extrabold text-ink">{p.name}</h3>
+              <p className="mt-1 min-h-[40px] text-xs leading-relaxed text-slate-500">
+                {p.tagline}
+              </p>
 
-              <h2 className="mt-4 text-xl font-extrabold text-ink">{p.name}</h2>
-              <p className="mt-1.5 min-h-[44px] text-sm text-slate-500">{p.tagline}</p>
-
-              <div className="mt-5 flex items-baseline gap-1">
-                <span className="text-4xl font-black text-ink">{formatKRW(p.price)}</span>
-                <span className="text-sm font-semibold text-slate-400">/ {p.unit}</span>
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="text-2xl font-black text-ink">{formatKRW(p.price)}</span>
+                <span className="text-xs font-semibold text-slate-400">/ {p.unit}</span>
               </div>
 
-              <ul className="mt-6 flex-1 space-y-3">
+              <ul className="mt-4 flex-1 space-y-2 border-t border-slate-100 pt-4">
                 {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-slate-600">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                     {f}
                   </li>
                 ))}
@@ -83,13 +154,13 @@ export default function PricingPage() {
               <Link
                 href={`/app/billing/checkout?product=${p.id}`}
                 className={
-                  "mt-7 inline-flex items-center justify-center rounded-xl px-5 py-3.5 text-sm font-bold transition-colors " +
+                  "mt-5 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-bold transition-colors " +
                   (p.highlight
                     ? "bg-primary text-white hover:bg-primary-dark"
                     : "bg-primary-soft text-primary hover:bg-primary-light/50")
                 }
               >
-                {p.type === "subscription" ? "구독 시작하기" : "결제하고 진단하기"}
+                결제하기
               </Link>
             </div>
           ))}
@@ -97,7 +168,7 @@ export default function PricingPage() {
       </section>
 
       {/* 결제 안내 */}
-      <section className="mx-auto w-full max-w-6xl px-6 pb-24">
+      <section className="mx-auto w-full max-w-6xl px-6 py-20">
         <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-8 sm:grid-cols-3">
           <Info
             icon={<CreditCard className="h-5 w-5 text-primary" />}
@@ -129,6 +200,14 @@ export default function PricingPage() {
         </p>
       </section>
     </div>
+  );
+}
+
+function Tag({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+      {children}
+    </span>
   );
 }
 

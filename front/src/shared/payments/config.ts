@@ -28,18 +28,16 @@ export function isPortOneConfigured() {
 // ─────────────────────────────────────────────────────────────
 export const MERCHANT = {
   serviceName: "PPWR AI",
-  // ── 확인된 실제 정보 (restudio.co.kr / REVATION) ──
-  companyName: "주식회사 리베이션", // 상호
+  companyName: "리베이션(주)", // 상호
   companyNameEn: "REVATION", // 영문 상호 (copyright)
-  address: "서울특별시 강서구 마곡중앙로 143, 타워B, 3층", // 사업장 주소
-  tel: "02-6489-7080", // 고객센터
+  ceo: "이민성", // 대표자
+  bizRegNo: "438-81-02556", // 사업자등록번호
+  mailOrderNo: "제2024-서울강서-1185호", // 통신판매업신고번호
+  address: "서울특별시 강서구 마곡중앙로 143, B동 3층(마곡동, 르웨스트시티)", // 사업장 주소
+  tel: "02-6959-7080", // 고객센터 (유선)
   email: "sales@revation.co.kr", // 문의 이메일
   privacyOfficer: "이민성", // 개인정보 보호책임자
   hostingProvider: "Vercel Inc.", // 호스팅 제공자
-  // ── ⚠️ 실제 사업자등록증 값으로 채워야 함 (지금은 임시) ──
-  ceo: "○○○", // TODO: 대표자 성명
-  bizRegNo: "000-00-00000", // TODO: 사업자등록번호
-  mailOrderNo: "제0000-지역-00000호", // TODO: 통신판매업신고번호 (신고 후 발급)
 } as const;
 
 // ─────────────────────────────────────────────────────────────
@@ -53,62 +51,118 @@ export type Product = {
   type: PlanType;
   name: string; // 결제창 orderName
   tagline: string;
-  price: number; // KRW
+  price: number; // KRW (실제 카드 결제 금액)
   unit: string; // "1회" | "월"
+  priceNote?: string; // 가격 부가설명 (예: "+ SKU당 8만원")
   billingCycle?: "monthly"; // 구독 주기
   features: string[];
   badge?: string;
   highlight?: boolean;
 };
 
+/**
+ * 결제 가능한 상품(카드 결제) 카탈로그.
+ *  - 구독: 기본형/성장형 (월 기본료 기준, SKU 추가요금은 priceNote 로 안내)
+ *  - 단건: 문서 패키지 4종
+ *  - 심사용 100원 테스트 상품
+ * (무료형/기업형은 결제가 아닌 가입·문의라 PRODUCTS 가 아닌 SUBSCRIPTION_TIERS 로만 노출)
+ */
 export const PRODUCTS: Product[] = [
+  // ── 구독 (월 정기결제) ──
   {
-    id: "diy-diagnosis",
-    type: "onetime",
-    name: "PPWR 셀프진단권 (DIY)",
-    tagline: "제품 1건에 대한 EU PPWR 적합성 셀프진단 1회 이용권",
-    price: 49000,
-    unit: "1회",
-    features: [
-      "제품·포장 구조 입력 진단 1건",
-      "미이행 리스크 리포트 즉시 발급",
-      "공급사 제출용 RFI 자동 매핑",
-      "발급일로부터 30일 열람",
-    ],
-    badge: "단건 결제",
-  },
-  {
-    id: "managed-basic",
+    id: "sub-basic",
     type: "subscription",
-    name: "매니지드 베이직 (월 구독)",
-    tagline: "매월 진단 크레딧과 전문가 검수를 제공하는 정기 구독",
-    price: 99000,
+    name: "기본형 (월 구독)",
+    tagline: "소수 SKU를 직접 관리하는 EU 수출 준비 기업을 위한 구독",
+    price: 290000,
     unit: "월",
+    priceNote: "기본료 · SKU당 8만원 별도",
     billingCycle: "monthly",
     features: [
-      "매월 진단 크레딧 10건",
-      "규정 업데이트 자동 반영",
-      "리포트 히스토리 무제한 보관",
-      "이메일 기술 지원",
+      "관리 SKU 1~5개 · 계정 3개",
+      "등록 SKU 내 PPWR AI 진단 무제한",
+      "DoC·TD 발행 (등록 SKU 내)",
+      "친환경 전환 기본 개선 의견",
+      "최소 계약 6개월",
+    ],
+    badge: "정기 결제",
+  },
+  {
+    id: "sub-growth",
+    type: "subscription",
+    name: "성장형 (월 구독)",
+    tagline: "다수 SKU와 공급사 자료를 지속 관리하는 브랜드사·제조사용 구독",
+    price: 590000,
+    unit: "월",
+    priceNote: "기본료 · SKU당 6만원 별도",
+    billingCycle: "monthly",
+    features: [
+      "관리 SKU 6~20개 · 계정 10개",
+      "PPWR AI 진단·DoC·TD 무제한",
+      "연간 2 SKU 등록 대행 지원",
+      "SKU별 구체적 친환경 개선안",
+      "월 1회 관리 SKU 정기 검토",
     ],
     badge: "정기 결제",
     highlight: true,
   },
+  // ── 단건 문서 패키지 (미구독 고객) ──
   {
-    id: "managed-pro",
-    type: "subscription",
-    name: "매니지드 프로 (월 구독)",
-    tagline: "대량 제품군을 위한 무제한 진단 + 전담 컨설팅 구독",
-    price: 299000,
-    unit: "월",
-    billingCycle: "monthly",
+    id: "pkg-self",
+    type: "onetime",
+    name: "직접 등록형 문서 패키지",
+    tagline: "고객이 직접 정보를 등록하고 문서를 통합 발행하는 기본 패키지",
+    price: 1000000,
+    unit: "1건",
     features: [
-      "무제한 진단 크레딧",
-      "전담 매니저 배정",
-      "공급사 자료 수집 대행",
-      "우선 기술 지원(SLA)",
+      "고객 직접 제품·포장 정보 등록",
+      "DoC·TD 통합 발행",
+      "EPR 기초 레포트 제공",
     ],
-    badge: "정기 결제",
+    badge: "단건 패키지",
+  },
+  {
+    id: "pkg-supplement",
+    type: "onetime",
+    name: "자료 보완형 패키지",
+    tagline: "직접 등록에 증빙자료 정리·매핑을 더한 패키지",
+    price: 1400000,
+    unit: "1건",
+    features: [
+      "고객 직접 정보 등록",
+      "증빙자료 정리·매핑",
+      "DoC·TD 발행 + EPR 기초 레포트",
+    ],
+    badge: "단건 패키지",
+  },
+  {
+    id: "pkg-agency",
+    type: "onetime",
+    name: "등록 대행형 문서 패키지",
+    tagline: "제품·포장 정보 등록을 대행하고 증빙까지 매핑하는 패키지",
+    price: 2100000,
+    unit: "1건",
+    features: [
+      "제품·포장 정보 등록 대행",
+      "증빙자료 매핑",
+      "DoC·TD 발행 + EPR 기초 레포트",
+    ],
+    badge: "단건 패키지",
+  },
+  {
+    id: "pkg-total",
+    type: "onetime",
+    name: "PPWR 통합 대응 패키지",
+    tagline: "등록 대행 문서 패키지에 친환경 전환 제안을 더한 통합 패키지",
+    price: 2500000,
+    unit: "1건",
+    features: [
+      "등록 대행형 문서 패키지 전체",
+      "친환경 전환 기본 제안",
+      "DoC·TD 발행 + EPR 기초 레포트",
+    ],
+    badge: "단건 패키지",
+    highlight: true,
   },
   // ⚠️ PG 실결제 심사용 임시 상품. 심사 통과 후 제거하세요.
   {
@@ -127,9 +181,100 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
+/**
+ * 구독 요금제 4단계 (요금제 페이지 표시용).
+ * 무료형·기업형은 결제가 아닌 가입/문의로 연결되고,
+ * 기본형·성장형은 위 PRODUCTS(sub-basic/sub-growth) 결제로 연결된다.
+ */
+export type SubscriptionTier = {
+  id: string;
+  name: string;
+  audience: string; // 권장 고객
+  sku: string; // 관리 SKU 범위
+  accounts: string; // 계정 수
+  priceLabel: string; // 큰 가격 문구
+  priceSub: string; // 부가 설명
+  features: string[];
+  cta: { label: string; href: string };
+  highlight?: boolean;
+};
+
+export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
+  {
+    id: "free",
+    name: "무료형",
+    audience: "PPWR 대응 필요성을 먼저 확인하려는 기업",
+    sku: "1 SKU",
+    accounts: "계정 1개",
+    priceLabel: "0원",
+    priceSub: "필요한 서비스만 건별 결제",
+    features: [
+      "제품·포장 정보 직접 등록",
+      "월 1회 무료 PPWR AI 진단",
+      "공급사 요청자료 목록 기본 제공",
+      "규제 업데이트 이메일 안내",
+    ],
+    cta: { label: "무료로 시작", href: "/auth/signup" },
+  },
+  {
+    id: "basic",
+    name: "기본형",
+    audience: "소수 SKU를 직접 관리하는 EU 수출 준비 기업",
+    sku: "1~5 SKU",
+    accounts: "계정 3개",
+    priceLabel: "월 29만원~",
+    priceSub: "기본료 29만원 + SKU당 8만원",
+    features: [
+      "등록 SKU 내 진단·문서 발행 무제한",
+      "DoC·TD 발행",
+      "친환경 전환 기본 개선 의견",
+      "최소 계약 6개월",
+    ],
+    cta: { label: "구독 시작", href: "/app/billing/checkout?product=sub-basic" },
+  },
+  {
+    id: "growth",
+    name: "성장형",
+    audience: "다수 SKU·공급사 자료를 지속 관리하는 브랜드사·제조사",
+    sku: "6~20 SKU",
+    accounts: "계정 10개",
+    priceLabel: "월 59만원~",
+    priceSub: "기본료 59만원 + SKU당 6만원",
+    features: [
+      "연간 2 SKU 등록 대행 지원",
+      "SKU별 구체적 친환경 개선안",
+      "월 1회 관리 SKU 정기 검토",
+      "ERP·API 연동(별도 구축)",
+    ],
+    cta: { label: "구독 시작", href: "/app/billing/checkout?product=sub-growth" },
+    highlight: true,
+  },
+  {
+    id: "enterprise",
+    name: "기업형",
+    audience: "대량 SKU를 운영하는 제조사·ODM·대기업",
+    sku: "21 SKU 이상",
+    accounts: "계정 제한 없음",
+    priceLabel: "별도 견적",
+    priceSub: "SKU 수·구축 범위에 따른 맞춤 견적",
+    features: [
+      "전담 담당자 및 정기 운영회의",
+      "제품개발 프로젝트 연계",
+      "ERP·API 별도 구축",
+      "시험분석 대행 지원",
+    ],
+    cta: { label: "도입 문의", href: "mailto:sales@revation.co.kr" },
+  },
+];
+
 export function getProduct(id: string): Product | undefined {
   return PRODUCTS.find((p) => p.id === id);
 }
+
+/** 결제 페이지에 노출할 단건 문서 패키지 (심사용 제외) */
+export const DOC_PACKAGES = PRODUCTS.filter(
+  (p) => p.type === "onetime" && !p.id.startsWith("review-"),
+);
 
 export function formatKRW(n: number): string {
   return n.toLocaleString("ko-KR") + "원";

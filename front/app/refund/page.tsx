@@ -17,10 +17,10 @@ export default function RefundPage() {
         </ul>
       </Article>
 
-      <Article heading="2. 단건 상품(셀프진단권) 환불">
+      <Article heading="2. 단건 문서 패키지 환불">
         <ul className="list-disc pl-5">
-          <li>진단 미개시: 결제일로부터 7일 이내 전액 환불</li>
-          <li>진단 개시(리포트 발급) 후: 재화의 성격상 환불이 제한됩니다.</li>
+          <li>서비스 미개시: 결제일로부터 7일 이내 전액 환불</li>
+          <li>진단·문서 발행 등 서비스 개시 후: 재화의 성격상 환불이 제한되며, 진행 정도에 따라 부분 환불될 수 있습니다.</li>
         </ul>
       </Article>
 
