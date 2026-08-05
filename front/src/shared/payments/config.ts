@@ -28,15 +28,18 @@ export function isPortOneConfigured() {
 // ─────────────────────────────────────────────────────────────
 export const MERCHANT = {
   serviceName: "PPWR AI",
-  companyName: "리베이션 주식회사", // 상호
-  ceo: "홍길동", // 대표자
-  bizRegNo: "000-00-00000", // 사업자등록번호
-  mailOrderNo: "제0000-서울강남-00000호", // 통신판매업신고번호
-  address: "서울특별시 강남구 테헤란로 000, 00층", // 사업장 주소
-  tel: "02-0000-0000", // 고객센터
-  email: "support@ppwr.ai", // 문의 이메일
+  // ── 확인된 실제 정보 (restudio.co.kr / REVATION) ──
+  companyName: "주식회사 리베이션", // 상호
+  companyNameEn: "REVATION", // 영문 상호 (copyright)
+  address: "서울특별시 강서구 마곡중앙로 143, 타워B, 3층", // 사업장 주소
+  tel: "02-6489-7080", // 고객센터
+  email: "sales@revation.co.kr", // 문의 이메일
+  privacyOfficer: "이민성", // 개인정보 보호책임자
   hostingProvider: "Vercel Inc.", // 호스팅 제공자
-  privacyOfficer: "홍길동", // 개인정보 보호책임자
+  // ── ⚠️ 실제 사업자등록증 값으로 채워야 함 (지금은 임시) ──
+  ceo: "○○○", // TODO: 대표자 성명
+  bizRegNo: "000-00-00000", // TODO: 사업자등록번호
+  mailOrderNo: "제0000-지역-00000호", // TODO: 통신판매업신고번호 (신고 후 발급)
 } as const;
 
 // ─────────────────────────────────────────────────────────────

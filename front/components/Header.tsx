@@ -30,6 +30,21 @@ export default function Header() {
           </span>
         </Link>
 
+        <nav className="hidden items-center gap-7 md:flex">
+          <Link
+            href="/pricing"
+            className="text-sm font-semibold text-slate-600 transition-colors hover:text-primary"
+          >
+            요금제
+          </Link>
+          <Link
+            href="/app/billing"
+            className="text-sm font-semibold text-slate-600 transition-colors hover:text-primary"
+          >
+            결제·구독
+          </Link>
+        </nav>
+
         <div className="flex min-h-[44px] items-center gap-3">
           {loading ? null : user ? (
             <>
