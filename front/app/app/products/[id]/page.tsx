@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Topbar from "@/components/app/Topbar";
 import ProductForm, { type ProductFormValues } from "@/components/product/ProductForm";
+import PackagingStructure from "@/components/product/PackagingStructure";
+import ComponentManager from "@/components/product/ComponentManager";
 import { getPpwrProductService } from "@/src/shared/api";
 
 const sourceLabel: Record<string, string> = {
@@ -76,6 +78,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             }
           }}
         />
+      )}
+      {data && (
+        <div className="px-8 pb-16">
+          <PackagingStructure productId={productId} />
+          <ComponentManager productId={productId} />
+        </div>
       )}
     </>
   );
