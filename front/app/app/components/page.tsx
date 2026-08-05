@@ -45,12 +45,12 @@ export default function ComponentsPage() {
 
   return (
     <>
-      <Topbar crumbs={[{ label: "부품 관리" }]} />
+      <Topbar crumbs={[{ label: "부자재 라이브러리" }]} />
       <div className="px-8 pb-16">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="flex items-center gap-2 text-2xl font-extrabold text-ink">
-              <Boxes className="h-5 w-5 text-primary" /> 부품 라이브러리
+              <Boxes className="h-5 w-5 text-primary" /> 부자재 라이브러리
             </h1>
             <p className="mt-1 text-sm text-slate-400">
               포장 부품을 마스터로 관리하고 여러 제품에서 재사용합니다. 내가 등록한 부품과 리베이션 공용 부품을 함께 조회합니다.

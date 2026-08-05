@@ -7,6 +7,7 @@ import {
   BookOpen,
   Boxes,
   CreditCard,
+  FileText,
   LayoutGrid,
   Package,
   Settings,
@@ -14,18 +15,41 @@ import {
 import { useSession } from "@/src/features/auth/session";
 
 type Item = { label: string; href: string; icon: React.ElementType; ready?: boolean };
+type Group = { title: string; items: Item[] };
 
-const mainNav: Item[] = [
-  { label: "대시보드", href: "/app", icon: LayoutGrid, ready: true },
-  { label: "제품 관리", href: "/app/products", icon: Package, ready: true },
-  { label: "부품 관리", href: "/app/components", icon: Boxes, ready: true },
-  { label: "진단 관리", href: "/app/diagnosis", icon: Activity },
-];
-
-const subNav: Item[] = [
-  { label: "결제·구독", href: "/app/billing", icon: CreditCard, ready: true },
-  { label: "리소스", href: "/app/resources", icon: BookOpen },
-  { label: "설정", href: "/app/settings", icon: Settings },
+/**
+ * 역할별 IA 그룹핑:
+ *   진단(워크플로우) · 데이터(마스터) · 산출물 · 계정
+ * 제품·부자재는 각각 재사용 마스터라 '데이터'로 묶고, 진단은 이를 불러오는 작업,
+ * 산출물(문서·리포트)은 별도로 둔다. (PpwrComponentService master/instance 구조와 정렬)
+ */
+const groups: Group[] = [
+  {
+    title: "진단",
+    items: [
+      { label: "대시보드", href: "/app", icon: LayoutGrid, ready: true },
+      { label: "진단 워크스페이스", href: "/app/diagnosis", icon: Activity },
+    ],
+  },
+  {
+    title: "데이터",
+    items: [
+      { label: "제품 (SKU)", href: "/app/products", icon: Package, ready: true },
+      { label: "부자재 라이브러리", href: "/app/components", icon: Boxes, ready: true },
+    ],
+  },
+  {
+    title: "산출물",
+    items: [{ label: "문서·리포트", href: "/app/reports", icon: FileText }],
+  },
+  {
+    title: "계정",
+    items: [
+      { label: "결제·구독", href: "/app/billing", icon: CreditCard, ready: true },
+      { label: "리소스", href: "/app/resources", icon: BookOpen },
+      { label: "설정", href: "/app/settings", icon: Settings },
+    ],
+  },
 ];
 
 export default function Sidebar() {
@@ -69,11 +93,16 @@ export default function Sidebar() {
         <span className="text-sm font-bold text-primary">PPWR</span>
       </Link>
 
-      {/* 메인 네비 */}
-      <nav className="flex-1 space-y-1 px-3">
-        {mainNav.map(renderItem)}
-        <div className="my-3 border-t border-slate-100" />
-        {subNav.map(renderItem)}
+      {/* 그룹 네비 */}
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-4">
+        {groups.map((g) => (
+          <div key={g.title} className="space-y-1">
+            <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-300">
+              {g.title}
+            </p>
+            {g.items.map(renderItem)}
+          </div>
+        ))}
       </nav>
 
       {/* 하단 유저 */}
