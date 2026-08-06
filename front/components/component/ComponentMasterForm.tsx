@@ -3,8 +3,14 @@
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Info, Trash2 } from "lucide-react";
+import {
+  AXIS_LABEL,
+  COMPONENT_TYPE_SPECS,
+  specForType,
+  type SpecField,
+} from "@/src/lib/ppwr-component-spec";
 
-const TYPES = ["뚜껑/캡", "용기/병", "라벨", "파우치", "단상자", "완충재", "박스", "기타"];
+const TYPE_OPTIONS = COMPONENT_TYPE_SPECS.map((s) => s.key);
 const DATA_STATUS: { v: string; l: string }[] = [
   { v: "provided", l: "자료 있음" },
   { v: "unknown", l: "모름" },
@@ -15,7 +21,7 @@ const DATA_STATUS: { v: string; l: string }[] = [
 export type ComponentMasterFormValues = {
   name: string;
   type: string | null;
-  material_summary: string | null;
+  material_summary: string | null; // ⚠️ 유형별 상세(attributes) JSON 을 여기 보관 (전용 컬럼 생기기 전 임시)
   recycled_content: number | null;
   pfas_status: string;
   heavy_metal_status: string;
@@ -23,17 +29,29 @@ export type ComponentMasterFormValues = {
 };
 
 type S = Record<string, string>;
-function toState(d?: Partial<Record<string, unknown>>): S {
+function toBase(d?: Partial<Record<string, unknown>>): S {
   const g = (k: string, def = "") => (d && d[k] != null ? String(d[k]) : def);
   return {
     name: g("name"),
     type: g("type"),
-    material_summary: g("material_summary"),
     recycled_content: g("recycled_content"),
     pfas_status: g("pfas_status", "unknown"),
     heavy_metal_status: g("heavy_metal_status", "unknown"),
     compostability_status: g("compostability_status", "unknown"),
   };
+}
+/** material_summary(JSON) → attrs 상태(문자열 맵) */
+function toAttrs(d?: Partial<Record<string, unknown>>): S {
+  const raw = d && d["material_summary"] != null ? String(d["material_summary"]) : "";
+  if (!raw.trim().startsWith("{")) return {};
+  try {
+    const obj = JSON.parse(raw) as Record<string, unknown>;
+    const out: S = {};
+    for (const [k, v] of Object.entries(obj)) out[k] = v == null ? "" : String(v);
+    return out;
+  } catch {
+    return {};
+  }
 }
 
 export default function ComponentMasterForm({
@@ -63,19 +81,35 @@ export default function ComponentMasterForm({
   cancelHref?: string;
   children?: ReactNode;
 }) {
-  const [f, setF] = useState<S>(() => toState(defaults));
+  const [f, setF] = useState<S>(() => toBase(defaults));
+  const [attrs, setAttrs] = useState<S>(() => toAttrs(defaults));
   const [localErr, setLocalErr] = useState<string | null>(null);
   const set = (k: string) => (v: string) => setF((s) => ({ ...s, [k]: v }));
+  const setAttr = (k: string) => (v: string) => setAttrs((s) => ({ ...s, [k]: v }));
   const num = (v: string) => (v.trim() === "" ? null : Number(v));
+
+  const spec = specForType(f.type);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     setLocalErr(null);
     if (!f.name.trim()) return setLocalErr("부품명은 필수입니다.");
+
+    // 현재 유형의 스펙 필드만 골라 attributes JSON 구성 (빈 값 제외)
+    const attrObj: Record<string, unknown> = {};
+    if (spec) {
+      for (const field of spec.fields) {
+        const v = attrs[field.key];
+        if (v == null || v === "") continue;
+        attrObj[field.key] = field.type === "number" ? Number(v) : field.type === "bool" ? v === "true" : v;
+      }
+    }
+    const material_summary = Object.keys(attrObj).length ? JSON.stringify(attrObj) : null;
+
     onSubmit({
       name: f.name.trim(),
       type: f.type || null,
-      material_summary: f.material_summary.trim() || null,
+      material_summary,
       recycled_content: num(f.recycled_content),
       pfas_status: f.pfas_status,
       heavy_metal_status: f.heavy_metal_status,
@@ -96,18 +130,11 @@ export default function ComponentMasterForm({
         {!readOnly && (
           <div className="flex gap-2">
             {onDelete ? (
-              <button
-                type="button"
-                onClick={onDelete}
-                disabled={deleting}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-4 py-2.5 text-sm font-semibold text-danger hover:bg-red-50 disabled:opacity-60"
-              >
+              <button type="button" onClick={onDelete} disabled={deleting} className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-4 py-2.5 text-sm font-semibold text-danger hover:bg-red-50 disabled:opacity-60">
                 <Trash2 className="h-4 w-4" /> 부품 삭제
               </button>
             ) : (
-              <Link href={cancelHref} className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                취소
-              </Link>
+              <Link href={cancelHref} className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">취소</Link>
             )}
             <button type="submit" disabled={pending} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60">
               {pending ? "저장 중…" : submitLabel}
@@ -121,19 +148,34 @@ export default function ComponentMasterForm({
           리베이션 공용 부품은 조회만 가능합니다. 내 라이브러리에 등록한 부품만 수정할 수 있습니다.
         </p>
       )}
-      {err && (
-        <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-danger">{err}</p>
-      )}
+      {err && <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-danger">{err}</p>}
 
       <fieldset disabled={readOnly} className="mt-6 space-y-4">
-        <Section title="부품 기본 정보" desc="부품을 식별하는 기본 정보입니다. 등록한 부품은 여러 제품에서 재사용됩니다.">
+        <Section title="부품 기본 정보" desc="부품을 식별하는 기본 정보입니다. 유형을 선택하면 아래에 유형별 상세 항목이 나타납니다.">
           <Grid>
             <Field label="부품명" required value={f.name} onChange={set("name")} placeholder="예: PP 스크류 캡" />
-            <Select label="유형" value={f.type} onChange={set("type")} options={TYPES} />
-            <Field label="재생원료 함량 (%)" type="number" value={f.recycled_content} onChange={set("recycled_content")} placeholder="0" />
-            <Field label="소재 요약" value={f.material_summary} onChange={set("material_summary")} placeholder="예: PP 단일 소재" />
+            <Select label="유형" value={f.type} onChange={set("type")} options={TYPE_OPTIONS} />
+            <Field label="재생원료(PCR) 함량 (%)" type="number" value={f.recycled_content} onChange={set("recycled_content")} placeholder="0" />
           </Grid>
         </Section>
+
+        {spec && spec.fields.length > 0 && (
+          <Section
+            title={`${spec.emoji} ${spec.key} — 상세`}
+            desc="이 유형의 PPWR 재활용성·재생원료·유해물질 판정에 쓰이는 상세 항목입니다."
+          >
+            <Grid>
+              {spec.fields.map((field) => (
+                <SpecInput key={field.key} field={field} value={attrs[field.key] ?? ""} onChange={setAttr(field.key)} />
+              ))}
+            </Grid>
+          </Section>
+        )}
+        {f.type && !spec?.fields.length && (
+          <p className="rounded-xl border border-dashed border-slate-200 px-4 py-4 text-center text-sm text-slate-400">
+            이 유형은 별도 상세 항목이 없습니다.
+          </p>
+        )}
 
         <Section title="유해물질·퇴비화 상태" desc="부품 단위 시험성적서 확보 여부입니다. PPWR 물질제한 요건 판단에 사용됩니다.">
           <Grid>
@@ -149,7 +191,51 @@ export default function ComponentMasterForm({
   );
 }
 
-/* ---------- 프리미티브 (ProductForm 스타일 동일) ---------- */
+/* ---------- 유형별 상세 필드 렌더러 ---------- */
+function SpecInput({ field, value, onChange }: { field: SpecField; value: string; onChange: (v: string) => void }) {
+  const label = (
+    <Label>
+      {field.label}
+      {field.axis && <span className="axis">{AXIS_LABEL[field.axis]}</span>}
+      {field.hint && <span className="hint">{field.hint}</span>}
+    </Label>
+  );
+  if (field.type === "text")
+    return <div>{label}<input value={value} onChange={(e) => onChange(e.target.value)} placeholder="입력" className={inputCls} /></div>;
+  if (field.type === "number")
+    return (
+      <div>{label}
+        <div className="flex gap-2">
+          <input type="number" value={value} onChange={(e) => onChange(e.target.value)} placeholder="0" className={inputCls} />
+          {field.unit && <span className="flex items-center rounded-lg border border-slate-300 bg-slate-50 px-3 font-mono text-xs text-slate-500">{field.unit}</span>}
+        </div>
+      </div>
+    );
+  if (field.type === "bool")
+    return (
+      <div>{label}
+        <div className="flex overflow-hidden rounded-lg border border-slate-300">
+          {[["true", "예"], ["false", "아니오"]].map(([v, l]) => (
+            <button key={v} type="button" onClick={() => onChange(v)}
+              className={"flex-1 py-2.5 text-sm font-semibold " + (value === v ? "bg-primary-soft text-primary" : "bg-white text-slate-500")}>
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  // select
+  return (
+    <div>{label}
+      <select value={value} onChange={(e) => onChange(e.target.value)} className={inputCls + " bg-white " + (value ? "" : "text-slate-300")}>
+        <option value="">선택</option>
+        {field.options!.map((o) => <option key={o} value={o} className="text-slate-700">{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
+/* ---------- 프리미티브 ---------- */
 function Section({ title, desc, children }: { title: string; desc: string; children: ReactNode }) {
   return (
     <section className="grid gap-6 rounded-2xl border border-slate-200 bg-white p-8 md:grid-cols-[300px_1fr]">
@@ -166,8 +252,10 @@ function Grid({ children }: { children: ReactNode }) {
 }
 function Label({ children, required }: { children: ReactNode; required?: boolean }) {
   return (
-    <label className="mb-1.5 flex items-center gap-1 text-sm font-semibold text-slate-700">
+    <label className="mb-1.5 flex flex-wrap items-center gap-1.5 text-sm font-semibold text-slate-700">
       {children} {required && <span className="text-danger">*</span>}
+      <style>{`.axis{font-family:ui-monospace,monospace;font-size:9.5px;font-weight:700;background:#e2f1ec;color:#2f7d6b;padding:1px 6px;border-radius:5px}
+        .hint{width:100%;font-weight:400;font-size:11.5px;color:#94a3a0;margin-top:-1px}`}</style>
     </label>
   );
 }
