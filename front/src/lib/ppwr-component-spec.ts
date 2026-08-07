@@ -40,7 +40,7 @@ export const AXIS_LABEL: Record<SpecAxis, string> = {
 export const COMPONENT_TYPE_SPECS: ComponentTypeSpec[] = [
   {
     key: "플라스틱 용기/병",
-    emoji: "🟦",
+    emoji: "",
     fields: [
       { key: "polymer", label: "폴리머 종류", type: "select", options: ["PET", "HDPE", "PP", "LDPE", "PS", "PVC", "기타"], axis: "recy" },
       { key: "mono", label: "단일 소재 여부", type: "bool", axis: "recy" },
@@ -55,7 +55,7 @@ export const COMPONENT_TYPE_SPECS: ComponentTypeSpec[] = [
   },
   {
     key: "종이/판지",
-    emoji: "🟫",
+    emoji: "",
     fields: [
       { key: "grammage", label: "평량", type: "number", unit: "g/m²", axis: "recy" },
       { key: "corrugation", label: "골판지 종류", type: "select", options: ["해당없음", "단면", "양면", "이중양면"], axis: "recy" },
@@ -67,7 +67,7 @@ export const COMPONENT_TYPE_SPECS: ComponentTypeSpec[] = [
   },
   {
     key: "유리 병/용기",
-    emoji: "🟩",
+    emoji: "",
     fields: [
       { key: "color", label: "색상", type: "select", options: ["투명", "갈색", "녹색", "기타"], axis: "recy", hint: "컬릿 스트림 분리에 영향" },
       { key: "surface", label: "표면 처리", type: "select", options: ["없음", "세라믹/유약 인쇄", "코팅"], axis: "recy" },
@@ -78,7 +78,7 @@ export const COMPONENT_TYPE_SPECS: ComponentTypeSpec[] = [
   },
   {
     key: "캡/뚜껑",
-    emoji: "🟪",
+    emoji: "",
     fields: [
       { key: "material", label: "소재", type: "select", options: ["PP", "PE", "금속", "기타"], axis: "recy" },
       { key: "same", label: "본체와 동일 재질계열", type: "bool", axis: "recy", hint: "동일계열이면 분리 불필요" },
@@ -88,7 +88,7 @@ export const COMPONENT_TYPE_SPECS: ComponentTypeSpec[] = [
   },
   {
     key: "라벨",
-    emoji: "🏷️",
+    emoji: "",
     fields: [
       { key: "material", label: "소재", type: "select", options: ["종이", "PP 필름", "PET 필름", "기타"], axis: "recy" },
       { key: "adhesive", label: "접착제", type: "select", options: ["영구", "washable(수세 분리)", "removable"], axis: "recy" },
@@ -98,7 +98,7 @@ export const COMPONENT_TYPE_SPECS: ComponentTypeSpec[] = [
   },
   {
     key: "파우치/필름",
-    emoji: "🟨",
+    emoji: "",
     fields: [
       { key: "structure", label: "구조", type: "select", options: ["mono-PE", "mono-PP", "다층 라미네이트"], axis: "recy" },
       { key: "alu", label: "알루미늄/금속화 층", type: "bool", axis: "recy", hint: "있으면 대부분 재활용 불가" },
@@ -109,7 +109,7 @@ export const COMPONENT_TYPE_SPECS: ComponentTypeSpec[] = [
   },
   {
     key: "금속(캔/튜브)",
-    emoji: "🥫",
+    emoji: "",
     fields: [
       { key: "material", label: "재질", type: "select", options: ["알루미늄", "철", "주석도금"], axis: "recy" },
       { key: "inner_coating", label: "내부 코팅/라이너", type: "select", options: ["없음", "에폭시", "BPA-NI", "기타"], axis: "soc" },
@@ -117,13 +117,13 @@ export const COMPONENT_TYPE_SPECS: ComponentTypeSpec[] = [
   },
   {
     key: "완충재/필러",
-    emoji: "🧊",
+    emoji: "",
     fields: [
       { key: "material", label: "소재", type: "select", options: ["EPS", "PE 폼", "종이", "전분", "기타"], axis: "min", hint: "빈공간비율 계산 시 filler는 빈공간으로 간주" },
       { key: "recyclable", label: "재활용 가능", type: "bool", axis: "recy" },
     ],
   },
-  { key: "기타", emoji: "📦", fields: [] },
+  { key: "기타", emoji: "", fields: [] },
 ];
 
 export const TYPE_KEYS = COMPONENT_TYPE_SPECS.map((s) => s.key);

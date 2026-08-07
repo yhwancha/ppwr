@@ -18,7 +18,7 @@ function dbToSpecs(
 ): ComponentTypeSpec[] {
   return rows.map((r) => ({
     key: r.type_key,
-    emoji: r.emoji ?? "📦",
+    emoji: r.emoji ?? "",
     fields: r.fields.map((f) => ({
       key: f.key,
       label: f.label,
@@ -191,7 +191,7 @@ export default function ComponentMasterForm({
 
         {spec && spec.fields.length > 0 && (
           <Section
-            title={`${spec.emoji} ${spec.key} — 상세`}
+            title={`${spec.key} — 상세`}
             desc="이 유형의 PPWR 재활용성·재생원료·유해물질 판정에 쓰이는 상세 항목입니다."
           >
             <Grid>
