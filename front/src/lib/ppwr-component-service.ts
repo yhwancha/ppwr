@@ -77,6 +77,49 @@ export class PpwrComponentService {
     return data.id;
   }
 
+  /* ---------- 유형별 필드 설정 (admin 관리) ---------- */
+
+  /**
+   * ppwr."ComponentTypeConfig" 조회. 원격에 테이블이 아직 없으면(마이그레이션 미적용)
+   * 에러가 나므로 null 반환 → 호출부에서 하드코딩 spec 으로 폴백한다.
+   * (database.types.ts 에 아직 없는 테이블이라 캐스팅으로 접근)
+   */
+  async listTypeConfigs(): Promise<
+    | {
+        type_key: string;
+        emoji: string | null;
+        label: string;
+        fields: {
+          key: string;
+          label: string;
+          input_type: "text" | "number" | "select" | "bool";
+          options?: string[];
+          unit?: string;
+          hint?: string;
+          axis?: "recy" | "pcr" | "soc" | "reu" | "min";
+          required?: boolean;
+        }[];
+        sort_order: number;
+        active: boolean;
+      }[]
+    | null
+  > {
+    try {
+      const { data, error } = await (
+        this.supabase as unknown as { schema: (s: string) => { from: (t: string) => any } }
+      )
+        .schema("ppwr")
+        .from("ComponentTypeConfig")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) return null;
+      return (data ?? null) as never;
+    } catch {
+      return null;
+    }
+  }
+
   /* ---------- 부품 마스터 (재사용 라이브러리) ---------- */
 
   /** 불러올 수 있는 부품 라이브러리 (본인 부품 + 리베이션 공용, RLS로 필터) */

@@ -1,16 +1,35 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { Info, Trash2 } from "lucide-react";
 import {
   AXIS_LABEL,
   COMPONENT_TYPE_SPECS,
-  specForType,
+  type ComponentTypeSpec,
   type SpecField,
 } from "@/src/lib/ppwr-component-spec";
+import { getPpwrComponentService } from "@/src/shared/api";
 
-const TYPE_OPTIONS = COMPONENT_TYPE_SPECS.map((s) => s.key);
+/** admin이 관리하는 DB 설정(ppwr.ComponentTypeConfig) → 폼이 쓰는 spec 모양으로 변환 */
+function dbToSpecs(
+  rows: NonNullable<Awaited<ReturnType<ReturnType<typeof getPpwrComponentService>["listTypeConfigs"]>>>,
+): ComponentTypeSpec[] {
+  return rows.map((r) => ({
+    key: r.type_key,
+    emoji: r.emoji ?? "📦",
+    fields: r.fields.map((f) => ({
+      key: f.key,
+      label: f.label,
+      type: f.input_type,
+      options: f.options,
+      unit: f.unit,
+      hint: f.hint,
+      axis: f.axis,
+    })),
+  }));
+}
 const DATA_STATUS: { v: string; l: string }[] = [
   { v: "provided", l: "자료 있음" },
   { v: "unknown", l: "모름" },
@@ -88,7 +107,18 @@ export default function ComponentMasterForm({
   const setAttr = (k: string) => (v: string) => setAttrs((s) => ({ ...s, [k]: v }));
   const num = (v: string) => (v.trim() === "" ? null : Number(v));
 
-  const spec = specForType(f.type);
+  // 유형별 필드 정의: admin 관리 DB 설정 우선, 없으면(미마이그레이션) 하드코딩 폴백
+  const { data: dbConfigs } = useQuery({
+    queryKey: ["ppwr", "type-configs"],
+    queryFn: () => getPpwrComponentService().listTypeConfigs(),
+    staleTime: 5 * 60 * 1000,
+  });
+  const specs = useMemo<ComponentTypeSpec[]>(
+    () => (dbConfigs && dbConfigs.length ? dbToSpecs(dbConfigs) : COMPONENT_TYPE_SPECS),
+    [dbConfigs],
+  );
+  const TYPE_OPTIONS = specs.map((s) => s.key);
+  const spec = specs.find((s) => s.key === f.type);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
