@@ -99,6 +99,9 @@ export class PpwrComponentService {
           axis?: "recy" | "pcr" | "soc" | "reu" | "min";
           required?: boolean;
         }[];
+        sub_types: string[];
+        materials: string[];
+        docs: { name: string; requirement: "필수" | "조건부"; purpose?: string }[];
         sort_order: number;
         active: boolean;
       }[]
@@ -114,7 +117,40 @@ export class PpwrComponentService {
         .eq("active", true)
         .order("sort_order", { ascending: true });
       if (error) return null;
-      return (data ?? null) as never;
+      // JSONB 컬럼 null 방어
+      return ((data ?? []) as any[]).map((r) => ({
+        ...r,
+        fields: Array.isArray(r?.fields) ? r.fields : [],
+        sub_types: Array.isArray(r?.sub_types) ? r.sub_types : [],
+        materials: Array.isArray(r?.materials) ? r.materials : [],
+        docs: Array.isArray(r?.docs) ? r.docs : [],
+      })) as never;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * ppwr."MaterialGroup" 조회 (재질군 → 상세재질 전역 매핑). 테이블이 없으면 null.
+   */
+  async listMaterialGroups(): Promise<
+    | { group_key: string; label: string; details: string[]; sort_order: number; active: boolean }[]
+    | null
+  > {
+    try {
+      const { data, error } = await (
+        this.supabase as unknown as { schema: (s: string) => { from: (t: string) => any } }
+      )
+        .schema("ppwr")
+        .from("MaterialGroup")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) return null;
+      return ((data ?? []) as any[]).map((r) => ({
+        ...r,
+        details: Array.isArray(r?.details) ? r.details : [],
+      })) as never;
     } catch {
       return null;
     }

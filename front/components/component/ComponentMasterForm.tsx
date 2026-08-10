@@ -8,9 +8,18 @@ import {
   AXIS_LABEL,
   COMPONENT_TYPE_SPECS,
   type ComponentTypeSpec,
+  type SpecDoc,
   type SpecField,
 } from "@/src/lib/ppwr-component-spec";
 import { getPpwrComponentService } from "@/src/shared/api";
+
+/** 신규 축(세부형태·재질군·상세재질·첨부문서)은 material_summary(JSON)에 예약 키로 보관 */
+const RK = {
+  subType: "__sub_type",
+  materialGroup: "__material_group",
+  materialDetail: "__material_detail",
+  doc: (name: string) => `__doc:${name}`,
+};
 
 /** admin이 관리하는 DB 설정(ppwr.ComponentTypeConfig) → 폼이 쓰는 spec 모양으로 변환 */
 function dbToSpecs(
@@ -28,6 +37,9 @@ function dbToSpecs(
       hint: f.hint,
       axis: f.axis,
     })),
+    sub_types: r.sub_types,
+    materials: r.materials,
+    docs: r.docs,
   }));
 }
 const DATA_STATUS: { v: string; l: string }[] = [
@@ -113,12 +125,24 @@ export default function ComponentMasterForm({
     queryFn: () => getPpwrComponentService().listTypeConfigs(),
     staleTime: 5 * 60 * 1000,
   });
+  // 재질군 → 상세재질 전역 매핑 (admin 관리)
+  const { data: matGroups } = useQuery({
+    queryKey: ["ppwr", "material-groups"],
+    queryFn: () => getPpwrComponentService().listMaterialGroups(),
+    staleTime: 5 * 60 * 1000,
+  });
   const specs = useMemo<ComponentTypeSpec[]>(
     () => (dbConfigs && dbConfigs.length ? dbToSpecs(dbConfigs) : COMPONENT_TYPE_SPECS),
     [dbConfigs],
   );
   const TYPE_OPTIONS = specs.map((s) => s.key);
   const spec = specs.find((s) => s.key === f.type);
+
+  // 재질군/상세재질 옵션
+  const groupsByKey = useMemo(() => new Map((matGroups ?? []).map((g) => [g.group_key, g])), [matGroups]);
+  const materialOptions = spec?.materials ?? [];
+  const selectedGroup = attrs[RK.materialGroup] ?? "";
+  const detailOptions = selectedGroup ? groupsByKey.get(selectedGroup)?.details ?? [] : [];
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -133,6 +157,13 @@ export default function ComponentMasterForm({
         if (v == null || v === "") continue;
         attrObj[field.key] = field.type === "number" ? Number(v) : field.type === "bool" ? v === "true" : v;
       }
+    }
+    // 신규 축(세부형태·재질군·상세재질·첨부문서 확보상태) — 예약 키(__)로 함께 보관
+    for (const k of Object.keys(attrs)) {
+      if (!k.startsWith("__")) continue;
+      const v = attrs[k];
+      if (v == null || v === "") continue;
+      attrObj[k] = v;
     }
     const material_summary = Object.keys(attrObj).length ? JSON.stringify(attrObj) : null;
 
@@ -181,13 +212,38 @@ export default function ComponentMasterForm({
       {err && <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-danger">{err}</p>}
 
       <fieldset disabled={readOnly} className="mt-6 space-y-4">
-        <Section title="부품 기본 정보" desc="부품을 식별하는 기본 정보입니다. 유형을 선택하면 아래에 유형별 상세 항목이 나타납니다.">
+        <Section title="부품 기본 정보" desc="부품을 식별하는 기본 정보입니다. 포장형태를 선택하면 아래에 형태별 상세 항목이 나타납니다.">
           <Grid>
             <Field label="부품명" required value={f.name} onChange={set("name")} placeholder="예: PP 스크류 캡" />
-            <Select label="유형" value={f.type} onChange={set("type")} options={TYPE_OPTIONS} />
+            <Select label="포장형태" value={f.type} onChange={set("type")} options={TYPE_OPTIONS} />
+            {spec?.sub_types?.length ? (
+              <Select label="세부 포장형태" value={attrs[RK.subType] ?? ""} onChange={setAttr(RK.subType)} options={spec.sub_types} />
+            ) : null}
             <Field label="재생원료(PCR) 함량 (%)" type="number" value={f.recycled_content} onChange={set("recycled_content")} placeholder="0" />
           </Grid>
         </Section>
+
+        {spec?.materials?.length ? (
+          <Section title="재질 및 구조" desc="이 포장형태에 해당하는 재질군과 상세 재질을 선택합니다. 상세 재질 목록은 관리자가 재질군별로 관리합니다.">
+            <Grid>
+              <Select
+                label="재질군"
+                value={selectedGroup}
+                onChange={(v) => {
+                  setAttr(RK.materialGroup)(v);
+                  setAttr(RK.materialDetail)("");
+                }}
+                options={materialOptions}
+              />
+              <Select
+                label="상세 재질"
+                value={attrs[RK.materialDetail] ?? ""}
+                onChange={setAttr(RK.materialDetail)}
+                options={detailOptions}
+              />
+            </Grid>
+          </Section>
+        ) : null}
 
         {spec && spec.fields.length > 0 && (
           <Section
@@ -206,6 +262,19 @@ export default function ComponentMasterForm({
             이 유형은 별도 상세 항목이 없습니다.
           </p>
         )}
+
+        {spec?.docs?.length ? (
+          <Section
+            title="첨부문서 체크리스트"
+            desc="이 포장형태의 PPWR 근거문서 확보 상태입니다. ‘모름·확인필요·자료없음’은 진단 리포트에서 누락자료로 표시됩니다."
+          >
+            <div className="space-y-3">
+              {spec.docs.map((d) => (
+                <DocRow key={d.name} doc={d} value={attrs[RK.doc(d.name)] ?? "unknown"} onChange={setAttr(RK.doc(d.name))} />
+              ))}
+            </div>
+          </Section>
+        ) : null}
 
         <Section title="유해물질·퇴비화 상태" desc="부품 단위 시험성적서 확보 여부입니다. PPWR 물질제한 요건 판단에 사용됩니다.">
           <Grid>
@@ -261,6 +330,43 @@ function SpecInput({ field, value, onChange }: { field: SpecField; value: string
         <option value="">선택</option>
         {field.options!.map((o) => <option key={o} value={o} className="text-slate-700">{o}</option>)}
       </select>
+    </div>
+  );
+}
+
+/* ---------- 첨부문서 체크리스트 행 ---------- */
+function DocRow({ doc, value, onChange }: { doc: SpecDoc; value: string; onChange: (v: string) => void }) {
+  const required = doc.requirement === "필수";
+  return (
+    <div
+      className={
+        "grid gap-3 rounded-xl border p-4 sm:grid-cols-[1fr_180px] " +
+        (required ? "border-l-4 border-l-danger border-slate-200" : "border-l-4 border-l-amber-400 border-slate-200")
+      }
+    >
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-ink">{doc.name}</span>
+          <span
+            className={
+              "rounded-full px-2 py-0.5 text-[10px] font-bold " +
+              (required ? "bg-red-50 text-danger" : "bg-amber-50 text-amber-600")
+            }
+          >
+            {doc.requirement}
+          </span>
+        </div>
+        {doc.purpose && <p className="mt-1 text-xs leading-relaxed text-slate-400">{doc.purpose}</p>}
+      </div>
+      <div className="self-center">
+        <select value={value} onChange={(e) => onChange(e.target.value)} className={inputCls + " bg-white"}>
+          {DATA_STATUS.map((s) => (
+            <option key={s.v} value={s.v}>
+              {s.l}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

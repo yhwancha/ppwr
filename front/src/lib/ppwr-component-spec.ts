@@ -22,10 +22,19 @@ export type SpecField = {
   hint?: string;
   axis?: SpecAxis;
 };
+/** 첨부문서 체크리스트 항목 (admin ppwr.ComponentTypeConfig.docs) */
+export type SpecDoc = {
+  name: string;
+  requirement: "필수" | "조건부";
+  purpose?: string;
+};
 export type ComponentTypeSpec = {
-  key: string; // ppwr.ComponentMaster.type 에 저장되는 값 (한글 라벨)
+  key: string; // ppwr.ComponentMaster.type 에 저장되는 값 (포장형태 라벨)
   emoji: string;
   fields: SpecField[];
+  sub_types?: string[]; // 세부 포장형태
+  materials?: string[]; // 선택 가능한 재질군 키
+  docs?: SpecDoc[]; // 첨부문서 체크리스트
 };
 
 export const AXIS_LABEL: Record<SpecAxis, string> = {
