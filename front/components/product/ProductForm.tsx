@@ -58,6 +58,21 @@ export default function ProductForm({
   const set = (k: string) => (v: string) => setF((s) => ({ ...s, [k]: v }));
   const num = (v: string) => (v.trim() === "" ? null : Number(v));
 
+  // 선택 섹션은 접힌 채 시작 — 채운 값은 요약으로 보여주고, 클릭 시 펼침
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [showMore, setShowMore] = useState(false);
+  const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }));
+  const openOne = (k: string) => setOpen((o) => ({ ...o, [k]: true }));
+
+  const join = (parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(" · ");
+  const dim = (w: string, h: string, d: string, u: string) => (w && h && d ? `${w}×${h}×${d}${u}` : "");
+  const summary = {
+    reg: join([f.manufacturing_country, f.hs_code && `HS ${f.hs_code}`]),
+    phys: join([f.content_form, f.storage_condition, f.net_weight && `${f.net_weight}${f.net_weight_unit}`, dim(f.net_width, f.net_height, f.net_depth, f.net_dim_unit)]),
+    pack: join([f.gross_weight && `${f.gross_weight}${f.gross_weight_unit}`, dim(f.gross_width, f.gross_height, f.gross_depth, f.gross_dim_unit)]),
+    eu: join([f.eu_launch_countries, f.eu_launch_date, f.eu_annual_volume && `${f.eu_annual_volume}개`]),
+  };
+
   function submit(e: React.FormEvent) {
     e.preventDefault();
     setLocalErr(null);
@@ -115,48 +130,64 @@ export default function ProductForm({
         <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-danger">{err}</p>
       )}
 
-      <div className="mt-6 space-y-4">
-        <Section title="기본 제품 정보" desc="제품을 고유하게 식별하는 기본 정보입니다.">
+      <div className="mt-6 space-y-3">
+        {/* 필수 — 항상 노출 */}
+        <Section title="기본 제품 정보" desc="먼저 이것만 있으면 저장됩니다. 나머지는 채우면 진단 정확도가 올라갑니다.">
           <Grid>
             <Field label="제품명 (영문)" required value={f.name} onChange={set("name")} placeholder="예: Daily Radiance Serum" />
-            <Field label="SKU" value={f.sku} onChange={set("sku")} placeholder="예: SER-50-01" />
-            <Field label="모델명" hint value={f.model_name} onChange={set("model_name")} placeholder="예: SER-50" />
-            <Field label="식별번호" hint value={f.identifier_no} onChange={set("identifier_no")} placeholder="예: 5020305920" />
             <Select label="제품 카테고리" required value={f.category} onChange={set("category")} options={categories} />
           </Grid>
+          <button
+            type="button"
+            onClick={() => setShowMore((v) => !v)}
+            className="mt-4 flex w-full items-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-2.5 text-left text-[13px] font-semibold text-slate-500 hover:border-primary hover:text-primary"
+          >
+            <span className="text-base leading-none">{showMore ? "−" : "+"}</span>
+            상세 식별정보 (SKU · 모델명 · 식별번호)
+          </button>
+          {showMore && (
+            <div className="mt-4">
+              <Grid>
+                <Field label="SKU" value={f.sku} onChange={set("sku")} placeholder="예: SER-50-01" />
+                <Field label="모델명" hint value={f.model_name} onChange={set("model_name")} placeholder="예: SER-50" />
+                <Field label="식별번호" hint value={f.identifier_no} onChange={set("identifier_no")} placeholder="예: 5020305920" />
+              </Grid>
+            </div>
+          )}
         </Section>
 
-        <Section title="제조 및 규제 코드" desc="제조 원산지와 관세 분류 코드는 EU 통관 및 시장 감시 신고에 필요합니다.">
+        {/* 선택 — 접이식 아코디언 (채운 값은 요약으로 표시) */}
+        <AccSection n={2} title="제조 및 규제 코드" desc="EU 통관·시장 감시 신고에 필요" summary={summary.reg} open={!!open.reg} onToggle={() => toggle("reg")} onOpen={() => openOne("reg")}>
           <Grid>
             <Select label="제조 국가" value={f.manufacturing_country} onChange={set("manufacturing_country")} options={countries} />
             <Field label="HS Code" hint value={f.hs_code} onChange={set("hs_code")} placeholder="코드 검색 또는 선택" />
           </Grid>
-        </Section>
+        </AccSection>
 
-        <Section title="제품 물성 정보" desc="제품 자체(포장 제외)의 형태, 보관 조건, 중량 및 치수입니다. 라벨링과 안전 규정 검토에 사용됩니다.">
+        <AccSection n={3} title="제품 물성 정보" desc="형태·보관·중량·치수 (라벨링·안전 규정)" summary={summary.phys} open={!!open.phys} onToggle={() => toggle("phys")} onOpen={() => openOne("phys")}>
           <Grid>
             <Select label="내용물 형태" value={f.content_form} onChange={set("content_form")} options={contentForms} />
             <Select label="보관 조건" value={f.storage_condition} onChange={set("storage_condition")} options={storageConds} />
             <WeightField label="제품 Net 중량" value={f.net_weight} onChange={set("net_weight")} unit={f.net_weight_unit} onUnit={set("net_weight_unit")} />
             <DimField label="제품 Net 치수" w={f.net_width} h={f.net_height} d={f.net_depth} unit={f.net_dim_unit} onW={set("net_width")} onH={set("net_height")} onD={set("net_depth")} onUnit={set("net_dim_unit")} />
           </Grid>
-        </Section>
+        </AccSection>
 
-        <Section title="최종 포장 정보" desc="고객에게 배송되는 최종 포장 단위 기준의 중량·치수입니다. PPWR 포장재 규정 및 물류 신고에 활용됩니다.">
+        <AccSection n={4} title="최종 포장 정보" desc="배송 단위 중량·치수 (PPWR·물류)" summary={summary.pack} open={!!open.pack} onToggle={() => toggle("pack")} onOpen={() => openOne("pack")}>
           <Grid>
             <WeightField label="최종 포장 Gross 중량" value={f.gross_weight} onChange={set("gross_weight")} unit={f.gross_weight_unit} onUnit={set("gross_weight_unit")} />
             <DimField label="최종 포장 Gross 치수" w={f.gross_width} h={f.gross_height} d={f.gross_depth} unit={f.gross_dim_unit} onW={set("gross_width")} onH={set("gross_height")} onD={set("gross_depth")} onUnit={set("gross_dim_unit")} />
           </Grid>
-        </Section>
+        </AccSection>
 
-        <Section title="EU 시장 출시 계획" desc="EU 시장 진입 관련 정보입니다.">
+        <AccSection n={5} title="EU 시장 출시 계획" desc="EU 시장 진입 관련 정보" summary={summary.eu} open={!!open.eu} onToggle={() => toggle("eu")} onOpen={() => openOne("eu")}>
           <Grid>
             <Field label="EU 출시 국가" value={f.eu_launch_countries} onChange={set("eu_launch_countries")} placeholder="예: Germany, France" />
             <Field label="EU 출시 예정일" type="date" value={f.eu_launch_date} onChange={set("eu_launch_date")} />
             <Field label="연간 EU 출시 예상 수량 (개)" type="number" value={f.eu_annual_volume} onChange={set("eu_annual_volume")} placeholder="예: 50000" />
             <Field label="기타" value={f.eu_launch_note} onChange={set("eu_launch_note")} placeholder="특이사항" />
           </Grid>
-        </Section>
+        </AccSection>
       </div>
     </form>
   );
@@ -176,6 +207,55 @@ function Section({ title, desc, children }: { title: string; desc: string; child
 }
 function Grid({ children }: { children: ReactNode }) {
   return <div className="grid gap-5 sm:grid-cols-2">{children}</div>;
+}
+
+/** 선택 섹션 — 접이식. 채운 값(summary)이 있으면 요약+수정, 없으면 "선택" 안내 */
+function AccSection({
+  n, title, desc, summary, open, onToggle, onOpen, children,
+}: {
+  n: number; title: string; desc: string; summary: string;
+  open: boolean; onToggle: () => void; onOpen: () => void; children: ReactNode;
+}) {
+  const done = summary.length > 0;
+  return (
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onToggle}
+        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onToggle())}
+        className="flex cursor-pointer items-center gap-3.5 px-6 py-4 hover:bg-slate-50"
+      >
+        <div className={"flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-lg text-[13px] font-bold " + (done ? "bg-primary-soft text-primary" : "bg-slate-100 text-slate-400")}>
+          {done ? "✓" : n}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[15px] font-bold text-ink">{title}</span>
+            {done ? (
+              <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[10.5px] font-bold text-primary">입력됨</span>
+            ) : (
+              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-bold text-amber-600">선택 · 정확도↑</span>
+            )}
+          </div>
+          <p className={"mt-0.5 truncate text-[12.5px] " + (done ? "text-slate-500" : "text-slate-400")}>
+            {done ? summary : `아직 입력 안 함 — ${desc}`}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onOpen(); }}
+          className="shrink-0 rounded-lg border border-slate-300 px-3.5 py-1.5 text-[12.5px] font-semibold text-slate-600 hover:border-primary hover:text-primary"
+        >
+          {done ? "수정" : "입력"}
+        </button>
+        <ChevronDown className={"h-4 w-4 shrink-0 text-slate-400 transition-transform " + (open ? "rotate-180" : "")} />
+      </div>
+      {open && (
+        <div className="border-t border-slate-100 px-6 pb-6 pt-4">{children}</div>
+      )}
+    </section>
+  );
 }
 function Label({ children, required, hint }: { children: ReactNode; required?: boolean; hint?: boolean }) {
   return (
