@@ -3,7 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Info, Trash2 } from "lucide-react";
+import { ChevronDown, Info, Trash2 } from "lucide-react";
 import {
   AXIS_LABEL,
   COMPONENT_TYPE_SPECS,
@@ -144,6 +144,31 @@ export default function ComponentMasterForm({
   const selectedGroup = attrs[RK.materialGroup] ?? "";
   const detailOptions = selectedGroup ? groupsByKey.get(selectedGroup)?.details ?? [] : [];
 
+  // 선택 섹션은 접힌 채 시작 — 채운 값은 요약으로 표시, 클릭 시 펼침
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }));
+  const openOne = (k: string) => setOpen((o) => ({ ...o, [k]: true }));
+
+  const statusLabel = (v: string) => DATA_STATUS.find((s) => s.v === v)?.l ?? v;
+  const joinDot = (parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(" · ");
+  const filledFieldCount = spec ? spec.fields.filter((fd) => (attrs[fd.key] ?? "") !== "").length : 0;
+  const docTotal = spec?.docs?.length ?? 0;
+  const docProvided = spec?.docs?.filter((d) => (attrs[RK.doc(d.name)] ?? "unknown") === "provided").length ?? 0;
+  const docTouched = spec?.docs?.some((d) => (attrs[RK.doc(d.name)] ?? "unknown") !== "unknown") ?? false;
+  const socParts = ([
+    ["PFAS", f.pfas_status],
+    ["중금속", f.heavy_metal_status],
+    ["퇴비화", f.compostability_status],
+  ] as [string, string][])
+    .filter(([, v]) => v && v !== "unknown")
+    .map(([k, v]) => `${k} ${statusLabel(v)}`);
+  const summary = {
+    materials: joinDot([selectedGroup, attrs[RK.materialDetail]]),
+    fields: filledFieldCount ? `${filledFieldCount}개 입력됨` : "",
+    docs: docTouched ? `${docProvided}/${docTotal} 자료 확보` : "",
+    soc: socParts.join(" · "),
+  };
+
   function submit(e: React.FormEvent) {
     e.preventDefault();
     setLocalErr(null);
@@ -211,7 +236,7 @@ export default function ComponentMasterForm({
       )}
       {err && <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-danger">{err}</p>}
 
-      <fieldset disabled={readOnly} className="mt-6 space-y-4">
+      <fieldset disabled={readOnly} className="mt-6 space-y-3">
         <Section title="부품 기본 정보" desc="부품을 식별하는 기본 정보입니다. 포장형태를 선택하면 아래에 형태별 상세 항목이 나타납니다.">
           <Grid>
             <Field label="부품명" required value={f.name} onChange={set("name")} placeholder="예: PP 스크류 캡" />
@@ -224,7 +249,7 @@ export default function ComponentMasterForm({
         </Section>
 
         {spec?.materials?.length ? (
-          <Section title="재질 및 구조" desc="이 포장형태에 해당하는 재질군과 상세 재질을 선택합니다. 상세 재질 목록은 관리자가 재질군별로 관리합니다.">
+          <AccSection n={2} title="재질 및 구조" desc="재질군·상세 재질 (관리자 관리)" summary={summary.materials} open={!!open.materials} onToggle={() => toggle("materials")} onOpen={() => openOne("materials")}>
             <Grid>
               <Select
                 label="재질군"
@@ -242,20 +267,17 @@ export default function ComponentMasterForm({
                 options={detailOptions}
               />
             </Grid>
-          </Section>
+          </AccSection>
         ) : null}
 
         {spec && spec.fields.length > 0 && (
-          <Section
-            title={`${spec.key} — 상세`}
-            desc="이 유형의 PPWR 재활용성·재생원료·유해물질 판정에 쓰이는 상세 항목입니다."
-          >
+          <AccSection n={3} title={`${spec.key} — 상세`} desc="PPWR 재활용성·재생원료·유해물질 판정용 상세 항목" summary={summary.fields} open={!!open.fields} onToggle={() => toggle("fields")} onOpen={() => openOne("fields")}>
             <Grid>
               {spec.fields.map((field) => (
                 <SpecInput key={field.key} field={field} value={attrs[field.key] ?? ""} onChange={setAttr(field.key)} />
               ))}
             </Grid>
-          </Section>
+          </AccSection>
         )}
         {f.type && !spec?.fields.length && (
           <p className="rounded-xl border border-dashed border-slate-200 px-4 py-4 text-center text-sm text-slate-400">
@@ -264,29 +286,73 @@ export default function ComponentMasterForm({
         )}
 
         {spec?.docs?.length ? (
-          <Section
-            title="첨부문서 체크리스트"
-            desc="이 포장형태의 PPWR 근거문서 확보 상태입니다. ‘모름·확인필요·자료없음’은 진단 리포트에서 누락자료로 표시됩니다."
-          >
+          <AccSection n={4} title="첨부문서 체크리스트" desc="PPWR 근거문서 확보 상태 (누락 시 리포트에 표시)" summary={summary.docs} open={!!open.docs} onToggle={() => toggle("docs")} onOpen={() => openOne("docs")}>
             <div className="space-y-3">
               {spec.docs.map((d) => (
                 <DocRow key={d.name} doc={d} value={attrs[RK.doc(d.name)] ?? "unknown"} onChange={setAttr(RK.doc(d.name))} />
               ))}
             </div>
-          </Section>
+          </AccSection>
         ) : null}
 
-        <Section title="유해물질·퇴비화 상태" desc="부품 단위 시험성적서 확보 여부입니다. PPWR 물질제한 요건 판단에 사용됩니다.">
+        <AccSection n={5} title="유해물질·퇴비화 상태" desc="부품 단위 시험성적서 확보 여부" summary={summary.soc} open={!!open.soc} onToggle={() => toggle("soc")} onOpen={() => openOne("soc")}>
           <Grid>
             <StatusSelect label="PFAS" value={f.pfas_status} onChange={set("pfas_status")} />
             <StatusSelect label="중금속" value={f.heavy_metal_status} onChange={set("heavy_metal_status")} />
             <StatusSelect label="퇴비화" value={f.compostability_status} onChange={set("compostability_status")} />
           </Grid>
-        </Section>
+        </AccSection>
       </fieldset>
 
       {children}
     </form>
+  );
+}
+
+/* ---------- 선택 섹션 아코디언 ---------- */
+function AccSection({
+  n, title, desc, summary, open, onToggle, onOpen, children,
+}: {
+  n: number; title: string; desc: string; summary: string;
+  open: boolean; onToggle: () => void; onOpen: () => void; children: ReactNode;
+}) {
+  const done = summary.length > 0;
+  return (
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onToggle}
+        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onToggle())}
+        className="flex cursor-pointer items-center gap-3.5 px-6 py-4 hover:bg-slate-50"
+      >
+        <div className={"flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-lg text-[13px] font-bold " + (done ? "bg-primary-soft text-primary" : "bg-slate-100 text-slate-400")}>
+          {done ? "✓" : n}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[15px] font-bold text-ink">{title}</span>
+            {done ? (
+              <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[10.5px] font-bold text-primary">입력됨</span>
+            ) : (
+              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-bold text-amber-600">선택 · 정확도↑</span>
+            )}
+          </div>
+          <p className={"mt-0.5 truncate text-[12.5px] " + (done ? "text-slate-500" : "text-slate-400")}>
+            {done ? summary : `아직 입력 안 함 — ${desc}`}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onOpen(); }}
+          className="shrink-0 rounded-lg border border-slate-300 px-3.5 py-1.5 text-[12.5px] font-semibold text-slate-600 hover:border-primary hover:text-primary"
+        >
+          {done ? "수정" : "입력"}
+        </button>
+        <ChevronDown className={"h-4 w-4 shrink-0 text-slate-400 transition-transform " + (open ? "rotate-180" : "")} />
+      </div>
+      {open && <div className="border-t border-slate-100 px-6 pb-6 pt-4">{children}</div>}
+    </section>
   );
 }
 
