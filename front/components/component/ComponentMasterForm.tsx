@@ -208,7 +208,7 @@ export default function ComponentMasterForm({
     <form onSubmit={submit} className="px-8 pb-16">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-extrabold text-ink">
+          <h1 className="flex items-center gap-2 text-2xl font-semibold text-ink">
             {title} <Info className="h-4 w-4 text-slate-300" />
           </h1>
           {subtitle && <p className="mt-1 text-sm text-slate-400">{subtitle}</p>}
@@ -326,16 +326,16 @@ function AccSection({
         onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onToggle())}
         className="flex cursor-pointer items-center gap-3.5 px-6 py-4 hover:bg-slate-50"
       >
-        <div className={"flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-lg text-[13px] font-bold " + (done ? "bg-primary-soft text-primary" : "bg-slate-100 text-slate-400")}>
+        <div className={"flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-lg text-[13px] font-semibold " + (done ? "bg-primary-soft text-primary" : "bg-slate-100 text-slate-400")}>
           {done ? "✓" : n}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[15px] font-bold text-ink">{title}</span>
+            <span className="text-[15px] font-semibold text-ink">{title}</span>
             {done ? (
-              <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[10.5px] font-bold text-primary">입력됨</span>
+              <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[10.5px] font-semibold text-primary">입력됨</span>
             ) : (
-              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-bold text-amber-600">선택 · 정확도↑</span>
+              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-semibold text-amber-600">선택 · 정확도↑</span>
             )}
           </div>
           <p className={"mt-0.5 truncate text-[12.5px] " + (done ? "text-slate-500" : "text-slate-400")}>
@@ -412,10 +412,10 @@ function DocRow({ doc, value, onChange }: { doc: SpecDoc; value: string; onChang
     >
       <div>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-ink">{doc.name}</span>
+          <span className="text-sm font-semibold text-ink">{doc.name}</span>
           <span
             className={
-              "rounded-full px-2 py-0.5 text-[10px] font-bold " +
+              "rounded-full px-2 py-0.5 text-[10px] font-semibold " +
               (required ? "bg-red-50 text-danger" : "bg-amber-50 text-amber-600")
             }
           >
@@ -442,7 +442,7 @@ function Section({ title, desc, children }: { title: string; desc: string; child
   return (
     <section className="grid gap-6 rounded-2xl border border-slate-200 bg-white p-8 md:grid-cols-[300px_1fr]">
       <div>
-        <h2 className="text-lg font-bold text-ink">{title}</h2>
+        <h2 className="text-lg font-semibold text-ink">{title}</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-400">{desc}</p>
       </div>
       <div>{children}</div>
@@ -456,7 +456,7 @@ function Label({ children, required }: { children: ReactNode; required?: boolean
   return (
     <label className="mb-1.5 flex flex-wrap items-center gap-1.5 text-sm font-semibold text-slate-700">
       {children} {required && <span className="text-danger">*</span>}
-      <style>{`.axis{font-family:ui-monospace,monospace;font-size:9.5px;font-weight:700;background:#e2f1ec;color:#2f7d6b;padding:1px 6px;border-radius:5px}
+      <style>{`.axis{font-size:9.5px;font-weight:600;background:#e2f1ec;color:#2f7d6b;padding:1px 6px;border-radius:5px}
         .hint{width:100%;font-weight:400;font-size:11.5px;color:#94a3a0;margin-top:-1px}`}</style>
     </label>
   );

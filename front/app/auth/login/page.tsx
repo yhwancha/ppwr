@@ -47,7 +47,7 @@ function LoginForm_() {
   return (
     <div>
       <div className="text-center">
-        <h1 className="text-2xl font-extrabold text-ink">로그인</h1>
+        <h1 className="text-2xl font-semibold text-ink">로그인</h1>
         <p className="mt-2 text-sm text-slate-500">
           RESTUDIO 계정으로 PPWR 진단 서비스에 로그인하세요.
         </p>

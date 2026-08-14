@@ -35,7 +35,7 @@ export default function SignupPage() {
   return (
     <div>
       <div className="text-center">
-        <h1 className="text-2xl font-extrabold text-ink">회원가입</h1>
+        <h1 className="text-2xl font-semibold text-ink">회원가입</h1>
         <p className="mt-2 text-sm text-slate-500">
           간단한 정보만 입력하면 PPWR 진단을 바로 시작할 수 있습니다.
         </p>

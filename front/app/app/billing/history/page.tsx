@@ -40,7 +40,7 @@ export default function HistoryPage() {
       <Topbar crumbs={[{ label: "결제·구독", href: "/app/billing" }, { label: "내역" }]} />
       <div className="mx-auto max-w-4xl px-8 pb-24">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-extrabold text-ink">결제·구독 내역</h1>
+          <h1 className="text-2xl font-semibold text-ink">결제·구독 내역</h1>
           <Link
             href="/app/billing"
             className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
@@ -51,7 +51,7 @@ export default function HistoryPage() {
 
         {/* 구독 관리 */}
         <section className="mt-6">
-          <h2 className="flex items-center gap-2 text-sm font-bold text-slate-500">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-500">
             <Repeat className="h-4 w-4" /> 정기 구독
           </h2>
           {subs.length === 0 ? (
@@ -69,10 +69,10 @@ export default function HistoryPage() {
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-ink">{s.productName}</h3>
+                        <h3 className="font-semibold text-ink">{s.productName}</h3>
                         <span
                           className={
-                            "rounded-md px-2 py-0.5 text-[11px] font-bold " +
+                            "rounded-md px-2 py-0.5 text-[11px] font-semibold " +
                             (active
                               ? "bg-emerald-50 text-emerald-700"
                               : "bg-slate-100 text-slate-400")
@@ -105,7 +105,7 @@ export default function HistoryPage() {
 
         {/* 결제 내역 */}
         <section className="mt-8">
-          <h2 className="flex items-center gap-2 text-sm font-bold text-slate-500">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-500">
             <Receipt className="h-4 w-4" /> 결제 내역
           </h2>
           {orders.length === 0 ? (
@@ -118,7 +118,7 @@ export default function HistoryPage() {
           ) : (
             <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200 bg-white">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs font-bold text-slate-500">
+                <thead className="bg-slate-50 text-xs font-semibold text-slate-500">
                   <tr>
                     <th className="px-5 py-3">일시</th>
                     <th className="px-5 py-3">상품</th>
@@ -151,7 +151,7 @@ export default function HistoryPage() {
                         {formatKRW(o.amount)}
                       </td>
                       <td className="px-5 py-3 text-right">
-                        <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                        <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
                           결제완료
                         </span>
                       </td>

@@ -18,7 +18,7 @@ export default function PricingPage() {
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold text-primary-light">
             <Sparkles className="h-3.5 w-3.5" /> PPWR AI 요금제
           </span>
-          <h1 className="mt-6 text-4xl font-extrabold leading-tight md:text-5xl">
+          <h1 className="mt-6 text-4xl font-semibold leading-tight md:text-5xl">
             필요한 만큼, 합리적으로
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-slate-300">
@@ -31,10 +31,10 @@ export default function PricingPage() {
       {/* ── 구독 요금제 ── */}
       <section className="mx-auto w-full max-w-6xl px-6 pt-16">
         <div className="text-center">
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             Plans
           </span>
-          <h2 className="mt-3 text-3xl font-extrabold text-ink">구독 요금제</h2>
+          <h2 className="mt-3 text-3xl font-semibold text-ink">구독 요금제</h2>
           <p className="mt-2 text-sm text-slate-500">
             구독 상품은 매월 자동 결제되며 언제든 해지할 수 있습니다.
           </p>
@@ -52,17 +52,17 @@ export default function PricingPage() {
               }
             >
               {t.highlight && (
-                <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-white">
+                <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-white">
                   추천
                 </span>
               )}
-              <h3 className="text-lg font-extrabold text-ink">{t.name}</h3>
+              <h3 className="text-lg font-semibold text-ink">{t.name}</h3>
               <p className="mt-1 min-h-[52px] text-xs leading-relaxed text-slate-500">
                 {t.audience}
               </p>
 
               <div className="mt-3">
-                <span className="text-2xl font-black text-ink">{t.priceLabel}</span>
+                <span className="text-2xl font-semibold text-ink">{t.priceLabel}</span>
                 <p className="mt-1 text-xs text-slate-400">{t.priceSub}</p>
               </div>
 
@@ -149,7 +149,7 @@ function Info({
         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-soft">
           {icon}
         </span>
-        <h3 className="font-bold text-ink">{title}</h3>
+        <h3 className="font-semibold text-ink">{title}</h3>
       </div>
       <p className="text-sm leading-relaxed text-slate-500">{desc}</p>
     </div>

@@ -20,7 +20,7 @@ export default function AgencyRequestPage() {
       <div className="mx-auto max-w-3xl px-8 pb-16">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold text-ink">제품 등록 대행 신청</h1>
+            <h1 className="text-2xl font-semibold text-ink">제품 등록 대행 신청</h1>
             <p className="mt-1 text-sm text-slate-400">
               정보 입력이 어려우신가요? 리베이션 전문가가 제품·포장 정보 등록을 대신 진행해 드립니다.
             </p>
@@ -32,7 +32,7 @@ export default function AgencyRequestPage() {
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
               <CheckCircle2 className="h-6 w-6" />
             </span>
-            <p className="mt-4 text-lg font-bold text-ink">신청이 접수되었습니다</p>
+            <p className="mt-4 text-lg font-semibold text-ink">신청이 접수되었습니다</p>
             <p className="mt-2 text-sm text-slate-500">담당 컨설턴트가 영업일 기준 1~2일 내 연락드립니다.</p>
             <Link href="/app/products" className="mt-6 inline-flex rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark">
               제품 관리로 돌아가기
@@ -83,7 +83,7 @@ export default function AgencyRequestPage() {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-8">
-      <h2 className="mb-5 text-lg font-bold text-ink">{title}</h2>
+      <h2 className="mb-5 text-lg font-semibold text-ink">{title}</h2>
       {children}
     </section>
   );

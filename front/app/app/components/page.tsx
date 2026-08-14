@@ -49,7 +49,7 @@ export default function ComponentsPage() {
       <div className="px-8 pb-16">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="flex items-center gap-2 text-2xl font-extrabold text-ink">
+            <h1 className="flex items-center gap-2 text-2xl font-semibold text-ink">
               <Boxes className="h-5 w-5 text-primary" /> 부품 라이브러리
             </h1>
             <p className="mt-1 text-sm text-slate-400">

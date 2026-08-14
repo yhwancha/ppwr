@@ -77,7 +77,7 @@ export default function Sidebar() {
         <Icon className="h-5 w-5 shrink-0" />
         <span className="flex-1">{s.label}</span>
         {!s.ready && (
-          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-400">
+          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400">
             준비중
           </span>
         )}
@@ -88,16 +88,19 @@ export default function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-slate-200 bg-white">
       {/* 로고 */}
-      <Link href="/" className="flex items-baseline gap-2 px-6 py-7">
-        <span className="text-xl font-black tracking-tight text-ink">RESTUDIO</span>
-        <span className="text-sm font-bold text-primary">PPWR</span>
+      <Link href="/" className="flex h-20 items-center px-6">
+        <img
+          src="/logo.svg"
+          alt="RESTUDIO"
+          className="h-4 w-auto"
+        />
       </Link>
 
       {/* 그룹 네비 */}
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-4">
         {groups.map((g) => (
           <div key={g.title} className="space-y-1">
-            <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-300">
+            <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
               {g.title}
             </p>
             {g.items.map(renderItem)}
@@ -107,7 +110,7 @@ export default function Sidebar() {
 
       {/* 하단 유저 */}
       <div className="border-t border-slate-100 px-6 py-5">
-        <p className="text-sm font-bold text-ink">테스트</p>
+        <p className="text-sm font-semibold text-ink">테스트</p>
         <p className="mt-0.5 truncate text-xs text-slate-400">
           {user?.email ?? "name@company.com"}
         </p>

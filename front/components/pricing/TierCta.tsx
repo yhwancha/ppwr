@@ -22,7 +22,7 @@ export default function TierCta({
   const target = isContact ? href : "/app/billing";
 
   const cls =
-    "mt-5 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-bold transition-colors " +
+    "mt-5 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors " +
     (highlight
       ? "bg-primary text-white hover:bg-primary-dark"
       : "bg-primary-soft text-primary hover:bg-primary-light/50");

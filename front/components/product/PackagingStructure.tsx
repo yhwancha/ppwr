@@ -70,7 +70,7 @@ export default function PackagingStructure({ productId }: { productId: number })
   return (
     <section className="mt-4 grid gap-6 rounded-2xl border border-slate-200 bg-white p-8 md:grid-cols-[300px_1fr]">
       <div>
-        <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
           <Layers className="h-4 w-4 text-primary" /> 포장 구조
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-400">
@@ -99,7 +99,7 @@ export default function PackagingStructure({ productId }: { productId: number })
                     }
                   >
                     <div className="flex items-center justify-between">
-                      <span className={"text-sm font-bold " + (on ? "text-primary" : "text-slate-600")}>
+                      <span className={"text-sm font-semibold " + (on ? "text-primary" : "text-slate-600")}>
                         {lv.label}
                       </span>
                       <span

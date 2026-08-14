@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { MERCHANT } from "@/src/shared/payments/config";
 
 const columns: { title: string; links: { href: string; label: string }[] }[] = [
@@ -28,13 +28,12 @@ export default function Footer() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
           {/* 브랜드 */}
           <div>
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
-                <ShieldCheck className="h-5 w-5" />
-              </span>
-              <span className="text-lg font-extrabold text-white">
-                {MERCHANT.serviceName}
-              </span>
+            <div className="flex items-center">
+              <img
+                src="/logo.svg"
+                alt="RESTUDIO"
+                className="h-4 w-auto brightness-0 invert"
+              />
             </div>
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-slate-400">
               EU 포장폐기물 규정(PPWR)에 제품 포장이 적합한지 AI로 미리 진단하고,
@@ -45,7 +44,7 @@ export default function Footer() {
           {/* 링크 컬럼 */}
           {columns.map((col) => (
             <nav key={col.title} className="flex flex-col gap-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <h3 className="text-xs font-semibold text-slate-500">
                 {col.title}
               </h3>
               {col.links.map((l) => (
@@ -62,7 +61,7 @@ export default function Footer() {
 
           {/* 문의 */}
           <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <h3 className="text-xs font-semibold text-slate-500">
               고객문의
             </h3>
             <p className="flex items-start gap-2 text-sm text-slate-400">
@@ -103,8 +102,8 @@ export default function Footer() {
             {MERCHANT.address} · 고객센터 {MERCHANT.tel} · {MERCHANT.email}
           </p>
           <p className="mt-5 text-xs text-slate-600">
-            © 2026 {MERCHANT.companyNameEn}. All rights reserved. · {MERCHANT.serviceName}
-            {" "}— EU 2025/40 PPWR 대응 솔루션.
+            © 2026 {MERCHANT.companyNameEn}. All rights reserved. {MERCHANT.serviceName}
+            {" "}for EU 2025/40 PPWR.
           </p>
         </div>
       </div>

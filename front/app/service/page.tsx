@@ -130,7 +130,7 @@ export default function ServicePage() {
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold text-primary-light">
             <Sparkles className="h-3.5 w-3.5" /> 포장재 규제 대응 시스템
           </span>
-          <h1 className="mt-6 text-4xl font-extrabold leading-[1.2] md:text-5xl">
+          <h1 className="mt-6 text-4xl font-semibold leading-[1.2] md:text-5xl">
             EU PPWR 대응, 제품 등록부터
             <br />
             문서 발행까지 <span className="text-primary-light">한 번에</span>
@@ -159,10 +159,10 @@ export default function ServicePage() {
       {/* 핵심 서비스 */}
       <section className="mx-auto w-full max-w-6xl px-6 py-24">
         <div className="text-center">
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             Core Services
           </span>
-          <h2 className="mt-3 text-3xl font-extrabold text-ink">핵심 서비스</h2>
+          <h2 className="mt-3 text-3xl font-semibold text-ink">핵심 서비스</h2>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           {coreServices.map((s) => {
@@ -176,9 +176,9 @@ export default function ServicePage() {
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <span className="text-sm font-black text-primary/30">{s.no}</span>
+                  <span className="text-sm font-semibold text-primary/30">{s.no}</span>
                 </div>
-                <h3 className="mt-4 text-lg font-bold text-ink">{s.title}</h3>
+                <h3 className="mt-4 text-lg font-semibold text-ink">{s.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-500">{s.desc}</p>
                 <ul className="mt-4 grid gap-2 border-t border-slate-100 pt-4 sm:grid-cols-2">
                   {s.points.map((p) => (
@@ -198,10 +198,10 @@ export default function ServicePage() {
       <section className="bg-white">
         <div className="mx-auto w-full max-w-6xl px-6 py-24">
           <div className="text-center">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               Why RESTUDIO
             </span>
-            <h2 className="mt-3 text-3xl font-extrabold text-ink">서비스 차별성</h2>
+            <h2 className="mt-3 text-3xl font-semibold text-ink">서비스 차별성</h2>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {differentiators.map((d) => {
@@ -211,7 +211,7 @@ export default function ServicePage() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft text-primary">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <h3 className="mt-3 font-bold text-ink">{d.title}</h3>
+                  <h3 className="mt-3 font-semibold text-ink">{d.title}</h3>
                   <p className="mt-1.5 text-sm leading-relaxed text-slate-500">{d.desc}</p>
                 </div>
               );
@@ -223,10 +223,10 @@ export default function ServicePage() {
       {/* 이용 절차 */}
       <section className="mx-auto w-full max-w-4xl px-6 py-24">
         <div className="text-center">
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             How to use
           </span>
-          <h2 className="mt-3 text-3xl font-extrabold text-ink">서비스 이용 절차</h2>
+          <h2 className="mt-3 text-3xl font-semibold text-ink">서비스 이용 절차</h2>
         </div>
         <div className="mt-12 space-y-3">
           {steps.map(([tag, title, desc]) => (
@@ -234,10 +234,10 @@ export default function ServicePage() {
               key={tag}
               className="flex flex-wrap items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5"
             >
-              <span className="rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-white">
+              <span className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white">
                 {tag}
               </span>
-              <span className="font-bold text-ink">{title}</span>
+              <span className="font-semibold text-ink">{title}</span>
               <span className="flex-1 text-sm text-slate-500">{desc}</span>
             </div>
           ))}
@@ -248,13 +248,13 @@ export default function ServicePage() {
       <section className="bg-white">
         <div className="mx-auto grid w-full max-w-6xl gap-12 px-6 py-24 lg:grid-cols-2">
           <div>
-            <h2 className="text-2xl font-extrabold text-ink">제공 결과물</h2>
+            <h2 className="text-2xl font-semibold text-ink">제공 결과물</h2>
             <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
               <table className="w-full text-left text-sm">
                 <tbody className="divide-y divide-slate-100">
                   {deliverables.map(([k, v]) => (
                     <tr key={k}>
-                      <td className="w-40 bg-slate-50 px-4 py-3 font-bold text-ink">{k}</td>
+                      <td className="w-40 bg-slate-50 px-4 py-3 font-semibold text-ink">{k}</td>
                       <td className="px-4 py-3 text-slate-500">{v}</td>
                     </tr>
                   ))}
@@ -263,7 +263,7 @@ export default function ServicePage() {
             </div>
           </div>
           <div>
-            <h2 className="text-2xl font-extrabold text-ink">이런 기업에 필요합니다</h2>
+            <h2 className="text-2xl font-semibold text-ink">이런 기업에 필요합니다</h2>
             <ul className="mt-6 space-y-3">
               {targets.map((t) => (
                 <li key={t} className="flex items-start gap-2.5 text-sm text-slate-600">
@@ -279,7 +279,7 @@ export default function ServicePage() {
       {/* 유의사항 + CTA */}
       <section className="mx-auto w-full max-w-4xl px-6 py-20">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-xs leading-relaxed text-slate-500">
-          <p className="font-bold text-slate-600">서비스 이용 유의사항</p>
+          <p className="font-semibold text-slate-600">서비스 이용 유의사항</p>
           <p className="mt-2">
             본 서비스는 고객이 입력·제출한 제품정보 및 증빙자료를 기반으로 PPWR 대응 검토와 TD·DoC 작성,
             EPR 기초자료 구성을 지원합니다. AI 진단 결과는 사전 검토 결과이며 최종 적합성을 자동으로 보증·인증하지
@@ -289,13 +289,13 @@ export default function ServicePage() {
         </div>
 
         <div className="mt-10 text-center">
-          <h3 className="text-2xl font-extrabold text-ink">
+          <h3 className="text-2xl font-semibold text-ink">
             우리 제품의 PPWR 대응 수준을 먼저 확인해 보세요
           </h3>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-sm font-bold text-white hover:bg-primary-dark"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-sm font-semibold text-white hover:bg-primary-dark"
             >
               AI 사전진단 시작하기 <ArrowRight className="h-4 w-4" />
             </Link>

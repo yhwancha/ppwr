@@ -19,7 +19,7 @@ export default function AuthLayout({
             <ShieldCheck className="h-6 w-6" />
           </span>
           <span className="leading-tight text-white">
-            <span className="block text-lg font-extrabold">PPWR AI</span>
+            <span className="block text-lg font-semibold">PPWR AI</span>
             <span className="block text-xs font-medium text-slate-300">
               규제 자동진단
             </span>

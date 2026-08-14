@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap");
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Noto Sans KR", -apple-system, "system-ui", "Segoe UI", sans-serif;
+  --font-sans: "Pretendard", -apple-system, "system-ui", "Segoe UI", sans-serif;
 
-  /* RESTUDIO PPWR — Figma 시안 색상 */
+  /* RESTUDIO PPWR color tokens */
   --color-primary: #43554a;        /* 짙은 포레스트 그린 (버튼·강조) */
   --color-primary-dark: #374539;   /* hover */
   --color-primary-light: #9fb0a5;
@@ -28,4 +28,123 @@ body {
   color: #1e293b;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.ppwr-hero-bg {
+  background:
+    radial-gradient(ellipse at 50% 42%, rgb(190 255 160 / 0.28), transparent 34%),
+    radial-gradient(ellipse at 72% 34%, rgb(157 241 139 / 0.2), transparent 32%),
+    radial-gradient(ellipse at 38% 50%, rgb(25 86 51 / 0.34), transparent 36%),
+    radial-gradient(ellipse at 18% 95%, rgb(28 94 58 / 0.7), transparent 34%),
+    radial-gradient(ellipse at 82% 88%, rgb(20 76 48 / 0.62), transparent 32%),
+    radial-gradient(ellipse at 48% 78%, rgb(68 85 74 / 0.42), transparent 38%),
+    linear-gradient(180deg, #070707 0%, #101010 48%, #191919 100%);
+}
+
+.ppwr-hero-bg::before,
+.ppwr-hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(18px);
+  transform: translate3d(0, 0, 0);
+}
+
+.ppwr-hero-bg::before {
+  background:
+    radial-gradient(ellipse at 48% 30%, rgb(185 255 144 / 0.42), transparent 38%),
+    radial-gradient(ellipse at 68% 38%, rgb(212 255 180 / 0.28), transparent 34%),
+    radial-gradient(ellipse at 34% 48%, rgb(18 82 48 / 0.44), transparent 36%);
+}
+
+.ppwr-hero-bg::after {
+  background:
+    radial-gradient(ellipse at 36% 44%, rgb(180 255 133 / 0.3), transparent 40%),
+    radial-gradient(ellipse at 58% 28%, rgb(225 255 190 / 0.22), transparent 30%),
+    radial-gradient(ellipse at 64% 50%, rgb(29 94 54 / 0.38), transparent 34%);
+}
+
+.logo-marquee {
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.hero-product-shot {
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    #000 0%,
+    #000 54%,
+    rgb(0 0 0 / 0.86) 68%,
+    rgb(0 0 0 / 0.48) 84%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    #000 0%,
+    #000 54%,
+    rgb(0 0 0 / 0.86) 68%,
+    rgb(0 0 0 / 0.48) 84%,
+    transparent 100%
+  );
+}
+
+.logo-track {
+  animation: ppwr-logo-marquee 110s linear infinite;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ppwr-hero-bg::before {
+    animation: ppwr-radial-shift-a 5.5s ease-in-out infinite alternate;
+  }
+
+  .ppwr-hero-bg::after {
+    animation: ppwr-radial-shift-b 7s ease-in-out infinite alternate;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-track {
+    animation: none;
+  }
+}
+
+@keyframes ppwr-radial-shift-a {
+  0% {
+    transform: translate3d(-2%, 1%, 0) scale(0.94) rotate(0deg);
+    border-radius: 45% 55% 52% 48%;
+  }
+  48% {
+    transform: translate3d(5%, -4%, 0) scale(1.08) rotate(9deg);
+    border-radius: 58% 42% 46% 54%;
+  }
+  100% {
+    transform: translate3d(-1%, 5%, 0) scale(1.16) rotate(-6deg);
+    border-radius: 40% 60% 58% 42%;
+  }
+}
+
+@keyframes ppwr-radial-shift-b {
+  0% {
+    transform: translate3d(4%, -2%, 0) scale(1.06) rotate(0deg);
+    border-radius: 62% 38% 44% 56%;
+  }
+  52% {
+    transform: translate3d(-4%, 4%, 0) scale(0.92) rotate(-11deg);
+    border-radius: 42% 58% 62% 38%;
+  }
+  100% {
+    transform: translate3d(3%, 3%, 0) scale(1.14) rotate(7deg);
+    border-radius: 54% 46% 36% 64%;
+  }
+}
+
+@keyframes ppwr-logo-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }

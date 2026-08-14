@@ -1,14 +1,14 @@
 import LegalShell, { Article } from "@/components/legal/LegalShell";
 import { MERCHANT } from "@/src/shared/payments/config";
 
-export const metadata = { title: "취소·환불 규정 – PPWR AI" };
+export const metadata = { title: "취소·환불 규정 | PPWR AI" };
 
 export default function RefundPage() {
   return (
     <LegalShell title="취소·환불 및 청약철회 규정" updatedAt="2026-07-30">
       <Article heading="1. 청약철회 기간">
         <p>
-          이용자는 결제일로부터 <b>7일 이내</b>에 청약철회(전액 환불)를 요청할 수 있습니다. 단, 「전자상거래 등에서의
+          이용자는 결제일로부터 <span className="font-semibold">7일 이내</span>에 청약철회(전액 환불)를 요청할 수 있습니다. 단, 「전자상거래 등에서의
           소비자보호에 관한 법률」에 따라 아래의 경우 청약철회가 제한될 수 있습니다.
         </p>
         <ul className="list-disc pl-5">
@@ -35,7 +35,7 @@ export default function RefundPage() {
       <Article heading="4. 환불 방법 및 기간">
         <p>
           환불은 결제하신 수단으로 이루어지며, 카드 결제의 경우 승인 취소, 무통장/가상계좌의 경우 지정 계좌로
-          환불됩니다. 환불 요청 승인 후 <b>영업일 기준 3~5일</b> 이내 처리됩니다(카드사 사정에 따라 지연될 수 있음).
+          환불됩니다. 환불 요청 승인 후 <span className="font-semibold">영업일 기준 3~5일</span> 이내 처리됩니다(카드사 사정에 따라 지연될 수 있음).
         </p>
       </Article>
 

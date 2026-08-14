@@ -48,7 +48,7 @@ export default function BillingPage() {
       <div className="px-8 pb-24">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-extrabold text-ink">결제·구독</h1>
+            <h1 className="text-2xl font-semibold text-ink">결제·구독</h1>
             <p className="mt-1 text-sm text-slate-500">현재 플랜과 결제를 관리합니다.</p>
           </div>
           <Link
@@ -67,7 +67,7 @@ export default function BillingPage() {
             </span>
             <div>
               <p className="text-xs font-semibold text-slate-400">현재 플랜</p>
-              <p className="font-bold text-ink">
+              <p className="font-semibold text-ink">
                 {active ? active.productName : "무료형"}
                 {active && (
                   <span className="ml-2 text-xs font-semibold text-slate-400">
@@ -86,7 +86,7 @@ export default function BillingPage() {
 
         {!configured && (
           <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
-            <b>결제 키 미설정</b> — 환경변수{" "}
+            <span className="font-semibold">결제 키 미설정</span>. 환경변수{" "}
             <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_PORTONE_STORE_ID</code>,{" "}
             <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_PORTONE_CHANNEL_KEY</code>{" "}
             를 설정하면 실제 결제창이 열립니다. (심사는 test 채널로 진행)
@@ -98,11 +98,11 @@ export default function BillingPage() {
           <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
             <div className="flex items-center gap-2">
               <Repeat className="h-4 w-4 text-primary" />
-              <h2 className="font-bold text-ink">구독 이용 중</h2>
+              <h2 className="font-semibold text-ink">구독 이용 중</h2>
             </div>
             <p className="mt-2 text-sm text-slate-500">
-              <b className="text-slate-700">{active.productName}</b> · 월 {formatKRW(active.amount)}
-              {" "}— 등록 SKU 내 진단·문서 발행이 포함됩니다. 별도 건별 결제 없이 이용하세요.
+              <span className="font-semibold text-slate-700">{active.productName}</span> · 월 {formatKRW(active.amount)}
+              {" "}등록 SKU 내 진단·문서 발행이 포함됩니다. 별도 건별 결제 없이 이용하세요.
             </p>
             <Link
               href="/app/billing/history"
@@ -176,7 +176,7 @@ function Section({
 }) {
   return (
     <section className="mt-8">
-      <h2 className="text-lg font-extrabold text-ink">{title}</h2>
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
       <p className="mt-0.5 text-sm text-slate-500">{desc}</p>
       <div className="mt-4 grid gap-5 md:grid-cols-2 lg:grid-cols-4">{children}</div>
     </section>
@@ -197,14 +197,14 @@ function ProductCard({ p }: { p: Product }) {
       }
     >
       {p.highlight && (
-        <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-white">
+        <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-white">
           추천
         </span>
       )}
-      <span className="inline-flex w-fit items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-500">
+      <span className="inline-flex w-fit items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
         <Icon className="h-3 w-3" /> {p.badge}
       </span>
-      <h3 className="mt-3 text-base font-extrabold text-ink">{p.name}</h3>
+      <h3 className="mt-3 text-base font-semibold text-ink">{p.name}</h3>
       <p className="mt-1 min-h-[40px] text-xs leading-relaxed text-slate-500">{p.tagline}</p>
 
       <div className="mt-3">
@@ -213,7 +213,7 @@ function ProductCard({ p }: { p: Product }) {
             {formatKRW(p.listPrice!)}
           </span>
         )}
-        <span className="text-2xl font-black text-ink">{formatKRW(p.price)}</span>
+        <span className="text-2xl font-semibold text-ink">{formatKRW(p.price)}</span>
         <span className="ml-1 text-xs font-semibold text-slate-400">/ {p.unit}</span>
       </div>
       {p.priceNote && <p className="mt-1 text-[11px] text-slate-400">{p.priceNote}</p>}
@@ -230,7 +230,7 @@ function ProductCard({ p }: { p: Product }) {
       <Link
         href={`/app/billing/checkout?product=${p.id}`}
         className={
-          "mt-5 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-bold transition-colors " +
+          "mt-5 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors " +
           (p.highlight
             ? "bg-primary text-white hover:bg-primary-dark"
             : "bg-primary-soft text-primary hover:bg-primary-light/50")

@@ -180,7 +180,7 @@ function CompleteInner() {
           ) : (
             <XCircle className="mx-auto h-14 w-14 text-danger" />
           )}
-          <h1 className="mt-4 text-xl font-extrabold text-ink">
+          <h1 className="mt-4 text-xl font-semibold text-ink">
             {ok
               ? result?.type === "subscription"
                 ? "구독이 시작되었습니다"
@@ -213,7 +213,7 @@ function CompleteInner() {
           <div className="mt-7 flex gap-3">
             <Link
               href="/app/billing/history"
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-dark"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-dark"
             >
               <Receipt className="h-4 w-4" /> 결제·구독 내역
             </Link>

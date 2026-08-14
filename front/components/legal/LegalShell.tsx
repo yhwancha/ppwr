@@ -20,7 +20,7 @@ export default function LegalShell({
   return (
     <div className="bg-slate-50">
       <div className="mx-auto w-full max-w-3xl px-6 py-16">
-        <h1 className="text-3xl font-extrabold text-ink">{title}</h1>
+        <h1 className="text-3xl font-semibold text-ink">{title}</h1>
         <p className="mt-2 text-sm text-slate-400">최종 개정일 · {updatedAt}</p>
 
         <nav className="mt-6 flex flex-wrap gap-2">
@@ -46,7 +46,7 @@ export default function LegalShell({
 export function Article({ heading, children }: { heading: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="mb-2 text-base font-bold text-ink">{heading}</h2>
+      <h2 className="mb-2 text-base font-semibold text-ink">{heading}</h2>
       <div className="space-y-2">{children}</div>
     </section>
   );
