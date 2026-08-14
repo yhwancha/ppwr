@@ -34,7 +34,13 @@ function LoginForm_() {
   const onSubmit = (data: LoginForm) => {
     setServerError(null);
     login(data, {
-      onSuccess: () => router.push(redirect),
+      onSuccess: () => {
+        // push 후 refresh() 로 서버 컴포넌트가 새 세션 쿠키를 다시 읽게 한다.
+        // (누락 시 클라이언트는 로그인 상태인데 서버/미들웨어는 미로그인으로 보여
+        //  /app 진입 시 로그인 페이지로 튕기는 버그가 발생)
+        router.push(redirect);
+        router.refresh();
+      },
       onError: (e) =>
         setServerError(
           e instanceof Error

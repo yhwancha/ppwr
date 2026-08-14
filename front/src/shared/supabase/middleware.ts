@@ -30,6 +30,8 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
+  // ⚠️ createServerClient 와 getUser() 사이에 다른 코드를 넣지 말 것.
+  //    미세한 실수로도 세션 갱신이 어긋나 무작위 로그아웃이 발생할 수 있다.
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -41,8 +43,15 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     url.searchParams.set("redirect", request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    // getUser() 가 토큰을 갱신했다면 그 쿠키를 리다이렉트 응답에도 복사해
+    // 클라이언트·서버 세션이 어긋나지 않게 한다. (Supabase SSR 권장 패턴)
+    supabaseResponse.cookies.getAll().forEach((c) =>
+      redirectResponse.cookies.set(c.name, c.value, c),
+    );
+    return redirectResponse;
   }
 
+  // supabaseResponse 를 그대로 반환해야 갱신된 세션 쿠키가 브라우저로 전달된다.
   return supabaseResponse;
 }

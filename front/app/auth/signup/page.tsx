@@ -26,7 +26,10 @@ export default function SignupPage() {
   const onSubmit = (data: SignupForm) => {
     setServerError(null);
     signup(data, {
-      onSuccess: () => router.push("/"),
+      onSuccess: () => {
+        router.push("/");
+        router.refresh();
+      },
       onError: (e) =>
         setServerError(e instanceof Error ? e.message : "회원가입에 실패했습니다."),
     });
