@@ -328,6 +328,13 @@ export const SERVICE_ITEMS = PRODUCTS.filter((p) => p.id.startsWith("svc-"));
 /** 미구독 고객 1차 패키지 (묶음 · 등록 대행 포함) */
 export const PACKAGES = PRODUCTS.filter((p) => p.id.startsWith("pkg-"));
 
+/**
+ * PG 실결제 심사용 계정.
+ * 이 이메일로 로그인하면 결제 화면에 심사용 100원 상품만 노출한다.
+ * (PG사 심사관에게 이 계정으로 실결제 flow만 확인시키기 위함)
+ */
+export const REVIEW_ACCOUNT_EMAIL = "test@test.com";
+
 export function formatKRW(n: number): string {
   return n.toLocaleString("ko-KR") + "원";
 }

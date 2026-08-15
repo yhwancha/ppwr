@@ -13,6 +13,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useSession } from "@/src/features/auth/session";
+import { REVIEW_ACCOUNT_EMAIL } from "@/src/shared/payments/config";
 
 type Item = { label: string; href: string; icon: React.ElementType; ready?: boolean };
 type Group = { title: string; items: Item[] };
@@ -52,9 +53,19 @@ const groups: Group[] = [
   },
 ];
 
+// PG 심사 계정: 결제 메뉴만 노출
+const reviewerGroups: Group[] = [
+  {
+    title: "결제",
+    items: [{ label: "결제", href: "/app/billing", icon: CreditCard, ready: true }],
+  },
+];
+
 export default function Sidebar() {
   const pathname = usePathname() ?? "";
   const { user } = useSession();
+  const isReviewer = user?.email === REVIEW_ACCOUNT_EMAIL;
+  const navGroups = isReviewer ? reviewerGroups : groups;
 
   function renderItem(s: Item) {
     const active =
@@ -98,7 +109,7 @@ export default function Sidebar() {
 
       {/* 그룹 네비 */}
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-4">
-        {groups.map((g) => (
+        {navGroups.map((g) => (
           <div key={g.title} className="space-y-1">
             <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
               {g.title}

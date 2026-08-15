@@ -19,12 +19,14 @@ import {
   getProduct,
   formatKRW,
   isPortOneConfigured,
+  REVIEW_ACCOUNT_EMAIL,
   type Product,
 } from "@/src/shared/payments/config";
 import {
   listSubscriptions,
   type SubscriptionRecord,
 } from "@/src/shared/payments/store";
+import { useSession } from "@/src/features/auth/session";
 
 const SUB_PLANS = PRODUCTS.filter((p) => p.type === "subscription");
 const REVIEW = getProduct("review-test-100");
@@ -41,6 +43,45 @@ export default function BillingPage() {
   }, []);
 
   const active = subs.find((s) => s.status === "active");
+  const { user } = useSession();
+  const isReviewer = user?.email === REVIEW_ACCOUNT_EMAIL;
+
+  // ── PG 실결제 심사용 계정: 심사용 100원 상품만 노출 ──
+  if (isReviewer) {
+    return (
+      <>
+        <Topbar crumbs={[{ label: "결제·구독" }]} />
+        <div className="mx-auto max-w-md px-8 pb-24">
+          <div>
+            <h1 className="text-2xl font-semibold text-ink">결제</h1>
+            <p className="mt-1 text-sm text-slate-500">
+              결제 flow 확인용 화면입니다. 아래 상품으로 결제 후 취소·환불을 진행하세요.
+            </p>
+          </div>
+
+          {!configured && (
+            <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+              <span className="font-semibold">결제 키 미설정</span> — 결제창을 열려면 관리자에게 문의하세요.
+            </div>
+          )}
+
+          <div className="mt-6">{REVIEW && <ProductCard p={REVIEW} />}</div>
+
+          <div className="mt-6 flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+            <p>
+              모든 결제는 카드 정보가 당사 서버에 저장되지 않으며 포트원(PG)을 통해 처리됩니다.
+              취소·환불 규정은{" "}
+              <Link href="/refund" className="font-semibold text-primary underline">
+                환불정책
+              </Link>
+              을 따릅니다.
+            </p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

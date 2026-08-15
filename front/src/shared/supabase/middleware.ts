@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { REVIEW_ACCOUNT_EMAIL } from "@/src/shared/payments/config";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
@@ -50,6 +51,23 @@ export async function updateSession(request: NextRequest) {
       redirectResponse.cookies.set(c.name, c.value, c),
     );
     return redirectResponse;
+  }
+
+  // PG 실결제 심사용 계정: 결제 화면(/app/billing/*)만 접근 허용.
+  // 그 외 /app 경로로 오면 결제 화면으로 되돌린다. (심사관에게 결제 flow만 노출)
+  if (
+    user?.email === REVIEW_ACCOUNT_EMAIL &&
+    request.nextUrl.pathname.startsWith("/app") &&
+    !request.nextUrl.pathname.startsWith("/app/billing")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/app/billing";
+    url.search = "";
+    const r = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((c) =>
+      r.cookies.set(c.name, c.value, c),
+    );
+    return r;
   }
 
   // supabaseResponse 를 그대로 반환해야 갱신된 세션 쿠키가 브라우저로 전달된다.
