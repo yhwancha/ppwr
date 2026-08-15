@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Check, CreditCard, Repeat, ShieldCheck, Sparkles } from "lucide-react";
-import { SUBSCRIPTION_TIERS, MERCHANT } from "@/src/shared/payments/config";
-import TierCta from "@/components/pricing/TierCta";
+import { CreditCard, Repeat, ShieldCheck, Sparkles } from "lucide-react";
+import { MERCHANT } from "@/src/shared/payments/config";
+import PricingPlans from "@/components/pricing/PricingPlans";
 
 export const metadata = {
   title: "요금제 – PPWR AI",
@@ -40,54 +40,7 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {SUBSCRIPTION_TIERS.map((t) => (
-            <div
-              key={t.id}
-              className={
-                "relative flex flex-col rounded-2xl border bg-white p-6 " +
-                (t.highlight
-                  ? "border-primary shadow-lg ring-1 ring-primary/20"
-                  : "border-slate-200 shadow-sm")
-              }
-            >
-              {t.highlight && (
-                <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-white">
-                  추천
-                </span>
-              )}
-              <h3 className="text-lg font-semibold text-ink">{t.name}</h3>
-              <p className="mt-1 min-h-[52px] text-xs leading-relaxed text-slate-500">
-                {t.audience}
-              </p>
-
-              <div className="mt-3">
-                <span className="text-2xl font-semibold text-ink">{t.priceLabel}</span>
-                <p className="mt-1 text-xs text-slate-400">{t.priceSub}</p>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-1.5">
-                <Tag>{t.sku}</Tag>
-                <Tag>{t.accounts}</Tag>
-              </div>
-
-              <ul className="mt-4 flex-1 space-y-2 border-t border-slate-100 pt-4">
-                {t.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
-                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <TierCta label={t.cta.label} href={t.cta.href} highlight={t.highlight} />
-            </div>
-          ))}
-        </div>
-
-        <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-slate-400">
-          무료형 가입 후, 필요한 서비스(PPWR AI 진단·TD·DoC 등)는 건별 단가로 결제할 수 있습니다.
-        </p>
+        <PricingPlans />
       </section>
 
       {/* 결제 안내 */}
@@ -123,14 +76,6 @@ export default function PricingPage() {
         </p>
       </section>
     </div>
-  );
-}
-
-function Tag({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
-      {children}
-    </span>
   );
 }
 
