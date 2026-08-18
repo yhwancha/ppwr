@@ -7,7 +7,7 @@ export function cx(...c: (string | false | null | undefined)[]) {
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+    <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
       {children}
     </span>
   );
@@ -46,7 +46,7 @@ export function Badge({
  */
 export function NewBadge({ children = "신규 반영" }: { children?: ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-accent/30 bg-accent-soft px-2.5 py-1 text-[11px] font-semibold text-accent">
+    <span className="inline-flex items-center gap-1 rounded-full border border-accent/30 bg-accent-soft px-2.5 py-1 text-[11px] font-bold text-accent">
       <span className="h-1.5 w-1.5 rounded-full bg-accent" />
       {children}
     </span>

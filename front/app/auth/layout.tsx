@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
+import { BASE_PATH } from "@/src/shared/base-path";
 
 const highlights = [
   "제품·포장재 정보 한 번 입력으로 진단부터 문서까지",
@@ -23,7 +24,7 @@ export default function AuthLayout({
           <Link href="/" className="inline-flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo.svg"
+              src={`${BASE_PATH}/logo.svg`}
               alt="RESTUDIO"
               className="h-5 w-auto brightness-0 invert"
             />
@@ -59,7 +60,7 @@ export default function AuthLayout({
           {/* 모바일 로고 */}
           <Link href="/" className="mb-10 flex items-center justify-center lg:hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="RESTUDIO" className="h-5 w-auto" />
+            <img src={`${BASE_PATH}/logo.svg`} alt="RESTUDIO" className="h-5 w-auto" />
           </Link>
           {children}
         </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LayoutGrid } from "lucide-react";
 import { signOut, useSession } from "@/src/features/auth/session";
+import { BASE_PATH } from "@/src/shared/base-path";
 
 export default function Header() {
   const { user, loading } = useSession();
@@ -20,7 +21,7 @@ export default function Header() {
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center">
           <img
-            src="/logo.svg"
+            src={`${BASE_PATH}/logo.svg`}
             alt="RESTUDIO"
             className="h-4 w-auto"
           />

@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
 import { getAuthService } from "@/src/shared/api";
+import { BASE_PATH } from "@/src/shared/base-path";
 
 export const LoginSchema = z.object({
   email: z.string().email("이메일 형식이 올바르지 않습니다."),
@@ -21,6 +22,6 @@ export function useLogin() {
 }
 
 export async function signInWithGoogle() {
-  const redirectTo = `${window.location.origin}/auth/callback`;
+  const redirectTo = `${window.location.origin}${BASE_PATH}/auth/callback`;
   await getAuthService().signInWithOauth("google", redirectTo);
 }

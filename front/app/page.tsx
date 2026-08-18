@@ -16,7 +16,13 @@ import {
   Send,
 } from "lucide-react";
 import { useSession } from "@/src/features/auth/session";
-import { SUBSCRIPTION_TIERS } from "@/src/shared/payments/config";
+import {
+  SUBSCRIPTION_TIERS,
+  SUBSCRIPTION_ENABLED,
+  SERVICE_ITEMS,
+  formatKRW,
+} from "@/src/shared/payments/config";
+import { BASE_PATH } from "@/src/shared/base-path";
 
 const steps = [
   {
@@ -64,7 +70,7 @@ const services = [
 
 const revationClientLogos = Array.from(
   { length: 60 },
-  (_, index) => `/revation-clients/client-${String(index + 1).padStart(2, "0")}.svg`,
+  (_, index) => `${BASE_PATH}/revation-clients/client-${String(index + 1).padStart(2, "0")}.svg`,
 );
 
 const cases = [
@@ -164,7 +170,7 @@ export default function HomePage() {
           <div className="relative z-10 mt-10 w-full max-w-6xl translate-y-14 md:mt-14 md:translate-y-20">
             <div className="hero-product-shot aspect-[16/10] w-[78%] min-w-[760px] overflow-hidden rounded-2xl border border-white/18 bg-white/92 p-2 shadow-[0_30px_110px_rgba(0,0,0,0.46)] max-md:aspect-[4/3] max-md:min-w-0 max-md:w-full">
               <img
-                src="/component-detail.png"
+                src={`${BASE_PATH}/component-detail.png`}
                 alt="PPWR 부품 상세 서비스 화면"
                 className="h-full w-full rounded-xl object-cover object-top"
               />
@@ -354,9 +360,48 @@ export default function HomePage() {
 
       <section className="bg-[#f7faf7] px-4 py-24">
         <div className="mx-auto w-full max-w-7xl">
-          <h2 className="text-2xl font-semibold md:text-4xl">요금제</h2>
+          <h2 className="text-2xl font-semibold md:text-4xl">
+            {SUBSCRIPTION_ENABLED ? "요금제" : "서비스 요금"}
+          </h2>
+          {!SUBSCRIPTION_ENABLED && (
+            <p className="mt-3 text-sm leading-relaxed text-slate-500">
+              필요한 서비스만 건별 단가로 결제합니다. 별도 약정·정기결제가 없습니다.
+            </p>
+          )}
           <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {SUBSCRIPTION_TIERS.map((tier) => (
+            {!SUBSCRIPTION_ENABLED
+              ? SERVICE_ITEMS.map((item) => (
+                  <div
+                    key={item.id}
+                    className={
+                      "flex min-h-[420px] flex-col rounded-2xl border bg-white p-6 " +
+                      (item.highlight ? "border-primary shadow-[0_24px_70px_rgba(67,85,74,0.14)]" : "border-slate-200")
+                    }
+                  >
+                    <h3 className="text-xl font-semibold">{item.name}</h3>
+                    <p className="mt-2 min-h-12 text-sm leading-relaxed text-slate-500">{item.tagline}</p>
+                    <p className="mt-6 text-3xl font-semibold">{formatKRW(item.price)}</p>
+                    <p className="mt-1 text-xs text-slate-400">{item.priceNote ?? `1${item.unit} 기준`}</p>
+                    <ul className="mt-6 flex-1 space-y-3">
+                      {item.features.slice(0, 4).map((feature) => (
+                        <li key={feature} className="flex gap-2 text-sm leading-relaxed text-slate-600">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href="/app/billing"
+                      className={
+                        "mt-6 inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold transition active:scale-[0.98] " +
+                        (item.highlight ? "bg-primary text-white hover:bg-primary-dark" : "border border-slate-200 text-primary hover:border-primary/40")
+                      }
+                    >
+                      결제하기
+                    </Link>
+                  </div>
+                ))
+              : SUBSCRIPTION_TIERS.map((tier) => (
               <div
                 key={tier.id}
                 className={
@@ -386,7 +431,7 @@ export default function HomePage() {
                   {tier.cta.label}
                 </Link>
               </div>
-            ))}
+                ))}
           </div>
         </div>
       </section>

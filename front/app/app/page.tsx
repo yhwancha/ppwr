@@ -7,7 +7,7 @@ export default function AppDashboardPage() {
     <>
       <Topbar crumbs={[{ label: "대시보드" }]} />
       <div className="p-8">
-        <h1 className="text-2xl font-semibold text-ink">진단 워크스페이스</h1>
+        <h1 className="text-2xl font-extrabold text-ink">진단 워크스페이스</h1>
         <p className="mt-1 text-sm text-slate-500">
           제품을 등록하고 포장 구조·증빙을 관리한 뒤 PPWR 준비도를 진단합니다.
         </p>
@@ -22,7 +22,7 @@ export default function AppDashboardPage() {
                 <Plus className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-semibold text-ink">새 제품 등록</p>
+                <p className="font-bold text-ink">새 제품 등록</p>
                 <p className="text-sm text-slate-500">제품 기본 정보 입력</p>
               </div>
             </div>
@@ -38,7 +38,7 @@ export default function AppDashboardPage() {
                 <Package className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-semibold text-ink">제품 관리</p>
+                <p className="font-bold text-ink">제품 관리</p>
                 <p className="text-sm text-slate-500">내 제품 목록</p>
               </div>
             </div>

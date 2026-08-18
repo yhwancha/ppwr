@@ -1,4 +1,5 @@
 import Sidebar from "@/components/app/Sidebar";
+import AppFooter from "@/components/app/AppFooter";
 
 export default function AppLayout({
   children,
@@ -8,7 +9,11 @@ export default function AppLayout({
   return (
     <div className="min-h-screen bg-slate-50">
       <Sidebar />
-      <div className="pl-60">{children}</div>
+      {/* 사업자정보(AppFooter)는 결제 페이지 포함 /app/* 전체에 상시 노출된다 — PG 심사 요건 */}
+      <div className="flex min-h-screen flex-col pl-60">
+        <div className="flex-1">{children}</div>
+        <AppFooter />
+      </div>
     </div>
   );
 }

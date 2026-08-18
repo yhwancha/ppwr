@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { MERCHANT } from "@/src/shared/payments/config";
+import { BASE_PATH } from "@/src/shared/base-path";
 
 const columns: { title: string; links: { href: string; label: string }[] }[] = [
   {
@@ -30,7 +31,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center">
               <img
-                src="/logo.svg"
+                src={`${BASE_PATH}/logo.svg`}
                 alt="RESTUDIO"
                 className="h-4 w-auto brightness-0 invert"
               />

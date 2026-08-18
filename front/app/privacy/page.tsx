@@ -20,7 +20,7 @@ export default function PrivacyPage() {
       <Article heading="2. 개인정보의 수집·이용 목적">
         <ul className="list-disc pl-5">
           <li>회원 식별 및 서비스 제공, 진단 결과 관리</li>
-          <li>상품 결제, 정기결제 갱신, 청구 및 환불 처리</li>
+          <li>상품 결제, 청구 및 환불 처리</li>
           <li>고객 문의 응대 및 공지사항 전달</li>
         </ul>
       </Article>
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
           같이 업무를 위탁합니다.
         </p>
         <ul className="list-disc pl-5">
-          <li>결제 처리: 주식회사 코리아포트원(PortOne) — 결제 및 정기결제 대행</li>
+          <li>결제 처리: 주식회사 코리아포트원(PortOne) — 결제 대행</li>
           <li>인프라·데이터 보관: Supabase, {MERCHANT.hostingProvider} — 서비스 호스팅</li>
         </ul>
       </Article>

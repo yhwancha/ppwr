@@ -55,7 +55,7 @@ export default function MaterialEditor({
   return (
     <section className="mt-4 grid gap-6 rounded-2xl border border-slate-200 bg-white p-8 md:grid-cols-[300px_1fr]">
       <div>
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
+        <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
           <Layers className="h-4 w-4 text-primary" /> 소재 / 레이어
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-400">

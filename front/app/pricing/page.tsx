@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { CreditCard, Repeat, ShieldCheck, Sparkles } from "lucide-react";
-import { MERCHANT } from "@/src/shared/payments/config";
+import { MERCHANT, SUBSCRIPTION_ENABLED } from "@/src/shared/payments/config";
 import PricingPlans from "@/components/pricing/PricingPlans";
 
 export const metadata = {
   title: "요금제 – PPWR AI",
-  description:
-    "PPWR AI 구독 요금제 — 무료형·기본형·성장형·기업형. SKU 규모에 맞춰 선택하세요.",
+  description: SUBSCRIPTION_ENABLED
+    ? "PPWR AI 구독 요금제 — 무료형·기본형·성장형·기업형. SKU 규모에 맞춰 선택하세요."
+    : "PPWR AI 요금제 — 필요한 서비스(AI 진단·TD·DoC)를 건별 단가로 결제하세요.",
 };
 
 export default function PricingPage() {
@@ -22,21 +23,26 @@ export default function PricingPage() {
             필요한 만큼, 합리적으로
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-slate-300">
-            관리 SKU 규모에 맞춰 요금제를 선택하세요. 무료형은 구독료 없이 필요한
-            서비스만 건별로 이용할 수 있습니다.
+            {SUBSCRIPTION_ENABLED
+              ? "관리 SKU 규모에 맞춰 요금제를 선택하세요. 무료형은 구독료 없이 필요한 서비스만 건별로 이용할 수 있습니다."
+              : "가입은 무료입니다. 필요한 서비스(AI 진단·TD·DoC)만 건별 단가로 결제하세요."}
           </p>
         </div>
       </section>
 
-      {/* ── 구독 요금제 ── */}
+      {/* ── 요금제 ── */}
       <section className="mx-auto w-full max-w-6xl px-6 pt-16">
         <div className="text-center">
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             Plans
           </span>
-          <h2 className="mt-3 text-3xl font-semibold text-ink">구독 요금제</h2>
+          <h2 className="mt-3 text-3xl font-semibold text-ink">
+            {SUBSCRIPTION_ENABLED ? "구독 요금제" : "서비스 요금"}
+          </h2>
           <p className="mt-2 text-sm text-slate-500">
-            구독 상품은 매월 자동 결제되며 언제든 해지할 수 있습니다.
+            {SUBSCRIPTION_ENABLED
+              ? "구독 상품은 매월 자동 결제되며 언제든 해지할 수 있습니다."
+              : "필요한 서비스만 건별 단가로 결제합니다. 별도 약정·정기결제가 없습니다."}
           </p>
         </div>
 
@@ -49,7 +55,11 @@ export default function PricingPage() {
           <Info
             icon={<CreditCard className="h-5 w-5 text-primary" />}
             title="결제 수단"
-            desc="신용·체크카드 결제 및 카드 정기결제(빌링)를 지원합니다."
+            desc={
+              SUBSCRIPTION_ENABLED
+                ? "신용·체크카드 결제 및 카드 정기결제(빌링)를 지원합니다."
+                : "신용·체크카드 결제를 지원합니다."
+            }
           />
           <Info
             icon={<ShieldCheck className="h-5 w-5 text-primary" />}
@@ -58,8 +68,12 @@ export default function PricingPage() {
           />
           <Info
             icon={<Repeat className="h-5 w-5 text-primary" />}
-            title="자유로운 해지"
-            desc="정기구독은 언제든 해지 가능하며, 취소·환불 규정을 따릅니다."
+            title={SUBSCRIPTION_ENABLED ? "자유로운 해지" : "안심 취소·환불"}
+            desc={
+              SUBSCRIPTION_ENABLED
+                ? "정기구독은 언제든 해지 가능하며, 취소·환불 규정을 따릅니다."
+                : "결제 후 취소·환불은 취소·환불 규정에 따라 처리됩니다."
+            }
           />
         </div>
 

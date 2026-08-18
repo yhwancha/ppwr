@@ -11,6 +11,7 @@ import {
   formatKRW,
   getProduct,
   isPortOneConfigured,
+  SUBSCRIPTION_ENABLED,
 } from "@/src/shared/payments/config";
 import {
   newPaymentId,
@@ -58,6 +59,21 @@ function CheckoutInner() {
     );
   }
 
+  // 정기결제(빌링) 비활성화 상태: 일반결제(단건)만 허용. 구독 상품 결제 경로 차단.
+  if (isSub && !SUBSCRIPTION_ENABLED) {
+    return (
+      <>
+        <Topbar crumbs={[{ label: "결제·구독", href: "/app/billing" }, { label: "주문" }]} />
+        <div className="p-8">
+          <p className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">
+            정기결제(구독)는 현재 준비 중입니다. 단건 결제만 이용하실 수 있습니다.{" "}
+            <Link href="/app/billing" className="font-semibold underline">결제 화면으로 돌아가기</Link>
+          </p>
+        </div>
+      </>
+    );
+  }
+
   async function pay() {
     if (!product || !canPay) return;
     setErr(null);
@@ -93,13 +109,13 @@ function CheckoutInner() {
     <>
       <Topbar crumbs={[{ label: "결제·구독", href: "/app/billing" }, { label: "주문·결제" }]} />
       <div className="mx-auto max-w-5xl px-8 pb-24">
-        <h1 className="text-2xl font-semibold text-ink">주문·결제</h1>
+        <h1 className="text-2xl font-extrabold text-ink">주문·결제</h1>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
           {/* 좌: 주문자 정보 + 약관 */}
           <div className="space-y-5">
             <section className="rounded-2xl border border-slate-200 bg-white p-6">
-              <h2 className="text-base font-semibold text-ink">주문자 정보</h2>
+              <h2 className="text-base font-bold text-ink">주문자 정보</h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-600">이름 *</span>
@@ -132,7 +148,7 @@ function CheckoutInner() {
             </section>
 
             <section className="rounded-2xl border border-slate-200 bg-white p-6">
-              <h2 className="text-base font-semibold text-ink">약관 동의</h2>
+              <h2 className="text-base font-bold text-ink">약관 동의</h2>
               <div className="mt-4 space-y-3">
                 <Consent
                   checked={agree.terms}
@@ -160,11 +176,11 @@ function CheckoutInner() {
 
           {/* 우: 주문 요약 */}
           <aside className="lg:sticky lg:top-24 h-fit space-y-4 rounded-2xl border border-slate-200 bg-white p-6">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
               {isSub ? <Repeat className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
               {product.badge}
             </div>
-            <h3 className="text-lg font-semibold text-ink">{product.name}</h3>
+            <h3 className="text-lg font-extrabold text-ink">{product.name}</h3>
             <p className="text-sm text-slate-500">{product.tagline}</p>
 
             <div className="border-t border-slate-100 pt-4">
@@ -181,10 +197,10 @@ function CheckoutInner() {
             </div>
 
             <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-              <span className="font-semibold text-ink">
+              <span className="font-bold text-ink">
                 {isSub ? "첫 결제 금액" : "총 결제 금액"}
               </span>
-              <span className="text-xl font-semibold text-primary">{formatKRW(product.price)}</span>
+              <span className="text-xl font-black text-primary">{formatKRW(product.price)}</span>
             </div>
 
             {err && (
@@ -196,7 +212,7 @@ function CheckoutInner() {
             <button
               onClick={pay}
               disabled={!canPay}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Lock className="h-4 w-4" />
               {loading

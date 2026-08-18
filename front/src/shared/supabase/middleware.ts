@@ -31,8 +31,6 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // ⚠️ createServerClient 와 getUser() 사이에 다른 코드를 넣지 말 것.
-  //    미세한 실수로도 세션 갱신이 어긋나 무작위 로그아웃이 발생할 수 있다.
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -41,9 +39,13 @@ export async function updateSession(request: NextRequest) {
   const isAuthRequired = request.nextUrl.pathname.startsWith("/app");
 
   if (isAuthRequired && !user) {
+    // 복귀 경로는 쿼리까지 통째로 보존해야 한다. pathname 만 넘기면
+    // /app/billing/checkout?product=… 이 상품 없이 열려 "상품을 찾을 수 없습니다" 가 뜬다.
+    const target = `${request.nextUrl.pathname}${request.nextUrl.search}`;
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
-    url.searchParams.set("redirect", request.nextUrl.pathname);
+    url.search = ""; // clone() 이 물고 온 원본 쿼리가 로그인 URL 로 새지 않도록 비운다
+    url.searchParams.set("redirect", target);
     const redirectResponse = NextResponse.redirect(url);
     // getUser() 가 토큰을 갱신했다면 그 쿠키를 리다이렉트 응답에도 복사해
     // 클라이언트·서버 세션이 어긋나지 않게 한다. (Supabase SSR 권장 패턴)

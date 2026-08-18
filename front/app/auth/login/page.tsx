@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthDivider, GoogleButton } from "@/components/auth/fields";
+import { safeRedirect } from "@/src/shared/safe-redirect";
 import {
   LoginSchema,
   signInWithGoogle,
@@ -17,8 +18,8 @@ function LoginForm_() {
   const router = useRouter();
   const searchParams = useSearchParams();
   // 기본은 홈(/)으로 — 로그인 후 랜딩에 머무르며 "대시보드로 이동" 버튼으로 넘어간다.
-  // 보호 경로(/app)에서 리다이렉트돼 온 경우에만 그 경로로 복귀.
-  const redirect = searchParams.get("redirect") || "/";
+  // 보호 경로(/app)에서 리다이렉트돼 온 경우에만 그 경로(쿼리 포함)로 복귀.
+  const redirect = safeRedirect(searchParams.get("redirect"), "/");
   const { mutate: login, isPending } = useLogin();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -36,8 +37,7 @@ function LoginForm_() {
     login(data, {
       onSuccess: () => {
         // push 후 refresh() 로 서버 컴포넌트가 새 세션 쿠키를 다시 읽게 한다.
-        // (누락 시 클라이언트는 로그인 상태인데 서버/미들웨어는 미로그인으로 보여
-        //  /app 진입 시 로그인 페이지로 튕기는 버그가 발생)
+        // (누락 시 /app 진입 시 로그인 페이지로 튕기는 desync 버그 발생)
         router.push(redirect);
         router.refresh();
       },
@@ -53,7 +53,7 @@ function LoginForm_() {
   return (
     <div>
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-ink">로그인</h1>
+        <h1 className="text-2xl font-extrabold text-ink">로그인</h1>
         <p className="mt-2 text-sm text-slate-500">
           RESTUDIO 계정으로 PPWR 진단 서비스에 로그인하세요.
         </p>

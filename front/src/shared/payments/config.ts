@@ -21,10 +21,26 @@ export function isPortOneConfigured() {
   );
 }
 
+/**
+ * 정기결제(빌링) 노출·실행 여부.
+ * PG 심사는 일반결제(단건)만 먼저 진행하므로 false. → 정기결제 상품/결제 경로를 숨긴다.
+ *
+ * 정기결제 재개 시 필요한 것(이번에 롤백된 것들):
+ *   1. 포트원 콘솔에 KCP 정기결제 채널 연동 → 전용 채널키를 별도 env 로 분리
+ *      (KCP 는 결제유형별 사이트코드(MID)가 달라 일반결제 채널키로는 빌링키 발급 불가)
+ *   2. Dockerfile.ppwr / ppwr-dev-deployment.yml 에 그 채널키 build-arg 배선
+ *   3. 심사용 정기결제 상품(review-sub-100) 재추가
+ *   4. 약관 제4·5조 / 취소·환불 규정 / 개인정보처리방침의 정기결제 조항 복원
+ *   5. 이 플래그를 true 로
+ *
+ * ⚠️ 채널은 반드시 V2(NHN KCP) 로 연동해야 한다. V1 채널(pgProvider `KCP`/`KCP_BILLING`)은
+ *    V2 SDK 가 지원하지 않아 결제창 호출이 "KCP 에 대해 지원하지 않는 기능입니다" 로 실패한다.
+ */
+export const SUBSCRIPTION_ENABLED = false;
+
 // ─────────────────────────────────────────────────────────────
 // 사업자 정보 (전자상거래법 표시사항)
-// ⚠️ TODO: PG 심사 전에 반드시 "실제" 사업자 정보로 교체하세요.
-//    상호/대표자/사업자등록번호/통신판매업신고번호/주소/고객센터.
+// Footer(마케팅) · AppFooter(/app/*) 양쪽에서 상시 노출된다 — PG·카드사 입점심사 필수 요건.
 // ─────────────────────────────────────────────────────────────
 export const MERCHANT = {
   serviceName: "PPWR AI",
@@ -37,7 +53,9 @@ export const MERCHANT = {
   tel: "02-6959-7080", // 고객센터 (유선)
   email: "sales@revation.co.kr", // 문의 이메일
   privacyOfficer: "이민성", // 개인정보 보호책임자
-  hostingProvider: "Vercel Inc.", // 호스팅 제공자
+  // 호스팅 제공자 — 개인정보처리방침의 처리위탁 항목에 수탁자로 고지된다.
+  // ppwr 컨테이너를 포함한 전 서비스가 Azure Container Apps 에서 구동된다.
+  hostingProvider: "Microsoft Azure (Microsoft Corporation)",
 } as const;
 
 // ─────────────────────────────────────────────────────────────
@@ -114,7 +132,7 @@ export const PRODUCTS: Product[] = [
     tagline: "제품 1건에 대한 PPWR 사전진단",
     price: 100000,
     unit: "건",
-    priceNote: "무료형 월 1회 무료, 이후 건당",
+    priceNote: "가입 시 월 1회 무료, 이후 건당",
     features: [
       "제품·포장재 정보 기반 대응 수준 점검",
       "누락 정보·공급사 요청자료 구분 안내",
@@ -215,19 +233,22 @@ export const PRODUCTS: Product[] = [
     highlight: true,
   },
   // ⚠️ PG 실결제 심사용 임시 상품. 심사 통과 후 제거하세요.
+  //
+  // 상품명·설명·구성은 실제 판매 상품(svc-ai-diagnosis)과 동일하게 두고 금액만 100원으로 낮춘다.
+  // 카드사 심사는 상품명에 "TEST"가 들어가거나 결제금액이 0원이면 진행되지 않으므로,
+  // 심사용이라는 사실이 화면 문구로 드러나지 않아야 한다.
   {
     id: "review-test-100",
     type: "onetime",
-    name: "결제 테스트 (심사용 100원)",
-    tagline: "PG 실결제 심사용 100원 결제입니다. 결제 확인 후 취소·환불하세요.",
+    name: "PPWR AI 진단 (1건)",
+    tagline: "제품 1건에 대한 PPWR 사전진단",
     price: 100,
-    unit: "1회",
+    unit: "건",
     features: [
-      "PG 실결제 flow 확인용(실물 카드)",
-      "결제 후 즉시 취소·환불 가능",
-      "심사 완료 후 제거 예정",
+      "제품·포장재 정보 기반 대응 수준 점검",
+      "누락 정보·공급사 요청자료 구분 안내",
     ],
-    badge: "심사용",
+    badge: "건별 결제",
   },
 ];
 

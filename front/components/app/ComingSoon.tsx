@@ -18,7 +18,7 @@ export default function ComingSoon({
           <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
             <Construction className="h-7 w-7" />
           </span>
-          <h1 className="mt-5 text-2xl font-semibold text-ink">{title}</h1>
+          <h1 className="mt-5 text-2xl font-extrabold text-ink">{title}</h1>
           <p className="mt-3 leading-relaxed text-slate-500">{description}</p>
           {items && (
             <ul className="mx-auto mt-6 inline-flex flex-col gap-2 text-left text-sm text-slate-500">
@@ -30,7 +30,7 @@ export default function ComingSoon({
               ))}
             </ul>
           )}
-          <p className="mt-8 inline-flex rounded-full bg-slate-100 px-4 py-1.5 text-xs font-semibold text-slate-400">
+          <p className="mt-8 inline-flex rounded-full bg-slate-100 px-4 py-1.5 text-xs font-bold text-slate-400">
             준비 중 · 다음 순서로 구현 예정
           </p>
         </div>
