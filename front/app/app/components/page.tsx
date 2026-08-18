@@ -80,7 +80,7 @@ export default function ComponentsPage() {
     queryKey: ["ppwr", "component-library"],
     queryFn: async (): Promise<Row[]> => {
       const masters = await svc.listLibraryWithUsage();
-      const docsByComponent = await evidence.listForComponents(masters.map((m) => m.id));
+      const docsByComponent = await evidence.listForMany("component", masters.map((m) => m.id));
 
       // 카드 썸네일: 부품마다 첫 사진 하나만, 서명 URL 은 한 번에 받는다
       const firstPhotos = new Map<number, string>();

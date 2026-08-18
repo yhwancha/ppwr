@@ -9,8 +9,8 @@ import Topbar from "@/components/app/Topbar";
 import { cx } from "@/components/primitives";
 import { ConfirmDialog } from "@/components/ui/Dialog";
 import { GENERIC_ERROR, useToast } from "@/components/ui/Toast";
-import DocChecklist from "@/components/component/DocChecklist";
-import { useComponentDocs } from "@/components/component/use-component-files";
+import DocChecklist from "@/components/common/DocChecklist";
+import { useEntityDocs } from "@/components/common/use-entity-files";
 import { getPpwrComponentService, getPpwrEvidenceService } from "@/src/shared/api";
 import {
   AK,
@@ -54,7 +54,7 @@ export default function ComponentDetailPage({ params }: { params: Promise<{ id: 
 
   const attrs = useMemo(() => decodeAttrs(master?.material_summary), [master?.material_summary]);
   const spec = specForType(master?.type);
-  const docs = useComponentDocs(componentId, spec?.docs ?? []);
+  const docs = useEntityDocs("component", componentId, spec?.docs ?? []);
 
   const photoPaths = useMemo(() => attrList(attrs, AK.photos), [attrs]);
   const { data: photoUrls } = useQuery({

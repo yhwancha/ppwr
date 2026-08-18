@@ -19,6 +19,9 @@ export const MAX_FILE_BYTES = 100 * 1024 * 1024;
 export const MAX_FILES_PER_DOC = 10;
 export const ACCEPTED_EXT = ['jpg', 'jpeg', 'png', 'pdf', 'csv', 'doc', 'docx'];
 
+/** 증빙이 붙을 수 있는 대상 (ppwr.EvidenceDocument.linked_entity_type) */
+export type EvidenceEntity = 'component' | 'product';
+
 export class PpwrEvidenceError extends Error {
   constructor(message: string) {
     super(message);
@@ -58,29 +61,29 @@ export class PpwrEvidenceService {
     return data.id;
   }
 
-  /** 특정 부품에 붙은 증빙 문서 전부 */
-  async listForComponent(componentId: number): Promise<EvidenceRow[]> {
+  /** 특정 대상(부품/제품)에 붙은 증빙 문서 전부 */
+  async listFor(entity: EvidenceEntity, id: number): Promise<EvidenceRow[]> {
     const { data, error } = await this.supabase
       .schema('ppwr')
       .from('EvidenceDocument')
       .select('*')
-      .eq('linked_entity_type', 'component')
-      .eq('linked_entity_id', componentId)
+      .eq('linked_entity_type', entity)
+      .eq('linked_entity_id', id)
       .order('created_at', { ascending: true });
     if (error) throw new PpwrEvidenceError(error.message);
     return data ?? [];
   }
 
-  /** 여러 부품의 증빙을 한 번에 (목록 화면에서 문서 수·누락 계산용) */
-  async listForComponents(componentIds: number[]): Promise<Map<number, EvidenceRow[]>> {
+  /** 여러 대상의 증빙을 한 번에 (목록 화면에서 문서 수·누락 계산용) */
+  async listForMany(entity: EvidenceEntity, ids: number[]): Promise<Map<number, EvidenceRow[]>> {
     const out = new Map<number, EvidenceRow[]>();
-    if (componentIds.length === 0) return out;
+    if (ids.length === 0) return out;
     const { data, error } = await this.supabase
       .schema('ppwr')
       .from('EvidenceDocument')
       .select('*')
-      .eq('linked_entity_type', 'component')
-      .in('linked_entity_id', componentIds);
+      .eq('linked_entity_type', entity)
+      .in('linked_entity_id', ids);
     if (error) throw new PpwrEvidenceError(error.message);
     for (const row of data ?? []) {
       const key = row.linked_entity_id;
@@ -93,7 +96,12 @@ export class PpwrEvidenceService {
   }
 
   /** 파일 업로드 → Storage 저장 + EvidenceDocument row 생성 */
-  async upload(componentId: number, documentType: string, file: File): Promise<EvidenceRow> {
+  async upload(
+    entity: EvidenceEntity,
+    entityId: number,
+    documentType: string,
+    file: File,
+  ): Promise<EvidenceRow> {
     if (file.size > MAX_FILE_BYTES) {
       throw new PpwrEvidenceError('파일 1개당 최대 100MB까지 첨부할 수 있습니다.');
     }
@@ -104,7 +112,7 @@ export class PpwrEvidenceService {
 
     const owner_user_id = await this.resolveOwnerUserId();
     // 같은 이름을 여러 번 올려도 덮어쓰지 않도록 경로에 시각을 넣는다.
-    const path = `component/${componentId}/${Date.now()}-${safeName(file.name)}`;
+    const path = `${entity}/${entityId}/${Date.now()}-${safeName(file.name)}`;
 
     const { error: upErr } = await this.supabase.storage
       .from(EVIDENCE_BUCKET)
@@ -123,8 +131,8 @@ export class PpwrEvidenceService {
       .from('EvidenceDocument')
       .insert({
         owner_user_id,
-        linked_entity_type: 'component',
-        linked_entity_id: componentId,
+        linked_entity_type: entity,
+        linked_entity_id: entityId,
         document_type: documentType,
         file_name: file.name,
         file_url: path,
@@ -182,11 +190,11 @@ export class PpwrEvidenceService {
    * 부품 사진 업로드. 증빙과 달리 EvidenceDocument row 를 만들지 않고
    * 경로만 ComponentMaster 속성(__photos)에 배열로 보관한다.
    */
-  async uploadPhoto(componentId: number, file: File): Promise<string> {
+  async uploadPhoto(entity: EvidenceEntity, entityId: number, file: File): Promise<string> {
     if (file.size > MAX_FILE_BYTES) {
       throw new PpwrEvidenceError('파일 1개당 최대 100MB까지 첨부할 수 있습니다.');
     }
-    const path = `component/${componentId}/photos/${Date.now()}-${safeName(file.name)}`;
+    const path = `${entity}/${entityId}/photos/${Date.now()}-${safeName(file.name)}`;
     const { error } = await this.supabase.storage
       .from(EVIDENCE_BUCKET)
       .upload(path, file, { cacheControl: '3600', upsert: false });
@@ -201,17 +209,17 @@ export class PpwrEvidenceService {
     return path;
   }
 
-  /** 부품에 붙은 모든 증빙 파일 삭제 (부품 삭제 시 정리용) */
-  async removeAllForComponent(componentId: number): Promise<void> {
-    const docs = await this.listForComponent(componentId);
+  /** 대상에 붙은 모든 증빙 파일 삭제 (삭제 시 정리용) */
+  async removeAllFor(entity: EvidenceEntity, id: number): Promise<void> {
+    const docs = await this.listFor(entity, id);
     const paths = docs.map((d) => d.file_url).filter((p): p is string => !!p);
     if (paths.length) await this.supabase.storage.from(EVIDENCE_BUCKET).remove(paths);
     const { error } = await this.supabase
       .schema('ppwr')
       .from('EvidenceDocument')
       .delete()
-      .eq('linked_entity_type', 'component')
-      .eq('linked_entity_id', componentId);
+      .eq('linked_entity_type', entity)
+      .eq('linked_entity_id', id);
     if (error) throw new PpwrEvidenceError(error.message);
   }
 }

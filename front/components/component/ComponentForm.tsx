@@ -6,8 +6,8 @@ import { ChevronLeft, Image as ImageIcon, Info, Upload, X } from "lucide-react";
 import { cx } from "@/components/primitives";
 import { ConfirmDialog } from "@/components/ui/Dialog";
 import { GENERIC_ERROR, useToast } from "@/components/ui/Toast";
-import DocChecklist from "./DocChecklist";
-import { useComponentDocs, useComponentPhotos } from "./use-component-files";
+import DocChecklist from "@/components/common/DocChecklist";
+import { useEntityDocs, useEntityPhotos } from "@/components/common/use-entity-files";
 import { getPpwrComponentService } from "@/src/shared/api";
 import {
   AK,
@@ -75,9 +75,9 @@ export default function ComponentForm({
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
 
-  const docs = useComponentDocs(componentId, spec?.docs ?? []);
+  const docs = useEntityDocs("component", componentId, spec?.docs ?? []);
   const photoPaths = useMemo(() => attrList(attrs, AK.photos), [attrs]);
-  const photos = useComponentPhotos(componentId, photoPaths, (next) =>
+  const photos = useEntityPhotos("component", componentId, photoPaths, (next) =>
     setAttr(AK.photos, next.join(MULTI_SEP)),
   );
 

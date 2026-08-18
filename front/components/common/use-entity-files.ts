@@ -3,22 +3,23 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPpwrEvidenceService } from "@/src/shared/api";
+import type { EvidenceEntity } from "@/src/lib/ppwr-evidence-service";
 import {
   docCompletion,
   docStateFrom,
   type DocState,
 } from "@/src/lib/ppwr-component-attrs";
 import type { SpecDoc } from "@/src/lib/ppwr-component-spec";
-import type { DocEntry, DocFile } from "./DocChecklist";
+import type { DocEntry, DocFile } from "@/components/common/DocChecklist";
 
 /**
- * 부품의 첨부 문서·사진 상태.
+ * 대상(부품/제품)의 첨부 문서·사진 상태.
  *
- * 등록 화면에서는 부품 row 가 아직 없어서 곧바로 업로드할 수 없다. 그래서 두 가지 모드를 갖는다:
- *   componentId 있음 → 고르는 즉시 Storage 업로드
- *   componentId 없음 → 메모리에 들고 있다가, 저장 성공 후 flushPending(newId) 에서 한 번에 업로드
+ * 등록 화면에서는 대상 row 가 아직 없어서 곧바로 업로드할 수 없다. 그래서 두 가지 모드를 갖는다:
+ *   entityId 있음 → 고르는 즉시 Storage 업로드
+ *   entityId 없음 → 메모리에 들고 있다가, 저장 성공 후 flushPending(newId) 에서 한 번에 업로드
  */
-export function useComponentDocs(componentId: number | null, docs: SpecDoc[]) {
+export function useEntityDocs(entity: EvidenceEntity, entityId: number | null, docs: SpecDoc[]) {
   const qc = useQueryClient();
   const svc = getPpwrEvidenceService();
   const [pending, setPending] = useState<{ key: string; docName: string; file: File }[]>([]);
@@ -27,9 +28,9 @@ export function useComponentDocs(componentId: number | null, docs: SpecDoc[]) {
   const seq = useRef(0);
 
   const { data: uploaded = [] } = useQuery({
-    queryKey: ["ppwr", "component-docs", componentId],
-    queryFn: () => svc.listForComponent(componentId as number),
-    enabled: componentId != null,
+    queryKey: ["ppwr", "entity-docs", entity, entityId],
+    queryFn: () => svc.listFor(entity, entityId as number),
+    enabled: entityId != null,
   });
 
   const entries = useMemo<DocEntry[]>(() => {
@@ -52,14 +53,14 @@ export function useComponentDocs(componentId: number | null, docs: SpecDoc[]) {
   }, [docs, uploaded, pending]);
 
   const invalidate = useCallback(() => {
-    qc.invalidateQueries({ queryKey: ["ppwr", "component-docs", componentId] });
+    qc.invalidateQueries({ queryKey: ["ppwr", "entity-docs", entity, entityId] });
     qc.invalidateQueries({ queryKey: ["ppwr", "component-library"] });
-  }, [qc, componentId]);
+  }, [qc, entity, entityId]);
 
   const pick = useCallback(
     async (docName: string, files: File[]) => {
       setError(null);
-      if (componentId == null) {
+      if (entityId == null) {
         setPending((prev) => [
           ...prev,
           ...files.map((file) => ({ key: `pending-${seq.current++}`, docName, file })),
@@ -68,7 +69,7 @@ export function useComponentDocs(componentId: number | null, docs: SpecDoc[]) {
       }
       setBusyKey(docName);
       try {
-        for (const file of files) await svc.upload(componentId, docName, file);
+        for (const file of files) await svc.upload(entity, entityId, docName, file);
         invalidate();
       } catch (e) {
         setError(e instanceof Error ? e.message : "파일 업로드에 실패했습니다.");
@@ -76,7 +77,7 @@ export function useComponentDocs(componentId: number | null, docs: SpecDoc[]) {
         setBusyKey(null);
       }
     },
-    [componentId, svc, invalidate],
+    [entity, entityId, svc, invalidate],
   );
 
   const remove = useCallback(
@@ -113,14 +114,14 @@ export function useComponentDocs(componentId: number | null, docs: SpecDoc[]) {
     [svc],
   );
 
-  /** 등록 직후 호출 — 대기 중이던 파일을 새로 만들어진 부품에 붙인다 */
+  /** 등록 직후 호출 — 대기 중이던 파일을 새로 만들어진 대상에 붙인다 */
   const flushPending = useCallback(
-    async (newComponentId: number) => {
+    async (newEntityId: number) => {
       if (pending.length === 0) return;
-      for (const p of pending) await svc.upload(newComponentId, p.docName, p.file);
+      for (const p of pending) await svc.upload(entity, newEntityId, p.docName, p.file);
       setPending([]);
     },
-    [pending, svc],
+    [entity, pending, svc],
   );
 
   const states = useMemo(
@@ -144,11 +145,12 @@ export function useComponentDocs(componentId: number | null, docs: SpecDoc[]) {
 }
 
 /**
- * 부품 사진. 증빙과 달리 EvidenceDocument row 없이 Storage 경로만 속성(__photos)에 담는다.
+ * 대상 사진. 증빙과 달리 EvidenceDocument row 없이 Storage 경로만 속성(__photos)에 담는다.
  * paths 는 폼이 소유하고(저장 대상), 여기서는 업로드/삭제만 담당한다.
  */
-export function useComponentPhotos(
-  componentId: number | null,
+export function useEntityPhotos(
+  entity: EvidenceEntity,
+  entityId: number | null,
   paths: string[],
   onPathsChange: (next: string[]) => void,
 ) {
@@ -160,14 +162,14 @@ export function useComponentPhotos(
   const add = useCallback(
     async (files: File[]) => {
       setError(null);
-      if (componentId == null) {
+      if (entityId == null) {
         setPending((prev) => [...prev, ...files]);
         return;
       }
       setBusy(true);
       try {
         const added: string[] = [];
-        for (const f of files) added.push(await svc.uploadPhoto(componentId, f));
+        for (const f of files) added.push(await svc.uploadPhoto(entity, entityId, f));
         onPathsChange([...paths, ...added]);
       } catch (e) {
         setError(e instanceof Error ? e.message : "사진 업로드에 실패했습니다.");
@@ -175,7 +177,7 @@ export function useComponentPhotos(
         setBusy(false);
       }
     },
-    [componentId, svc, paths, onPathsChange],
+    [entity, entityId, svc, paths, onPathsChange],
   );
 
   const removePath = useCallback(
@@ -190,14 +192,14 @@ export function useComponentPhotos(
 
   /** 등록 직후 대기 사진 업로드 → 저장할 경로 목록을 돌려준다 */
   const flushPending = useCallback(
-    async (newComponentId: number): Promise<string[]> => {
+    async (newEntityId: number): Promise<string[]> => {
       if (pending.length === 0) return paths;
       const added: string[] = [];
-      for (const f of pending) added.push(await svc.uploadPhoto(newComponentId, f));
+      for (const f of pending) added.push(await svc.uploadPhoto(entity, newEntityId, f));
       setPending([]);
       return [...paths, ...added];
     },
-    [pending, paths, svc],
+    [entity, pending, paths, svc],
   );
 
   return { pending, add, removePath, removePending, flushPending, busy, error };
