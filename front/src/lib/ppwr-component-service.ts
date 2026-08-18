@@ -10,6 +10,18 @@ type ComponentInstanceUpdate = Database['ppwr']['Tables']['ComponentInstance']['
 type MaterialRow = Database['ppwr']['Tables']['Material']['Row'];
 type MaterialInsert = Database['ppwr']['Tables']['Material']['Insert'];
 
+/** 부품이 어느 제품에 쓰이는지 보여줄 때 필요한 최소 제품 정보 */
+export type ProductRef = {
+  id: number;
+  name: string;
+  sku: string | null;
+  category: string | null;
+  status: string;
+};
+
+/** 부품 마스터 + 이 부품을 쓰는 제품들 (부품 관리 목록·상세의 "연결 제품") */
+export type ComponentMasterWithUsage = ComponentMasterRow & { products: ProductRef[] };
+
 /** 제품 내 부품 사용정보 + 참조하는 부품 마스터를 함께 담은 뷰 */
 export type ComponentInstanceWithMaster = ComponentInstanceRow & {
   master: ComponentMasterRow | null;
@@ -220,6 +232,91 @@ export class PpwrComponentService {
       }
       throw new PpwrComponentError(error.message);
     }
+  }
+
+  /**
+   * 부품 라이브러리 + 각 부품을 사용하는 제품 목록.
+   * 목록 화면이 부품마다 쿼리를 날리지 않도록 인스턴스·제품을 한 번에 모아 붙인다.
+   */
+  async listLibraryWithUsage(): Promise<ComponentMasterWithUsage[]> {
+    const masters = await this.listLibrary();
+    if (masters.length === 0) return [];
+
+    const { data: instances, error: iErr } = await this.supabase
+      .schema('ppwr')
+      .from('ComponentInstance')
+      .select('component_id, product_id')
+      .in(
+        'component_id',
+        masters.map((m) => m.id),
+      );
+    if (iErr) throw new PpwrComponentError(iErr.message);
+
+    const productIds = [...new Set((instances ?? []).map((r) => r.product_id))];
+    const productById = new Map<number, ProductRef>();
+    if (productIds.length) {
+      const { data: products, error: pErr } = await this.supabase
+        .schema('ppwr')
+        .from('Product')
+        .select('id, name, sku, category, status')
+        .in('id', productIds);
+      if (pErr) throw new PpwrComponentError(pErr.message);
+      for (const p of products ?? []) productById.set(p.id, p);
+    }
+
+    const byComponent = new Map<number, ProductRef[]>();
+    for (const inst of instances ?? []) {
+      const product = productById.get(inst.product_id);
+      if (!product) continue; // RLS 로 안 보이는 제품은 건너뛴다
+      const list = byComponent.get(inst.component_id);
+      if (list) {
+        if (!list.some((p) => p.id === product.id)) list.push(product);
+      } else {
+        byComponent.set(inst.component_id, [product]);
+      }
+    }
+    return masters.map((m) => ({ ...m, products: byComponent.get(m.id) ?? [] }));
+  }
+
+  /** 이 부품을 사용하는 제품 (상세 화면의 "연결 제품") */
+  async productsUsing(componentId: number): Promise<ProductRef[]> {
+    const { data: instances, error } = await this.supabase
+      .schema('ppwr')
+      .from('ComponentInstance')
+      .select('product_id')
+      .eq('component_id', componentId);
+    if (error) throw new PpwrComponentError(error.message);
+    const ids = [...new Set((instances ?? []).map((r) => r.product_id))];
+    if (ids.length === 0) return [];
+    const { data, error: pErr } = await this.supabase
+      .schema('ppwr')
+      .from('Product')
+      .select('id, name, sku, category, status')
+      .in('id', ids);
+    if (pErr) throw new PpwrComponentError(pErr.message);
+    return data ?? [];
+  }
+
+  /**
+   * 삭제 가능 여부. 시안 주석("연결된 제품이 없어야 / 부품과 관련된 첨부 문서가 없어야")대로
+   * 둘 중 하나라도 남아 있으면 막고 이유를 돌려준다.
+   */
+  async checkRemovable(componentId: number): Promise<{ ok: boolean; reason?: string }> {
+    const products = await this.productsUsing(componentId);
+    if (products.length > 0) {
+      return { ok: false, reason: `이 부품을 사용 중인 제품이 ${products.length}개 있어 삭제할 수 없습니다.` };
+    }
+    const { count, error } = await this.supabase
+      .schema('ppwr')
+      .from('EvidenceDocument')
+      .select('id', { count: 'exact', head: true })
+      .eq('linked_entity_type', 'component')
+      .eq('linked_entity_id', componentId);
+    if (error) throw new PpwrComponentError(error.message);
+    if ((count ?? 0) > 0) {
+      return { ok: false, reason: `이 부품에 첨부된 문서가 ${count}개 있어 삭제할 수 없습니다. 문서를 먼저 삭제하세요.` };
+    }
+    return { ok: true };
   }
 
   /* ---------- 제품 내 부품 사용 (인스턴스) ---------- */
