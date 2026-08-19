@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Topbar from "@/components/app/Topbar";
 import ComponentForm from "@/components/component/ComponentForm";
+import ChatPanel from "@/components/chat/ChatPanel";
 import { ConfirmDialog } from "@/components/ui/Dialog";
 import { getPpwrComponentService } from "@/src/shared/api";
 
@@ -72,6 +73,9 @@ export default function ComponentEditPage({ params }: { params: Promise<{ id: st
         typeKey={master.type ?? ""}
         master={master}
         confirmBeforeSave={locked ? DIAGNOSED_WARNING : null}
+        aside={
+          <ChatPanel className="h-[520px] xl:sticky xl:top-6 xl:h-[calc(100vh-9rem)]" />
+        }
         onSaved={() => router.push(`/app/components/${componentId}`)}
         onCancel={() => router.push(`/app/components/${componentId}`)}
       />

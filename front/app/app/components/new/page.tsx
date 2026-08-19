@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Topbar from "@/components/app/Topbar";
 import ComponentForm from "@/components/component/ComponentForm";
+import ChatPanel from "@/components/chat/ChatPanel";
 import { specForType } from "@/src/lib/ppwr-component-spec";
 
 /**
@@ -46,6 +47,9 @@ function ComponentNewInner() {
       <ComponentForm
         mode="create"
         typeKey={typeKey}
+        aside={
+          <ChatPanel className="h-[520px] xl:sticky xl:top-6 xl:h-[calc(100vh-9rem)]" />
+        }
         onSaved={(id) => router.push(`/app/components/${id}`)}
         onCancel={() => router.push("/app/components")}
       />

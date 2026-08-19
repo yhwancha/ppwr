@@ -50,6 +50,7 @@ export default function ComponentForm({
   typeKey,
   master,
   confirmBeforeSave,
+  aside,
   onSaved,
   onCancel,
 }: {
@@ -58,6 +59,11 @@ export default function ComponentForm({
   master?: ComponentMasterRow;
   /** 저장 직전에 한 번 더 확인받아야 할 때 (진단이 확정된 제품에서 사용 중인 부품) */
   confirmBeforeSave?: { title: string; description: string } | null;
+  /**
+   * 섹션 오른쪽에 붙는 사이드 영역 (AI 어시스턴트 패널). 폼 안이므로 여기 들어가는 버튼은
+   * 반드시 type="button" 이어야 한다 — 기본값 submit 이면 클릭이 부품 저장으로 샌다.
+   */
+  aside?: ReactNode;
   onSaved: (componentId: number) => void;
   onCancel: () => void;
 }) {
@@ -206,7 +212,8 @@ export default function ComponentForm({
         </p>
       )}
 
-      <div className="mt-5 space-y-5">
+      <div className={cx("mt-5", aside ? "grid gap-5 xl:grid-cols-[1fr_400px] xl:items-start" : "")}>
+        <div className="min-w-0 space-y-5">
         {/* ── 기본 정보 ── */}
         <Section title="기본 정보" desc="포장재 식별 및 기본 정보를 입력해주세요.">
           <div className="mb-5">
@@ -441,6 +448,8 @@ export default function ComponentForm({
             busyKey={docs.busyKey}
           />
         </Section>
+        </div>
+        {aside}
       </div>
 
       <ConfirmDialog
