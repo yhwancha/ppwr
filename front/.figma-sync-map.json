@@ -1,0 +1,27 @@
+{
+  "_doc": "Figma 프레임 이름 → 코드 라우트 매핑. 새 프레임이 리포트의 '매핑 없음'에 뜨면 여기에 추가하세요. route=null 은 '아직 라우트 없음(미착수)'을 뜻합니다.",
+  "fileKey": "lmkVHGl1BhM1pdLT8Z5VNM",
+  "pageId": "0:1",
+  "ignore": [
+    "8월 11일 회의 이후 정해야 할 것"
+  ],
+  "map": {
+    "제품 관리 페이지":        { "route": "app/app/products/page.tsx" },
+    "제품 상세 페이지":        { "route": "app/app/products/[id]/page.tsx" },
+    "제품 등록 페이지":        { "route": "app/app/products/new/page.tsx" },
+    "제품 수정 페이지":        { "route": null, "note": "라우트 미생성 — app/app/products/[id]/edit 예상" },
+    "제품 등록 대행 신청 폼":   { "route": "app/app/products/new/agency/page.tsx" },
+    "제품 관리 -> 체크 -> 삭제하기": { "route": "app/app/products/page.tsx", "note": "삭제 플로우 상태 변형" },
+    "포장재 추가 후":          { "route": "app/app/products/[id]/page.tsx", "note": "상태 변형" },
+    "2차 포장재 선택 시":       { "route": "app/app/products/[id]/page.tsx", "note": "상태 변형" },
+    "부품 추가":              { "route": "app/app/products/[id]/page.tsx", "note": "상태 변형" },
+    "자세히 보기":            { "route": "app/app/products/[id]/page.tsx", "note": "상태 변형" },
+    "부품 관리 페이지":        { "route": "app/app/components/page.tsx" },
+    "부품 상세 페이지":        { "route": "app/app/components/[id]/page.tsx" },
+    "부품 등록 페이지":        { "route": "app/app/components/new/page.tsx" },
+    "부품 수정 페이지":        { "route": null, "note": "라우트 미생성 — app/app/components/[id]/edit 예상" },
+    "진단 관리":              { "route": "app/app/diagnosis/page.tsx" },
+    "프로필 관리":            { "route": "app/app/profile/page.tsx" },
+    "보안 설정":              { "route": "app/app/settings/page.tsx" }
+  }
+}

@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   Activity,
   BookOpen,
   Boxes,
+  ChevronDown,
+  ChevronUp,
   CreditCard,
   FileText,
   LayoutGrid,
@@ -15,7 +18,14 @@ import {
 import { useSession } from "@/src/features/auth/session";
 import { REVIEW_ACCOUNT_EMAIL } from "@/src/shared/payments/config";
 
-type Item = { label: string; href: string; icon: React.ElementType; ready?: boolean };
+type SubItem = { label: string; href: string };
+type Item = {
+  label: string;
+  href: string;
+  icon: React.ElementType;
+  ready?: boolean;
+  children?: SubItem[];
+};
 type Group = { title: string; items: Item[] };
 
 /**
@@ -29,14 +39,29 @@ const groups: Group[] = [
     title: "진단",
     items: [
       { label: "대시보드", href: "/app", icon: LayoutGrid, ready: true },
-      { label: "진단 워크스페이스", href: "/app/diagnosis", icon: Activity },
+      {
+        label: "진단 관리",
+        href: "/app/diagnosis",
+        icon: Activity,
+        ready: true,
+      },
     ],
   },
   {
     title: "데이터",
     items: [
-      { label: "제품 (SKU)", href: "/app/products", icon: Package, ready: true },
-      { label: "부품 라이브러리", href: "/app/components", icon: Boxes, ready: true },
+      {
+        label: "제품 (SKU)",
+        href: "/app/products",
+        icon: Package,
+        ready: true,
+      },
+      {
+        label: "부품 라이브러리",
+        href: "/app/components",
+        icon: Boxes,
+        ready: true,
+      },
     ],
   },
   {
@@ -46,9 +71,24 @@ const groups: Group[] = [
   {
     title: "계정",
     items: [
-      { label: "결제·구독", href: "/app/billing", icon: CreditCard, ready: true },
+      {
+        label: "결제·구독",
+        href: "/app/billing",
+        icon: CreditCard,
+        ready: true,
+      },
       { label: "리소스", href: "/app/resources", icon: BookOpen },
-      { label: "설정", href: "/app/settings", icon: Settings },
+      {
+        label: "설정",
+        href: "/app/settings",
+        icon: Settings,
+        ready: true,
+        children: [
+          { label: "프로필 관리", href: "/app/settings/profile" },
+          { label: "팀원 / 권한 관리", href: "/app/settings/members" },
+          { label: "보안 설정", href: "/app/settings/security" },
+        ],
+      },
     ],
   },
 ];
@@ -57,12 +97,16 @@ const groups: Group[] = [
 const reviewerGroups: Group[] = [
   {
     title: "결제",
-    items: [{ label: "결제", href: "/app/billing", icon: CreditCard, ready: true }],
+    items: [
+      { label: "결제", href: "/app/billing", icon: CreditCard, ready: true },
+    ],
   },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname() ?? "";
+  // 하위 메뉴는 해당 섹션에 들어와 있으면 펼친 상태가 기본. 사용자가 접으면 그 선택을 따른다.
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const { user } = useSession();
   const isReviewer = user?.email === REVIEW_ACCOUNT_EMAIL;
   const navGroups = isReviewer ? reviewerGroups : groups;
@@ -71,28 +115,76 @@ export default function Sidebar() {
     const active =
       s.href === "/app" ? pathname === "/app" : pathname.startsWith(s.href);
     const Icon = s.icon;
+    const open = s.children ? active && !collapsed[s.href] : false;
     return (
-      <Link
-        key={s.href}
-        href={s.href}
-        className={
-          "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors " +
-          (active
-            ? "bg-primary-soft text-primary"
-            : "text-slate-500 hover:bg-slate-50 hover:text-slate-700")
-        }
-      >
-        {active && (
-          <span className="absolute inset-y-1 left-0 w-1 rounded-r bg-primary" />
+      <div key={s.href}>
+        <Link
+          href={s.href}
+          className={
+            "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors " +
+            (active
+              ? "bg-primary-soft text-primary"
+              : "text-slate-500 hover:bg-slate-50 hover:text-slate-700")
+          }
+        >
+          {active && (
+            <span className="absolute inset-y-1 left-0 w-1 rounded-r bg-primary" />
+          )}
+          <Icon className="h-5 w-5 shrink-0" />
+          <span className="flex-1">{s.label}</span>
+          {!s.ready && (
+            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-400">
+              준비중
+            </span>
+          )}
+          {s.children && (
+            <span
+              role="button"
+              aria-label={
+                open
+                  ? `${s.label} 하위 메뉴 접기`
+                  : `${s.label} 하위 메뉴 펼치기`
+              }
+              onClick={(e) => {
+                e.preventDefault();
+                setCollapsed((c) => ({ ...c, [s.href]: !collapsed[s.href] }));
+              }}
+              className="text-slate-400 hover:text-slate-600"
+            >
+              {open ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </span>
+          )}
+        </Link>
+
+        {s.children && open && (
+          <div className="mt-1 space-y-1">
+            {s.children.map((c) => {
+              const subActive = pathname.startsWith(c.href);
+              return (
+                <Link
+                  key={c.href}
+                  href={c.href}
+                  className={
+                    "relative flex items-center rounded-lg py-2 pl-11 pr-3 text-sm font-semibold transition-colors " +
+                    (subActive
+                      ? "bg-slate-50 text-ink"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-700")
+                  }
+                >
+                  {subActive && (
+                    <span className="absolute inset-y-1 left-0 w-1 rounded-r bg-primary" />
+                  )}
+                  {c.label}
+                </Link>
+              );
+            })}
+          </div>
         )}
-        <Icon className="h-5 w-5 shrink-0" />
-        <span className="flex-1">{s.label}</span>
-        {!s.ready && (
-          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-400">
-            준비중
-          </span>
-        )}
-      </Link>
+      </div>
     );
   }
 
@@ -100,7 +192,9 @@ export default function Sidebar() {
     <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-slate-200 bg-white">
       {/* 로고 */}
       <Link href="/" className="flex items-baseline gap-2 px-6 py-7">
-        <span className="text-xl font-black tracking-tight text-ink">RESTUDIO</span>
+        <span className="text-xl font-black tracking-tight text-ink">
+          RESTUDIO
+        </span>
         <span className="text-sm font-bold text-primary">PPWR</span>
       </Link>
 

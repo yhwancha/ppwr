@@ -1,0 +1,318 @@
+{
+  "fileKey": "lmkVHGl1BhM1pdLT8Z5VNM",
+  "pageId": "0:1",
+  "lastSyncedVersion": "2389078848350709875",
+  "lastSyncedAt": "2026-08-18T14:59:39Z",
+  "frames": {
+    "2:2": {
+      "name": "제품 관리 페이지",
+      "hash": "e49f7e0c011decaf",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:19497": {
+      "name": "제품 관리 페이지",
+      "hash": "94e3f355038e53da",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:18794": {
+      "name": "제품 관리 페이지",
+      "hash": "47eda217d98d7305",
+      "lastChangedAt": "2026-08-18"
+    },
+    "251:27751": {
+      "name": "제품 상세 페이지",
+      "hash": "36d8ec9250588fa5",
+      "lastChangedAt": "2026-08-18"
+    },
+    "379:32860": {
+      "name": "제품 상세 페이지",
+      "hash": "61534897cc1d34b5",
+      "lastChangedAt": "2026-08-18"
+    },
+    "379:34637": {
+      "name": "제품 상세 페이지",
+      "hash": "387406ba957bbbee",
+      "lastChangedAt": "2026-08-18"
+    },
+    "379:33850": {
+      "name": "제품 상세 페이지",
+      "hash": "3c41656c15181651",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:6297": {
+      "name": "포장재 추가 후",
+      "hash": "f9753ca679facd9c",
+      "lastChangedAt": "2026-08-18"
+    },
+    "452:73593": {
+      "name": "포장재 추가 후",
+      "hash": "f580821e2d128df2",
+      "lastChangedAt": "2026-08-18"
+    },
+    "260:28626": {
+      "name": "2차 포장재 선택 시",
+      "hash": "cf870fc0c1af83bf",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:6259": {
+      "name": "2차 포장재 선택 시",
+      "hash": "9f5fe586226fe46a",
+      "lastChangedAt": "2026-08-18"
+    },
+    "260:29182": {
+      "name": "부품 추가",
+      "hash": "c8666bda74b682e2",
+      "lastChangedAt": "2026-08-18"
+    },
+    "260:30406": {
+      "name": "자세히 보기",
+      "hash": "7b290822c488d643",
+      "lastChangedAt": "2026-08-18"
+    },
+    "56:6707": {
+      "name": "제품 등록 페이지",
+      "hash": "d29c066fe162e6e2",
+      "lastChangedAt": "2026-08-18"
+    },
+    "243:19747": {
+      "name": "제품 수정 페이지",
+      "hash": "89a8973cba8415b6",
+      "lastChangedAt": "2026-08-18"
+    },
+    "34:4574": {
+      "name": "제품 관리 -> 체크 -> 삭제하기",
+      "hash": "a552d52abf64adfc",
+      "lastChangedAt": "2026-08-18"
+    },
+    "82:10262": {
+      "name": "제품 등록 대행 신청 폼",
+      "hash": "dafd73e78ea08eda",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:11690": {
+      "name": "부품 관리 페이지",
+      "hash": "fc28ceaba6963d5f",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:22485": {
+      "name": "부품 관리 페이지",
+      "hash": "b2af74f7efbfe704",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:21111": {
+      "name": "부품 관리 페이지",
+      "hash": "8b2ab9cc135f10bd",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:36350": {
+      "name": "프로필 관리",
+      "hash": "85e5b50344bb05cd",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:41642": {
+      "name": "보안 설정",
+      "hash": "06ea3926aed64185",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:39524": {
+      "name": "프로필 관리",
+      "hash": "fe1c72bf8abfca49",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:40751": {
+      "name": "프로필 관리",
+      "hash": "8ddb70e9fa77a503",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:42038": {
+      "name": "진단 관리",
+      "hash": "1ead8e7b87dec37b",
+      "lastChangedAt": "2026-08-18"
+    },
+    "387:57126": {
+      "name": "진단 관리",
+      "hash": "d63f3df040e5f0ba",
+      "lastChangedAt": "2026-08-18"
+    },
+    "445:65162": {
+      "name": "진단 관리",
+      "hash": "160b63f88ff73246",
+      "lastChangedAt": "2026-08-18"
+    },
+    "445:66797": {
+      "name": "진단 관리",
+      "hash": "d40cfc500b6a11ce",
+      "lastChangedAt": "2026-08-18"
+    },
+    "445:67376": {
+      "name": "진단 관리",
+      "hash": "cec4aa162e67a441",
+      "lastChangedAt": "2026-08-18"
+    },
+    "427:60354": {
+      "name": "진단 관리",
+      "hash": "afc3a73fe8f369d2",
+      "lastChangedAt": "2026-08-18"
+    },
+    "427:61007": {
+      "name": "진단 관리",
+      "hash": "b4896b4abbde5e9f",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:48252": {
+      "name": "진단 관리",
+      "hash": "d6c47a6566c951ea",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:43232": {
+      "name": "진단 관리",
+      "hash": "cd9b5a1041e40bcc",
+      "lastChangedAt": "2026-08-18"
+    },
+    "445:68179": {
+      "name": "진단 관리",
+      "hash": "52d41cdaf3a8d74a",
+      "lastChangedAt": "2026-08-18"
+    },
+    "387:56013": {
+      "name": "진단 관리",
+      "hash": "3b17a915ddd707bd",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:45296": {
+      "name": "진단 관리",
+      "hash": "f6acb9df2a7ca586",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:46554": {
+      "name": "진단 관리",
+      "hash": "fa1ce79d861d8000",
+      "lastChangedAt": "2026-08-18"
+    },
+    "387:55111": {
+      "name": "진단 관리",
+      "hash": "df3dd5be4282f957",
+      "lastChangedAt": "2026-08-18"
+    },
+    "431:61780": {
+      "name": "진단 관리",
+      "hash": "8f0faa7b820ba8d0",
+      "lastChangedAt": "2026-08-18"
+    },
+    "445:68715": {
+      "name": "진단 관리",
+      "hash": "551c8a765eece245",
+      "lastChangedAt": "2026-08-18"
+    },
+    "445:72282": {
+      "name": "진단 관리",
+      "hash": "98950c9598292078",
+      "lastChangedAt": "2026-08-18"
+    },
+    "445:69298": {
+      "name": "진단 관리",
+      "hash": "25d587ba6c72c079",
+      "lastChangedAt": "2026-08-18"
+    },
+    "433:64211": {
+      "name": "진단 관리",
+      "hash": "1107141fd915a1c2",
+      "lastChangedAt": "2026-08-18"
+    },
+    "445:71462": {
+      "name": "진단 관리",
+      "hash": "df76f5da67d84ebf",
+      "lastChangedAt": "2026-08-18"
+    },
+    "445:69894": {
+      "name": "진단 관리",
+      "hash": "4ba3dc9dec09b761",
+      "lastChangedAt": "2026-08-18"
+    },
+    "445:70570": {
+      "name": "진단 관리",
+      "hash": "6324026c035e5bba",
+      "lastChangedAt": "2026-08-18"
+    },
+    "387:55664": {
+      "name": "진단 관리",
+      "hash": "3d52710980ec0a85",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:47764": {
+      "name": "진단 관리",
+      "hash": "98d985894abcee2b",
+      "lastChangedAt": "2026-08-18"
+    },
+    "387:52549": {
+      "name": "진단 관리",
+      "hash": "d5f26e1b35518852",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:50874": {
+      "name": "진단 관리",
+      "hash": "ac870056f8edf45f",
+      "lastChangedAt": "2026-08-18"
+    },
+    "387:52944": {
+      "name": "진단 관리",
+      "hash": "5f19ca439e63345c",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:49438": {
+      "name": "진단 관리",
+      "hash": "ef26d5b9c0ce37a6",
+      "lastChangedAt": "2026-08-18"
+    },
+    "426:58826": {
+      "name": "진단 관리",
+      "hash": "49f95c74c508b06c",
+      "lastChangedAt": "2026-08-18"
+    },
+    "426:59825": {
+      "name": "진단 관리",
+      "hash": "075e2d1c52ef77ce",
+      "lastChangedAt": "2026-08-18"
+    },
+    "383:45862": {
+      "name": "진단 관리",
+      "hash": "6effb3bbcd2a4ee7",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:22226": {
+      "name": "부품 관리 페이지",
+      "hash": "406a4b4f700c4fcf",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:13588": {
+      "name": "부품 관리 페이지",
+      "hash": "5efba10e68b10f95",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:13993": {
+      "name": "부품 등록 페이지",
+      "hash": "a4c67389ab308b4a",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:14292": {
+      "name": "부품 수정 페이지",
+      "hash": "8ffdd7d31f5b6839",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:14593": {
+      "name": "부품 상세 페이지",
+      "hash": "51c3804d09932828",
+      "lastChangedAt": "2026-08-18"
+    },
+    "319:20042": {
+      "name": "진단 관리",
+      "hash": "64d7cefbb607fbbe",
+      "lastChangedAt": "2026-08-18"
+    },
+    "387:57844": {
+      "name": "진단 관리",
+      "hash": "bb9c351be27ec848",
+      "lastChangedAt": "2026-08-18"
+    }
+  }
+}

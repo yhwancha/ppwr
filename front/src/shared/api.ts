@@ -4,6 +4,7 @@ import type { Database } from "@/src/types/database.types";
 import { PpwrProductService } from "@/src/lib/ppwr-product-service";
 import { PpwrPackagingService } from "@/src/lib/ppwr-packaging-service";
 import { PpwrComponentService } from "@/src/lib/ppwr-component-service";
+import { PpwrDiagnosisService } from "@/src/lib/ppwr-diagnosis-service";
 
 /**
  * RESTUDIO와 동일한 Supabase 브라우저(쿠키 세션) 클라이언트를 공유한다.
@@ -67,4 +68,10 @@ let _componentService: PpwrComponentService | null = null;
 export function getPpwrComponentService() {
   if (!_componentService) _componentService = new PpwrComponentService(client());
   return _componentService;
+}
+
+let _diagnosisService: PpwrDiagnosisService | null = null;
+export function getPpwrDiagnosisService() {
+  if (!_diagnosisService) _diagnosisService = new PpwrDiagnosisService(client());
+  return _diagnosisService;
 }
