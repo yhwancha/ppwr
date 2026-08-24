@@ -80,6 +80,23 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
 | `.env.local.example` | mono 만 추적. 여기는 `front/.gitignore` 의 `.env*` 가 통째로 무시한다. 새 환경변수는 패치가 아니라 손으로 옮긴다 |
 | `.claude/launch.json` | 여기만 있음 (로컬 dev 서버 정의, 포트 3002) |
 
+## mono 에만 있는, 가져오지 않은 작업
+
+`feat/ppwr-all` 에 **머지되지 않은** mono 브랜치에 ppwr 작업이 남아 있다. 정본 라인이
+의도적으로 안 받은 것인지 유실인지는 **mono 쪽에서 사람이 판단할 사안**이다. 아래는
+"기계적으로 이송하면 리디자인이 되돌아간다"는 사실만 기록한 것이고, 이송 지시가 아니다.
+
+| mono 브랜치 | 커밋 | 내용 | 기계적 이송 시 |
+|---|---|---|---|
+| `feat/profile` | `facbb8f3` (08-14) | 설정 > 프로필 관리 (담당자·기업·EU·EPR) | **충돌·회귀.** 건드리는 파일 중 새 파일 2개(`src/lib/ppwr-profile-service.ts`, `settings/profile/edit/`)만 빼고 전부 여기서 갈렸다 — `Sidebar.tsx`(3722→5529), `src/shared/api.ts`(2840→3409), `settings/security/page.tsx`(당시 없음→Figma 시안 3287). `settings/team/` 은 리디자인에서 `settings/members/` 로 이름이 바뀌었으므로 죽은 라우트가 되살아난다 |
+| `feat/profile` | `b207508a` (08-14) | 진단 관리 (리스트·상세피드·진단시작 위저드) | 같은 화면을 `746273e5`·`39071559` 가 다시 만들었다 |
+| `feat/dashboard` | `a6d0ba68` (08-14) | 부품 관리 (리스트·유형선택·등록·상세·수정) | **회귀.** `app/app/components/page.tsx` 가 08-13 베이스(6503) → 이 커밋(10642) 인데 여기 정본은 Figma 리디자인(`b3747cb`, 17201). 덮으면 목록이 리디자인 이전으로 돌아간다 |
+| `feat/ppwr` | `a76b7f50`…`362dc8ed` (7월) | 최초 ppwr 서비스 라인 | 폐기된 라인. `ppwr/front` 45 파일 vs 정본 182 파일. `1e0fc46c`(PR #1067 모노레포 머지)의 조상이 **아니다** |
+
+> 참고: `feat/profile` 의 프로필 관리는 여기 `settings/profile/page.tsx` 가 아직
+> `ComingSoon` 스텁(402 B)이라 **덮어쓸 대상이 아니라 빈 자리**다. 남은 스텁은
+> `documents`·`notifications`·`reports`·`resources`·`settings/members`·`settings/profile` 6개.
+
 ## 이력
 
 - **2026-08-18** — 이 repo 의 `front/` 를 mono `e8d2f1bc` 의 `ppwr/front/` 로 맞춤(baseline 재설정).
@@ -100,3 +117,14 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
     여기에 억지로 적용하면 제품 목록이 리디자인 이전으로 되돌아간다. **mono 쪽에서 유실 여부를
     사람이 판단할 사안**이다.
   - 검증: `front/` 트리가 mono `7895b829:ppwr/front` 와 일치(예외 4개 제외 — 위 표 참고). `tsc --noEmit` 통과.
+
+- **2026-08-24 (2차, 검증만)** — 이송할 것 없음. mono 정본 라인 `feat/ppwr-all` 이
+  `7895b829` 에서 움직이지 않았고(`origin/feat/ppwr-all` 도 동일), 여기 `main`(`4673e9e`,
+  tag `mono-sync`)의 `front/` 는 `7895b829:ppwr/front` 와 **파일 단위 blob hash 까지 일치**한다
+  (182 vs 183 파일, 차이는 상시 예외 4개뿐 — `next.config.ts`·`.claude/launch.json`·
+  `pnpm-lock.yaml`·`.env.local.example`). 워크트리 6개 전부 clean.
+  - `tsc --noEmit`: 소스 에러 0. 유일한 에러는 추적되지 않는(`front/.gitignore:9`) 스테일
+    빌드 산출물 `.next/types/validator.ts` 가 삭제된 라우트 `app/products/new/agency` 를
+    참조하는 것 — `rm -rf front/.next` 로 사라진다.
+  - 이번에 새로 확인: 위 **"mono 에만 있는, 가져오지 않은 작업"** 절. `e48f4e2b` 와 같은 종류의
+    판단 대기 항목이 3건 더 있다(`facbb8f3`·`b207508a`·`a6d0ba68`).
