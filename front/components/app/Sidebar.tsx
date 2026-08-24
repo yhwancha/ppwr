@@ -57,7 +57,7 @@ const groups: Group[] = [
         ready: true,
       },
       {
-        label: "부품 라이브러리",
+        label: "부품 관리",
         href: "/app/components",
         icon: Boxes,
         ready: true,

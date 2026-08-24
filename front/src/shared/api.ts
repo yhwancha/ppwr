@@ -4,6 +4,7 @@ import type { Database } from "@/src/types/database.types";
 import { PpwrProductService } from "@/src/lib/ppwr-product-service";
 import { PpwrPackagingService } from "@/src/lib/ppwr-packaging-service";
 import { PpwrComponentService } from "@/src/lib/ppwr-component-service";
+import { PpwrEvidenceService } from "@/src/lib/ppwr-evidence-service";
 import { PpwrDiagnosisService } from "@/src/lib/ppwr-diagnosis-service";
 
 /**
@@ -68,6 +69,12 @@ let _componentService: PpwrComponentService | null = null;
 export function getPpwrComponentService() {
   if (!_componentService) _componentService = new PpwrComponentService(client());
   return _componentService;
+}
+
+let _evidenceService: PpwrEvidenceService | null = null;
+export function getPpwrEvidenceService() {
+  if (!_evidenceService) _evidenceService = new PpwrEvidenceService(client());
+  return _evidenceService;
 }
 
 let _diagnosisService: PpwrDiagnosisService | null = null;

@@ -2,36 +2,30 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Topbar from "@/components/app/Topbar";
-import ProductForm, { type ProductFormValues } from "@/components/product/ProductForm";
-import { getPpwrProductService } from "@/src/shared/api";
+import ProductFormV2 from "@/components/product/ProductFormV2";
+import CsvUploadModal from "@/components/product/CsvUploadModal";
 
 export default function ProductNewPage() {
   const router = useRouter();
-  const qc = useQueryClient();
-  const [err, setErr] = useState<string | null>(null);
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: (v: ProductFormValues) =>
-      getPpwrProductService().create({ ...v, source: "customer_own", status: "draft" }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["ppwr", "products"] });
-      router.push("/app/products");
-    },
-    onError: (e) => setErr(e instanceof Error ? e.message : "제품 등록에 실패했습니다."),
-  });
+  const [csvOpen, setCsvOpen] = useState(false);
 
   return (
     <>
       <Topbar crumbs={[{ label: "제품 관리", href: "/app/products" }, { label: "제품 등록" }]} />
-      <ProductForm
-        title="제품 등록"
-        pending={isPending}
-        error={err}
-        onSubmit={(v) => {
-          setErr(null);
-          mutate(v);
+      <ProductFormV2
+        mode="create"
+        onSaved={(id) => router.push(`/app/products/${id}`)}
+        onCancel={() => router.push("/app/products")}
+        onOpenCsv={() => setCsvOpen(true)}
+      />
+      <CsvUploadModal
+        open={csvOpen}
+        onClose={() => setCsvOpen(false)}
+        // 시안: 업로드 성공 시 "제품 등록 후" 목록으로 이동
+        onDone={() => {
+          setCsvOpen(false);
+          router.push("/app/products");
         }}
       />
     </>
