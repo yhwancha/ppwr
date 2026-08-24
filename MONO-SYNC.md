@@ -41,7 +41,7 @@ git am --3way --directory=front /tmp/p/*.patch
 
 | 이 repo | = mono | 시점 |
 |---|---|---|
-| tag `mono-sync` | `39071559` (`feat/ppwr-all`) | 2026-08-24 |
+| tag `mono-sync` | `7895b829` (`feat/ppwr-all`) | 2026-08-24 |
 
 > 이송 기준점은 **`mono-sync` 태그**다. 커밋 hash 는 amend/rebase 로 바뀌므로 쓰지 않는다.
 > 이송을 끝낼 때마다 태그를 옮긴다: `git tag -f mono-sync HEAD` (그리고 위 표의 mono 쪽을 갱신).
@@ -88,15 +88,15 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
   mono `2e8f6cdc` 에서 롤백됐고, 디버그 결과는 mono `c9cc49df` 에 반영됨.
   (백업: 세션 스크래치패드 `discarded-subscription-work.patch`)
 
-- **2026-08-24** — **역방향 이송.** mono `feat/ppwr-all`(`39071559`) 의 `ppwr/front/` 를 여기 `main` 으로 가져왔다.
+- **2026-08-24** — **역방향 이송.** mono `feat/ppwr-all`(`7895b829`) 의 `ppwr/front/` 를 여기 `main` 으로 가져왔다.
   - `d6172805`·`05165f21` 은 여기 `feat/product-management`(`b3747cb`·`91505d1`) 와 같은 작업이라
     패치 재적용 대신 그 브랜치를 머지했다(트리 동일함을 확인). 충돌 2건(`Sidebar.tsx`,
     `src/shared/api.ts`)은 mono `ed0990ca` 의 해소본을 정본으로 썼다.
   - `ed0990ca` 는 여기 `3af8a94` 가 mono 로 간 것이라 되가져올 것이 없다.
-  - 새로 온 것: `5e4e7d83`(AI 어시스턴트 패널 + `/api/chat`), `746273e5`(SKU·제품 상세·진단 위저드), `39071559`(진단 관리 메인·문서 관리).
+  - 새로 온 것: `5e4e7d83`(AI 어시스턴트 패널 + `/api/chat`), `746273e5`(SKU·제품 상세·진단 위저드), `39071559`(진단 관리 메인·문서 관리), `7895b829`(삭제 확인 모달 문구).
   - **`e48f4e2b`(제품 관리 리스트 필터 5종)은 가져오지 않았다** — mono 머지 `14ba7d81` 이
     첫 부모 `61591591` 대비 `ppwr/` 를 **한 줄도 바꾸지 않는다**. `feat/ppwr-products` 가
     리디자인 이전 지점(`3d538e15`)에서 갈라져 나와 머지가 통째로 ppwr-all 쪽으로 해소된 탓이다.
     여기에 억지로 적용하면 제품 목록이 리디자인 이전으로 되돌아간다. **mono 쪽에서 유실 여부를
     사람이 판단할 사안**이다.
-  - 검증: `front/` 트리가 mono `39071559:ppwr/front` 와 일치(예외 4개 제외 — 위 표 참고). `tsc --noEmit` 통과.
+  - 검증: `front/` 트리가 mono `7895b829:ppwr/front` 와 일치(예외 4개 제외 — 위 표 참고). `tsc --noEmit` 통과.
