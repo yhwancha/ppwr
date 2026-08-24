@@ -1,14 +1,14 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Image as ImageIcon, Info, Upload, X } from "lucide-react";
 import { cx } from "@/components/primitives";
 import { ConfirmDialog } from "@/components/ui/Dialog";
 import { GENERIC_ERROR, useToast } from "@/components/ui/Toast";
 import DocChecklist from "@/components/common/DocChecklist";
 import { useEntityDocs, useEntityPhotos } from "@/components/common/use-entity-files";
-import { getPpwrComponentService } from "@/src/shared/api";
+import { getPpwrComponentService, getPpwrSupplierService } from "@/src/shared/api";
 import {
   AK,
   attrList,
@@ -76,6 +76,17 @@ export default function ComponentForm({
   const [name, setName] = useState(master?.name ?? "");
   const [pcr, setPcr] = useState(master?.recycled_content != null ? String(master.recycled_content) : "");
   const [attrs, setAttrs] = useState<ComponentAttrs>(() => decodeAttrs(master?.material_summary));
+
+  // 공급사는 ppwr.Supplier 에서 온다 (20260908002000 로 정규화됨).
+  // 목록에 없는 이름을 직접 입력하면 저장 시점에 새 행으로 만든다.
+  const { data: suppliers } = useQuery({
+    queryKey: ["ppwr", "suppliers"],
+    queryFn: () => getPpwrSupplierService().list(),
+  });
+  const supplierOptions = useMemo(
+    () => [...new Set([...(suppliers ?? []).map((s) => s.name), ...SUPPLIER_PRESETS])].sort(),
+    [suppliers],
+  );
   const [dirty, setDirty] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -108,6 +119,7 @@ export default function ComponentForm({
       const statusColumns = statusColumnsFromDocs(
         docs.entries.map((e) => ({ name: e.doc.name, state: e.state })),
       );
+      const supplierId = await getPpwrSupplierService().ensureByName(attrs[AK.supplier]);
       const payload = {
         name: name.trim(),
         type: typeKey,
@@ -117,6 +129,7 @@ export default function ComponentForm({
         // 필터·검색 대상은 승격된 컬럼에도 반영한다 (20260908001500)
         name_ko: attrs[AK.nameKo]?.trim() || null,
         packaging_level: attrs[AK.packagingLevel]?.trim() || null,
+        supplier_id: supplierId,
         recycled_content: pcr.trim() === "" ? null : Number(pcr),
         ...statusColumns,
       };
@@ -291,7 +304,7 @@ export default function ComponentForm({
               required
               value={attrs[AK.supplier] ?? ""}
               onChange={(v) => setAttr(AK.supplier, v)}
-              options={[...SUPPLIER_PRESETS]}
+              options={supplierOptions}
               placeholder="입력 또는 선택"
             />
             <div>

@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/src/shared/supabase/client";
 import type { Database } from "@/src/types/database.types";
 import { PpwrProductService } from "@/src/lib/ppwr-product-service";
+import { PpwrSupplierService } from "@/src/lib/ppwr-supplier-service";
 import { PpwrPackagingService } from "@/src/lib/ppwr-packaging-service";
 import { PpwrComponentService } from "@/src/lib/ppwr-component-service";
 import { PpwrEvidenceService } from "@/src/lib/ppwr-evidence-service";
@@ -57,6 +58,12 @@ let _productService: PpwrProductService | null = null;
 export function getPpwrProductService() {
   if (!_productService) _productService = new PpwrProductService(client());
   return _productService;
+}
+
+let _supplierService: PpwrSupplierService | null = null;
+export function getPpwrSupplierService() {
+  if (!_supplierService) _supplierService = new PpwrSupplierService(client());
+  return _supplierService;
 }
 
 let _packagingService: PpwrPackagingService | null = null;
