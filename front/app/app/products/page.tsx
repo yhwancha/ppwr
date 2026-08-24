@@ -27,7 +27,7 @@ import MultiSelectFilter from "@/components/component/MultiSelectFilter";
 import AgencyRequestModal from "@/components/product/AgencyRequestModal";
 import { getPpwrProductService, getPpwrEvidenceService } from "@/src/shared/api";
 import {
-  decodeProductAttrs,
+  readProductAttrs,
   missingProductItems,
   PK,
   productAttrList,
@@ -83,7 +83,7 @@ export default function ProductsPage() {
       // 카드 썸네일: 제품마다 첫 사진 하나만, 서명 URL 은 한 번에 받는다
       const firstPhotos = new Map<number, string>();
       for (const p of products) {
-        const photo = productAttrList(decodeProductAttrs(p.memo), PK.photos)[0];
+        const photo = productAttrList(readProductAttrs(p), PK.photos)[0];
         if (photo) firstPhotos.set(p.id, photo);
       }
       const urls = await evidence.signedUrls([...firstPhotos.values()]);

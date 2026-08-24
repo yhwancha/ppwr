@@ -17,7 +17,7 @@ import {
   attrList,
   COMPONENT_STATE_CLASS,
   COMPONENT_STATE_LABEL,
-  decodeAttrs,
+  readAttrs,
   deriveComponentState,
   displayFieldValue,
   requiredCompletion,
@@ -52,7 +52,7 @@ export default function ComponentDetailPage({ params }: { params: Promise<{ id: 
     queryFn: () => svc.productsUsing(componentId),
   });
 
-  const attrs = useMemo(() => decodeAttrs(master?.material_summary), [master?.material_summary]);
+  const attrs = useMemo(() => readAttrs(master), [master]);
   const spec = specForType(master?.type);
   const docs = useEntityDocs("component", componentId, spec?.docs ?? []);
 

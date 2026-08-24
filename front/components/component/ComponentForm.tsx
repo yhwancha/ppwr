@@ -14,6 +14,7 @@ import {
   attrList,
   decodeAttrs,
   encodeAttrs,
+  encodeAttrsObject,
   MULTI_SEP,
   requiredCompletion,
   statusColumnsFromDocs,
@@ -110,7 +111,12 @@ export default function ComponentForm({
       const payload = {
         name: name.trim(),
         type: typeKey,
+        // 전환기: attributes 가 정본이고 material_summary 는 구버전 클라이언트용으로 함께 쓴다
+        attributes: encodeAttrsObject(attrs, spec),
         material_summary: encodeAttrs(attrs, spec),
+        // 필터·검색 대상은 승격된 컬럼에도 반영한다 (20260908001500)
+        name_ko: attrs[AK.nameKo]?.trim() || null,
+        packaging_level: attrs[AK.packagingLevel]?.trim() || null,
         recycled_content: pcr.trim() === "" ? null : Number(pcr),
         ...statusColumns,
       };
@@ -123,8 +129,10 @@ export default function ComponentForm({
         await docs.flushPending(id);
         const finalPhotos = await photos.flushPending(id);
         if (finalPhotos.length !== photoPaths.length) {
+          const withPhotos = { ...attrs, [AK.photos]: finalPhotos.join(MULTI_SEP) };
           await svc.updateMaster(id, {
-            material_summary: encodeAttrs({ ...attrs, [AK.photos]: finalPhotos.join(MULTI_SEP) }, spec),
+            attributes: encodeAttrsObject(withPhotos, spec),
+            material_summary: encodeAttrs(withPhotos, spec),
           });
         }
       } else {

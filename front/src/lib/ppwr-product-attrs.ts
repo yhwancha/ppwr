@@ -6,6 +6,7 @@
  * 그대로 두고 빈 속성으로 읽어 기존 값을 깨뜨리지 않는다.
  */
 
+import type { Json } from "@/src/types/database.types";
 import { MULTI_SEP } from "./ppwr-component-attrs";
 import type { DocState } from "./ppwr-component-attrs";
 
@@ -33,6 +34,33 @@ export function decodeProductAttrs(memo: string | null | undefined): ProductAttr
   } catch {
     return {};
   }
+}
+
+/**
+ * 행에서 제품 속성을 읽는다 — 이걸 쓰면 된다.
+ * attributes(JSONB)가 비어 있을 때만 구 memo 를 본다. memo 는 수기 메모일 수도 있어
+ * JSON 이 아니면 빈 맵이 나온다.
+ */
+export function readProductAttrs(
+  row: { attributes?: unknown; memo?: string | null } | null | undefined,
+): ProductAttrs {
+  if (!row) return {};
+  const a = row.attributes;
+  if (a && typeof a === "object" && !Array.isArray(a)) {
+    const out: ProductAttrs = {};
+    for (const [k, v] of Object.entries(a as Record<string, unknown>)) {
+      if (v == null) continue;
+      out[k] = Array.isArray(v) ? v.join(MULTI_SEP) : String(v);
+    }
+    if (Object.keys(out).length) return out;
+  }
+  return decodeProductAttrs(row.memo);
+}
+
+/** 속성 맵 → attributes(JSONB)에 넣을 오브젝트. encodeProductAttrs 와 같은 정규화. */
+export function encodeProductAttrsObject(attrs: ProductAttrs): Record<string, Json> {
+  const json = encodeProductAttrs(attrs);
+  return json ? (JSON.parse(json) as Record<string, Json>) : {};
 }
 
 export function encodeProductAttrs(attrs: ProductAttrs): string | null {

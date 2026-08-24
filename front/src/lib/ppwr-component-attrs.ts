@@ -1,15 +1,16 @@
 /**
  * 부품 상세 속성의 저장/복원 + 완료율·상태 파생.
  *
- * ⚠️ ppwr.ComponentMaster 에 attributes(JSONB) 컬럼이 아직 없다. 그래서 시안이 요구하는
- *    필드 대부분(부품명 국문, 포장 단계, 치수, 유형 전용 입력 …)을 material_summary(TEXT)에
- *    JSON 으로 직렬화해 보관한다. 예약 키는 `__` 프리픽스를 쓰고, 유형 전용 필드는
- *    스펙의 field.key 를 그대로 쓴다.
+ * 저장 위치: ppwr.ComponentMaster.attributes (JSONB). 예약 키는 `__` 프리픽스를 쓰고,
+ * 유형 전용 필드는 스펙의 field.key 를 그대로 쓴다.
  *
- *    → attributes 컬럼이 생기면 decodeAttrs/encodeAttrs 두 함수만 갈아끼우면 된다.
- *      기존 데이터(구버전 `__sub_type` 등)도 같은 키를 쓰므로 그대로 읽힌다.
+ * ⚠️ 전환기: attributes 도입 전에는 material_summary(TEXT)에 같은 JSON 을 직렬화해
+ *    보관했다(20260908000500 이 백필함). 읽기는 attributes 우선 + 구 컬럼 폴백,
+ *    쓰기는 양쪽 모두 채운다 — 배포 중 구버전 클라이언트가 읽어도 깨지지 않게.
+ *    앱이 완전히 넘어간 뒤 구 컬럼 경로를 지운다.
  */
 
+import type { Json } from "@/src/types/database.types";
 import {
   specForType,
   type ComponentTypeSpec,
@@ -51,21 +52,41 @@ export const AK = {
 /** 폼/상세가 다루는 값. 모두 문자열로 보관하고 저장 시점에만 형변환한다. */
 export type ComponentAttrs = Record<string, string>;
 
-/** material_summary(JSON 문자열) → 속성 맵 */
+/** JSON 오브젝트 → 속성 맵 (값은 전부 문자열로 평탄화) */
+function flatten(obj: Record<string, unknown>): ComponentAttrs {
+  const out: ComponentAttrs = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v == null) continue;
+    out[k] = Array.isArray(v) ? v.join(MULTI_SEP) : String(v);
+  }
+  return out;
+}
+
+/** material_summary(JSON 문자열) → 속성 맵. 구 컬럼 폴백 전용. */
 export function decodeAttrs(materialSummary: string | null | undefined): ComponentAttrs {
   const raw = (materialSummary ?? "").trim();
   if (!raw.startsWith("{")) return {};
   try {
-    const obj = JSON.parse(raw) as Record<string, unknown>;
-    const out: ComponentAttrs = {};
-    for (const [k, v] of Object.entries(obj)) {
-      if (v == null) continue;
-      out[k] = Array.isArray(v) ? v.join(MULTI_SEP) : String(v);
-    }
-    return out;
+    return flatten(JSON.parse(raw) as Record<string, unknown>);
   } catch {
     return {};
   }
+}
+
+/**
+ * 행에서 속성을 읽는다 — 이걸 쓰면 된다.
+ * attributes(JSONB)가 비어 있을 때만 구 material_summary 를 본다.
+ */
+export function readAttrs(
+  row: { attributes?: unknown; material_summary?: string | null } | null | undefined,
+): ComponentAttrs {
+  if (!row) return {};
+  const a = row.attributes;
+  if (a && typeof a === "object" && !Array.isArray(a)) {
+    const flat = flatten(a as Record<string, unknown>);
+    if (Object.keys(flat).length) return flat;
+  }
+  return decodeAttrs(row.material_summary);
 }
 
 /** 속성 맵 → material_summary(JSON 문자열). 빈 값은 버린다. */
@@ -89,6 +110,18 @@ export function encodeAttrs(attrs: ComponentAttrs, spec?: ComponentTypeSpec): st
     out[k] = v;
   }
   return Object.keys(out).length ? JSON.stringify(out) : null;
+}
+
+/**
+ * 속성 맵 → attributes(JSONB)에 넣을 오브젝트.
+ * encodeAttrs 와 같은 정규화를 쓰되 직렬화만 하지 않는다. 빈 값은 버린다.
+ */
+export function encodeAttrsObject(
+  attrs: ComponentAttrs,
+  spec?: ComponentTypeSpec,
+): Record<string, Json> {
+  const json = encodeAttrs(attrs, spec);
+  return json ? (JSON.parse(json) as Record<string, Json>) : {};
 }
 
 /** multiselect / photos 처럼 여러 값을 담는 키를 배열로 읽기 */

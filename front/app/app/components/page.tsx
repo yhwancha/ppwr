@@ -32,7 +32,7 @@ import {
   attrList,
   COMPONENT_STATE_CLASS,
   COMPONENT_STATE_LABEL,
-  decodeAttrs,
+  readAttrs,
   deriveComponentState,
   docStateFrom,
   missingRequired,
@@ -85,13 +85,13 @@ export default function ComponentsPage() {
       // 카드 썸네일: 부품마다 첫 사진 하나만, 서명 URL 은 한 번에 받는다
       const firstPhotos = new Map<number, string>();
       for (const m of masters) {
-        const photo = attrList(decodeAttrs(m.material_summary), AK.photos)[0];
+        const photo = attrList(readAttrs(m), AK.photos)[0];
         if (photo) firstPhotos.set(m.id, photo);
       }
       const urls = await evidence.signedUrls([...firstPhotos.values()]);
 
       return masters.map((m) => {
-        const attrs = decodeAttrs(m.material_summary);
+        const attrs = readAttrs(m);
         const spec = specForType(m.type);
         const rows = docsByComponent.get(m.id) ?? [];
         const docStates = (spec?.docs ?? []).map((doc) => ({

@@ -14,8 +14,9 @@ import AiFillPanel, { type AiFillAction } from "@/components/product/AiFillPanel
 import { getPpwrProductService } from "@/src/shared/api";
 import { MULTI_SEP } from "@/src/lib/ppwr-component-attrs";
 import {
-  decodeProductAttrs,
+  readProductAttrs,
   encodeProductAttrs,
+  encodeProductAttrsObject,
   PK,
   productAttrList,
   type ProductAttrs,
@@ -86,7 +87,7 @@ export default function ProductFormV2({
   const productId = product?.id ?? null;
 
   const [f, setF] = useState<Record<string, string>>(() => toState(product));
-  const [attrs, setAttrs] = useState<ProductAttrs>(() => decodeProductAttrs(product?.memo));
+  const [attrs, setAttrs] = useState<ProductAttrs>(() => readProductAttrs(product));
   const [euCountries, setEuCountries] = useState<string[]>(() =>
     (product?.eu_launch_countries ?? "")
       .split(/[;,]/)
@@ -165,6 +166,8 @@ export default function ProductFormV2({
       eu_annual_volume: num(f.eu_annual_volume),
       eu_launch_note: f.eu_launch_note.trim() || null,
       contact_sensitive: f.contact_sensitive === "예",
+      // 전환기: attributes 가 정본, memo 는 구버전 클라이언트용으로 함께 쓴다
+      attributes: encodeProductAttrsObject(attrs),
       memo: encodeProductAttrs(attrs),
     };
   }
@@ -184,8 +187,10 @@ export default function ProductFormV2({
         await docs.flushPending(id);
         const finalPhotos = await photos.flushPending(id);
         if (finalPhotos.length !== photoPaths.length) {
+          const withPhotos = { ...attrs, [PK.photos]: finalPhotos.join(MULTI_SEP) };
           await svc.update(id, {
-            memo: encodeProductAttrs({ ...attrs, [PK.photos]: finalPhotos.join(MULTI_SEP) }),
+            attributes: encodeProductAttrsObject(withPhotos),
+            memo: encodeProductAttrs(withPhotos),
           });
         }
       } else {
