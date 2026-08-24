@@ -41,7 +41,7 @@ git am --3way --directory=front /tmp/p/*.patch
 
 | 이 repo | = mono | 시점 |
 |---|---|---|
-| tag `mono-sync` | `fccc5db5` (`feat/ppwr-all`) | 2026-08-24 (6차) |
+| tag `mono-sync` | `a12d8cc3` (`feat/ppwr-all`) | 2026-08-24 (7차) |
 
 > 이송 기준점은 **`mono-sync` 태그**다. 커밋 hash 는 amend/rebase 로 바뀌므로 쓰지 않는다.
 > 이송을 끝낼 때마다 태그를 옮긴다: `git tag -f mono-sync HEAD` (그리고 위 표의 mono 쪽을 갱신).
@@ -237,3 +237,34 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
     비지 않은 ref) 결과 **새로 생긴 항목은 없다** — 걸린 것은 `feat/dashboard`(`a6d0ba68`)·
     `feat/profile`(`facbb8f3`·`b207508a`)·`origin/feat/profile`(`facbb8f3`)·
     `feat/ppwr`/`origin/feat/ppwr`(7월 폐기 라인) 뿐이고 전부 이미 기록된 것이다.
+
+- **2026-08-24 (7차)** — **이송 2건.** mono 정본 라인 `feat/ppwr-all` 이 `fccc5db5` → `a12d8cc3`
+  로 **2 커밋 전진**했고, **두 개 전부 `ppwr/front/` 만 건드린다**(파일 2개, 마이그레이션·`web/`·
+  `admin/` 변경 없음). 패치 단위로 그대로 가져왔다 → 여기 `bc48222`·`dcb611b`. **충돌 0건.**
+  - `675b815e` → `bc48222` — **제품 상세를 부품 상세와 같은 구조로 재작성**
+    (`app/app/products/[id]/page.tsx`, +368/-55). 5차까지의 제품 리디자인(`05165f21`)이 목록·
+    등록·수정만 시안에 맞추고 상세를 남겨둬서, 상세가 구버전 편집 폼(`ProductForm`)을 그대로
+    띄우는 90줄짜리였다 — "상세 보기"가 아니라 사실상 **두 번째 수정 화면**이었다. 이제 부품
+    상세와 동일한 구조다: 헤더 / 지표 4종 / 읽기 전용 섹션 6개 / 사이드(첨부 문서·등록 정보).
+    편집은 `/app/products/[id]/edit`(`ProductFormV2`) 로 분리된 채 유지된다.
+    - **회귀 방지 조치가 하나 들어 있다**: 이전 상세의 `ComponentManager` 가 제공하던 부품
+      추가·제거가 **다른 화면에 없어서**, 읽기 전용 목록으로만 두면 기존 제품의 부품 구성을
+      바꿀 방법이 사라진다. 그래서 시안 반영본 `ComponentComposition`(1·2·3차 포장재 + 신규
+      등록/기존 추가)을 본문 하단에 붙였다.
+    - **남은 일**: 이로써 `ProductForm`·`PackagingStructure`·`ComponentManager` 는 참조가
+      **0곳**이 됐다. 원 커밋이 "다른 세션 작업과 얽힐 수 있어" 삭제를 미뤘으므로 여기도
+      그대로 남겨 둔다 — 지우는 것은 **mono 쪽 후속 작업**이고, 정본이 지우면 그때 따라온다.
+  - `a12d8cc3` → `dcb611b` — 토스트를 시안 Success/Danger **Alert 스펙**에 맞춤
+    (`components/ui/Toast.tsx`, +9/-4). width 400(min 269) · radius 8 · **좌측 6px 강조선**
+    (사방 1px 아님) · padding 15/18 · gap 12 · bg `#DAF8E6`/`#FEF3F3`. 원 커밋에 계산된
+    스타일로 확인한 기록이 있다.
+  - 검증: 이송 전 `front/` 가 `fccc5db5:ppwr/front` 와, 이송 후 `a12d8cc3:ppwr/front` 와
+    **blob hash 까지 일치**(184 vs 183 파일, 차이는 상시 예외 4개뿐 — `next.config.ts`·
+    `.claude/launch.json`·`pnpm-lock.yaml`·`.env.local.example`). `tsc --noEmit` **에러 0**
+    (`rm -rf front/.next` 후). `package.json` 무변경이라 lockfile 재생성 불필요.
+    `origin/feat/ppwr-all` 도 `a12d8cc3` 로 동일. 바뀐 두 파일에 절대 URL 생성
+    (`http(s)://`·`window.location.origin`) 없음 — `BASE_PATH` 프리픽스 확인 불필요.
+  - **판단 대기 항목은 그대로 4건** — `e48f4e2b`(제품 필터 5종) + `facbb8f3`·`b207508a`·
+    `a6d0ba68`. 이번에도 손대지 않았다. 브랜치 전수 스캔(merge-base 대비 `ppwr/` diff 가
+    비지 않은 ref) 결과 **새로 생긴 항목은 없다** — 6차와 똑같이 `feat/dashboard`·
+    `feat/profile`·`origin/feat/profile`·`feat/ppwr`/`origin/feat/ppwr` 뿐이다.
