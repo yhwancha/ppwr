@@ -88,11 +88,14 @@ function CardFooter({ item }: { item: DiagnosisItem }) {
 
 export default function DiagnosisCard({
   item,
+  thumbUrl,
   selected,
   onSelect,
   onDelete,
 }: {
   item: DiagnosisItem;
+  /** 첫 제품 사진의 서명 URL. 없으면 아이콘 플레이스홀더를 쓴다. */
+  thumbUrl?: string;
   selected: boolean;
   onSelect: () => void;
   /** hover 액션의 삭제 — 확인 모달은 목록 쪽에서 띄운다 */
@@ -115,9 +118,18 @@ export default function DiagnosisCard({
       >
         {/* 헤더: 썸네일 + 제품명 + 상태칩 */}
         <div className="flex items-start gap-3 p-4">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
-            <Package className="h-6 w-6" />
-          </span>
+          {thumbUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element -- 서명 URL 은 만료되므로 next/image 최적화 대상이 아니다 */
+            <img
+              src={thumbUrl}
+              alt=""
+              className="h-14 w-14 shrink-0 rounded-lg bg-slate-100 object-cover"
+            />
+          ) : (
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
+              <Package className="h-6 w-6" />
+            </span>
+          )}
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <p className="truncate text-sm font-bold text-ink">{item.name}</p>

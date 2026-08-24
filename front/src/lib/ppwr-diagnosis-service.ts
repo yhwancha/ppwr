@@ -1,5 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/src/types/database.types';
+import { PK, decodeProductAttrs, productAttrList } from '@/src/lib/ppwr-product-attrs';
 
 type ProductRow = Database['ppwr']['Tables']['Product']['Row'];
 type AssessmentRow = Database['ppwr']['Tables']['AssessmentResult']['Row'];
@@ -50,6 +51,8 @@ export type DiagnosisItem = {
   name: string;
   sku: string | null;
   category: string | null;
+  /** 카드 썸네일용 첫 제품 사진의 스토리지 경로. 서명 URL 발급은 화면에서 한다. */
+  photoKey: string | null;
   status: DiagnosisStatus;
   updatedAt: string;
 
@@ -257,6 +260,8 @@ export class PpwrDiagnosisService {
       name: product.name,
       sku: product.sku ?? product.identifier_no,
       category: product.category,
+      photoKey:
+        productAttrList(decodeProductAttrs(product.memo), PK.photos)[0] ?? null,
       status,
       updatedAt: product.updated_at,
 

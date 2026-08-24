@@ -18,7 +18,7 @@ import { ConfirmDialog } from "@/components/ui/Dialog";
 import { GENERIC_ERROR, useToast } from "@/components/ui/Toast";
 import DiagnosisCard from "@/components/diagnosis/DiagnosisCard";
 import { EntryFeed, OverviewList, ReportFeed, type OverviewRow } from "@/components/diagnosis/FeedPanel";
-import { getPpwrDiagnosisService } from "@/src/shared/api";
+import { getPpwrDiagnosisService, getPpwrEvidenceService } from "@/src/shared/api";
 import type { DiagnosisItem, DiagnosisStatus } from "@/src/lib/ppwr-diagnosis-service";
 
 const tabs: { key: "all" | DiagnosisStatus; label: string; icon: React.ElementType }[] = [
@@ -62,6 +62,18 @@ export default function DiagnosisPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["ppwr", "diagnosis"],
     queryFn: () => getPpwrDiagnosisService().list(),
+  });
+
+  // 카드 썸네일 — 제품 목록과 같은 방식으로 첫 사진의 서명 URL 을 따로 받는다.
+  // (목록 질의와 분리해 두면 URL 만료 시 이 질의만 다시 돌면 된다)
+  const photoKeys = useMemo(
+    () => [...new Set((data ?? []).map((i) => i.photoKey).filter((k): k is string => !!k))],
+    [data],
+  );
+  const { data: thumbs } = useQuery({
+    queryKey: ["ppwr", "diagnosis", "thumbs", photoKeys],
+    queryFn: () => getPpwrEvidenceService().signedUrls(photoKeys),
+    enabled: photoKeys.length > 0,
   });
 
   const items = useMemo<DiagnosisItem[]>(() => {
@@ -230,6 +242,7 @@ export default function DiagnosisPage() {
                 <DiagnosisCard
                   key={item.productId}
                   item={item}
+                  thumbUrl={item.photoKey ? thumbs?.get(item.photoKey) : undefined}
                   selected={selected?.productId === item.productId}
                   onSelect={() => setSelectedId(item.productId)}
                   onDelete={() => setPendingDelete(item)}
