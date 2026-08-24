@@ -87,6 +87,7 @@ export function ConfirmDialog({
   pending,
   onConfirm,
   onCancel,
+  width = "max-w-md",
 }: {
   open: boolean;
   title: string;
@@ -94,6 +95,8 @@ export function ConfirmDialog({
   confirmLabel?: string;
   cancelLabel?: string;
   tone?: "primary" | "danger";
+  /** 본문이 길어 줄이 어색하게 접힐 때만 넓힌다 (Modal 과 동일한 규약) */
+  width?: string;
   pending?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -112,9 +115,15 @@ export function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-ink/30" onClick={onCancel} aria-hidden />
-      <div role="alertdialog" aria-modal="true" className="relative w-full max-w-md rounded-2xl bg-white p-7 shadow-2xl">
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        className={cx("relative w-full rounded-2xl bg-white p-7 shadow-2xl", width)}
+      >
         <h2 className="text-base font-bold text-ink">{title}</h2>
-        {description && <div className="mt-3 text-sm leading-relaxed text-slate-500">{description}</div>}
+        {description && (
+          <div className="mt-3 break-keep text-sm leading-relaxed text-slate-500">{description}</div>
+        )}
         <div className="mt-7 flex justify-end gap-2">
           <button
             type="button"

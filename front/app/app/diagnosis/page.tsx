@@ -311,6 +311,8 @@ export default function DiagnosisPage() {
           </>
         }
         confirmLabel="삭제"
+        // 안내 첫 줄이 한 줄에 들어가야 해서 기본 폭(max-w-md)보다 넓힌다
+        width="max-w-xl"
         pending={deleting}
         onCancel={() => setPendingDelete(null)}
         onConfirm={() => void confirmDelete()}
