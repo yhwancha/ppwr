@@ -41,7 +41,7 @@ git am --3way --directory=front /tmp/p/*.patch
 
 | 이 repo | = mono | 시점 |
 |---|---|---|
-| tag `mono-sync` | `b4528c3b` (`feat/ppwr-all`) | 2026-08-24 (9차 이송) |
+| tag `mono-sync` | `b4528c3b` (`feat/ppwr-all`) | 2026-08-24 (10차 검증 — 9차 이송 이후 무변경) |
 
 > 이송 기준점은 **`mono-sync` 태그**다. 커밋 hash 는 amend/rebase 로 바뀌므로 쓰지 않는다.
 > 이송을 끝낼 때마다 태그를 옮긴다: `git tag -f mono-sync HEAD` (그리고 위 표의 mono 쪽을 갱신).
@@ -333,3 +333,29 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
     `feat/ppwr-payment`(1 ahead)·`feat/ppwr-prod-proxy`(27 ahead)·`origin/dev`(3 ahead) 는
     merge-base 대비 `ppwr/` diff 가 비어 있다. mono 워크트리 6개 중 5개 clean,
     `restudio-ppwr-products`(`feat/ppwr-all`)만 위의 untracked 3덩이로 더럽다.
+
+- **2026-08-24 (10차, 검증만)** — **이송할 것 없음.** mono 정본 라인 `feat/ppwr-all` 이
+  9차와 같은 `b4528c3b` 에서 **한 커밋도 움직이지 않았다**(`git fetch --all` 직후 확인,
+  `origin/feat/ppwr-all` 도 같은 hash). 여기 `main`(`060d769`, tag `mono-sync`)의 `front/` 는
+  `b4528c3b:ppwr/front` 와 **blob hash 까지 일치**(188 vs 189 파일, 차이는 상시 예외
+  4개뿐 — mono 만 `.env.local.example`, 여기만 `.claude/launch.json`·`pnpm-lock.yaml`,
+  그리고 의도적으로 다른 `next.config.ts`). `main` 은 `origin/main` 과 0/0.
+  - `tsc --noEmit`: **에러 0**(`rm -rf front/.next` 후). 9차에서 함께 들어온 CSV 헤더 매핑
+    3덩이(`src/lib/ppwr-csv-mapping.ts`·`app/api/csv-mapping/route.ts`·`public/samples/*.csv`)
+    도 타입 통과 상태 그대로다. **호출부는 이번에도 0곳** — 따라서 8차·9차에 예고한
+    `BASE_PATH` 검토 지점(샘플 CSV 를 클라이언트 링크로 내려받게 붙이는 시점)은 **아직
+    발생하지 않았다**. 그 커밋이 올 때 다시 본다.
+  - mono 워크트리 **6개 전부 clean** — 8차에서 발견됐던 것 같은 미커밋 작업이 이번엔 없다.
+    (`restudio-mono`[dev]·`mono-ppwr`[feat/ppwr-front-sync]·`mono-sku`[feat/ppwr-sku]·
+    `.claude/worktrees/ppwr-chat`·`.claude/worktrees/ppwr-diagnosis`·
+    `restudio-ppwr-products`[feat/ppwr-all])
+  - **판단 대기 항목은 그대로 4건** — `e48f4e2b`(제품 필터 5종; `feat/ppwr-all` 에서 **도달은
+    가능하나** 머지 `14ba7d81` 이 내용을 통째로 해소해 트리에는 없음) + `facbb8f3`·`b207508a`
+    (`feat/profile`) + `a6d0ba68`(`feat/dashboard`). 이번에도 손대지 않았다. 브랜치 전수 스캔
+    (merge-base 대비 `ppwr/` diff 가 비지 않은 ref) 결과 **새로 생긴 항목은 없다** — 걸린 것은
+    `feat/dashboard`·`feat/profile`·`origin/feat/profile`·`feat/ppwr`/`origin/feat/ppwr` 뿐이고
+    전부 이미 기록된 것이다.
+  - 한 가지만 새로 확인해 기록한다: `feat/ppwr`(7월 폐기 라인)이 `origin/feat/ppwr` 보다
+    **로컬로 1 커밋 앞서 있다** — `26081729`(08-05, 중복 ppwr 파운데이션 마이그레이션 9개 삭제).
+    `supabase/migrations/**` 전용이라 `ppwr/` diff 는 `origin/feat/ppwr` 와 **동일**
+    (47 files / +2471). 즉 판단 대기 항목의 내용을 바꾸지 않는다.
