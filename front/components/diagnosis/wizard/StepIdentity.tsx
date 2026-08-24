@@ -1,6 +1,16 @@
 "use client";
 
-import { CheckRow, Field, FieldGroup, StepCard } from "./parts";
+import {
+  AddressEnFields,
+  CheckSection,
+  Field,
+  FieldGroup,
+  FilePickField,
+  SelectField,
+  StepCard,
+  TextareaField,
+} from "./parts";
+import { EU_MEMBER_STATES_EN } from "@/src/lib/ppwr-product-spec";
 
 export type IdentityForm = {
   contactName: string;
@@ -22,6 +32,32 @@ export type IdentityForm = {
   isEuImporter: boolean;
   hasEuRepresentative: boolean;
   hasEprRegistration: boolean;
+
+  /* EU 수입자 정보 — isEuImporter 일 때만 */
+  importerCompanyEn: string;
+  importerBuildingNumber: string;
+  importerStreet: string;
+  importerCity: string;
+  importerCountry: string;
+  importerPostalCode: string;
+  importerContactName: string;
+  importerContactEmail: string;
+
+  /* EU 권한대리인 정보 — hasEuRepresentative 일 때만 */
+  repCompanyEn: string;
+  repBuildingNumber: string;
+  repStreet: string;
+  repCity: string;
+  repCountry: string;
+  repPostalCode: string;
+  repContactName: string;
+  repContactEmail: string;
+  repMandateScope: string;
+
+  /* EPR 등록 정보 — hasEprRegistration 일 때만 */
+  eprMemberState: string;
+  eprRegistrationNo: string;
+  eprRegistrant: string;
 };
 
 export const EMPTY_IDENTITY: IdentityForm = {
@@ -44,6 +80,29 @@ export const EMPTY_IDENTITY: IdentityForm = {
   isEuImporter: false,
   hasEuRepresentative: false,
   hasEprRegistration: false,
+
+  importerCompanyEn: "",
+  importerBuildingNumber: "",
+  importerStreet: "",
+  importerCity: "",
+  importerCountry: "",
+  importerPostalCode: "",
+  importerContactName: "",
+  importerContactEmail: "",
+
+  repCompanyEn: "",
+  repBuildingNumber: "",
+  repStreet: "",
+  repCity: "",
+  repCountry: "",
+  repPostalCode: "",
+  repContactName: "",
+  repContactEmail: "",
+  repMandateScope: "",
+
+  eprMemberState: "",
+  eprRegistrationNo: "",
+  eprRegistrant: "",
 };
 
 /** 1단계에서 비어 있으면 안 되는 필드 */
@@ -68,9 +127,14 @@ export const IDENTITY_REQUIRED: (keyof IdentityForm)[] = [
 export default function StepIdentity({
   value,
   onChange,
+  mandateFiles,
+  onMandateFilesChange,
 }: {
   value: IdentityForm;
   onChange: (patch: Partial<IdentityForm>) => void;
+  /** 위임 문서 — 아직 붙일 엔티티가 없어 상위에서 메모리로만 들고 있다 */
+  mandateFiles: File[];
+  onMandateFilesChange: (next: File[]) => void;
 }) {
   const set = (k: keyof IdentityForm) => (v: string) => onChange({ [k]: v });
 
@@ -163,21 +227,117 @@ export default function StepIdentity({
         </div>
 
         <div className="mt-5 space-y-2.5">
-          <CheckRow
+          <CheckSection
             label="EU 수입자이신가요?"
             checked={value.isEuImporter}
             onChange={(v) => onChange({ isEuImporter: v })}
-          />
-          <CheckRow
+            title="EU 수입자 정보"
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="기업명 (영문)" value={value.importerCompanyEn} onChange={set("importerCompanyEn")} />
+              <AddressEnFields
+                value={{
+                  buildingNumber: value.importerBuildingNumber,
+                  street: value.importerStreet,
+                  city: value.importerCity,
+                  country: value.importerCountry,
+                  postalCode: value.importerPostalCode,
+                }}
+                onChange={(patch) =>
+                  onChange({
+                    importerBuildingNumber: patch.buildingNumber ?? value.importerBuildingNumber,
+                    importerStreet: patch.street ?? value.importerStreet,
+                    importerCity: patch.city ?? value.importerCity,
+                    importerCountry: patch.country ?? value.importerCountry,
+                    importerPostalCode: patch.postalCode ?? value.importerPostalCode,
+                  })
+                }
+              />
+              <Field label="담당자 성명" value={value.importerContactName} onChange={set("importerContactName")} />
+              <Field
+                label="담당자 이메일"
+                type="email"
+                value={value.importerContactEmail}
+                onChange={set("importerContactEmail")}
+              />
+            </div>
+          </CheckSection>
+
+          <CheckSection
             label="EU 권한 대리인이 있나요?"
             checked={value.hasEuRepresentative}
             onChange={(v) => onChange({ hasEuRepresentative: v })}
-          />
-          <CheckRow
+            title="EU 권한대리인 정보"
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="기업명 (영문)" value={value.repCompanyEn} onChange={set("repCompanyEn")} />
+              <AddressEnFields
+                value={{
+                  buildingNumber: value.repBuildingNumber,
+                  street: value.repStreet,
+                  city: value.repCity,
+                  country: value.repCountry,
+                  postalCode: value.repPostalCode,
+                }}
+                onChange={(patch) =>
+                  onChange({
+                    repBuildingNumber: patch.buildingNumber ?? value.repBuildingNumber,
+                    repStreet: patch.street ?? value.repStreet,
+                    repCity: patch.city ?? value.repCity,
+                    repCountry: patch.country ?? value.repCountry,
+                    repPostalCode: patch.postalCode ?? value.repPostalCode,
+                  })
+                }
+              />
+              <Field label="담당자 성명" value={value.repContactName} onChange={set("repContactName")} />
+              <Field
+                label="담당자 이메일"
+                type="email"
+                value={value.repContactEmail}
+                onChange={set("repContactEmail")}
+              />
+              <TextareaField
+                label="위임 범위"
+                value={value.repMandateScope}
+                onChange={set("repMandateScope")}
+                placeholder="입력된 위임 범위입니다."
+              />
+              <FilePickField
+                label="위임 문서"
+                files={mandateFiles}
+                onAdd={(picked) => onMandateFilesChange([...mandateFiles, ...picked])}
+                onRemove={(i) => onMandateFilesChange(mandateFiles.filter((_, x) => x !== i))}
+              />
+            </div>
+          </CheckSection>
+
+          <CheckSection
             label="EPR 등록 정보가 있나요?"
             checked={value.hasEprRegistration}
             onChange={(v) => onChange({ hasEprRegistration: v })}
-          />
+            title="EPR 등록 정보"
+          >
+            <div className="grid gap-4 sm:grid-cols-3">
+              <SelectField
+                label="회원국"
+                value={value.eprMemberState}
+                onChange={set("eprMemberState")}
+                options={EU_MEMBER_STATES_EN}
+              />
+              <Field
+                label="등록 번호"
+                value={value.eprRegistrationNo}
+                onChange={set("eprRegistrationNo")}
+                placeholder="DE1234567890123"
+              />
+              <Field
+                label="등록 주체"
+                value={value.eprRegistrant}
+                onChange={set("eprRegistrant")}
+                placeholder="입력된 등록 주체"
+              />
+            </div>
+          </CheckSection>
         </div>
       </FieldGroup>
     </StepCard>

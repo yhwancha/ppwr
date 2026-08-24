@@ -44,6 +44,7 @@ export default function DocChecklist({
   onDownload,
   disabled,
   busyKey,
+  variant = "card",
 }: {
   entries: DocEntry[];
   onPick: (docName: string, files: File[]) => void;
@@ -52,9 +53,14 @@ export default function DocChecklist({
   disabled?: boolean;
   /** 업로드/삭제 진행 중인 문서명 (버튼 잠금용) */
   busyKey?: string | null;
+  /**
+   * card  — 문서마다 테두리 카드 + 확인 목적 문구 (부품 등록·수정)
+   * plain — 구분선으로만 나눈 목록 (제품 등록 시안)
+   */
+  variant?: "card" | "plain";
 }) {
   return (
-    <div className="space-y-3">
+    <div className={variant === "plain" ? "divide-y divide-slate-100" : "space-y-3"}>
       {entries.map((entry) => (
         <DocRow
           key={entry.doc.name}
@@ -64,6 +70,7 @@ export default function DocChecklist({
           onDownload={onDownload}
           disabled={disabled}
           busy={busyKey === entry.doc.name}
+          variant={variant}
         />
       ))}
     </div>
@@ -77,6 +84,7 @@ function DocRow({
   onDownload,
   disabled,
   busy,
+  variant,
 }: {
   entry: DocEntry;
   onPick: (docName: string, files: File[]) => void;
@@ -84,25 +92,34 @@ function DocRow({
   onDownload?: (file: DocFile) => void;
   disabled?: boolean;
   busy?: boolean;
+  variant: "card" | "plain";
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { doc, state, files } = entry;
   const full = files.length >= MAX_FILES_PER_DOC;
+  const plain = variant === "plain";
+  const badge = (
+    <span className={cx("rounded-md px-2 py-0.5 text-[11px] font-bold", DOC_STATE_CLASS[state])}>
+      {DOC_STATE_LABEL[state]}
+    </span>
+  );
 
   return (
-    <div className="rounded-xl border border-slate-200 p-5">
+    <div className={plain ? "py-5 first:pt-0 last:pb-0" : "rounded-xl border border-slate-200 p-5"}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-[220px] flex-1">
           <p className="text-sm font-bold text-ink">
-            {doc.name} {doc.required && <span className="text-danger">(필수)</span>}
+            {doc.name} {!plain && doc.required && <span className="text-danger">(필수)</span>}
           </p>
-          <p className="mt-1 text-xs leading-relaxed text-slate-400">확인 목적: {doc.purpose}</p>
+          {plain ? (
+            <div className="mt-1.5">{badge}</div>
+          ) : (
+            <p className="mt-1 text-xs leading-relaxed text-slate-400">확인 목적: {doc.purpose}</p>
+          )}
         </div>
 
         <div className="flex flex-col items-end gap-1.5">
-          <span className={cx("rounded-md px-2 py-0.5 text-[11px] font-bold", DOC_STATE_CLASS[state])}>
-            {DOC_STATE_LABEL[state]}
-          </span>
+          {!plain && badge}
           <button
             type="button"
             disabled={disabled || busy || full}

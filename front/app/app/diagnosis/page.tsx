@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   Clock,
@@ -14,8 +14,10 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Topbar from "@/components/app/Topbar";
+import { ConfirmDialog } from "@/components/ui/Dialog";
+import { GENERIC_ERROR, useToast } from "@/components/ui/Toast";
 import DiagnosisCard from "@/components/diagnosis/DiagnosisCard";
-import { EntryFeed, ReportFeed } from "@/components/diagnosis/FeedPanel";
+import { EntryFeed, OverviewList, ReportFeed, type OverviewRow } from "@/components/diagnosis/FeedPanel";
 import { getPpwrDiagnosisService } from "@/src/shared/api";
 import type { DiagnosisItem, DiagnosisStatus } from "@/src/lib/ppwr-diagnosis-service";
 
@@ -52,6 +54,10 @@ export default function DiagnosisPage() {
   const [q, setQ] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [pendingDelete, setPendingDelete] = useState<DiagnosisItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const qc = useQueryClient();
+  const toast = useToast();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["ppwr", "diagnosis"],
@@ -84,10 +90,58 @@ export default function DiagnosisPage() {
     };
   }, [data]);
 
-  // 선택된 카드가 필터에서 빠지면 목록의 첫 항목으로 되돌린다
-  const selected = items.find((i) => i.productId === selectedId) ?? items[0] ?? null;
+  // 시안대로 처음에는 아무것도 선택하지 않는다 — 우측은 안내 문구만 뜬다.
+  // 선택한 카드가 필터에서 빠지면 다시 미선택으로 돌아간다.
+  const selected = items.find((i) => i.productId === selectedId) ?? null;
   const empty = emptyMessages(selected?.status);
   const reportFeed = (selected?.reportFeed ?? []).filter((e) => !dismissed.has(e.id));
+
+  // 하단 두 목록은 선택과 무관하게 전 제품을 모아 본다
+  const supplementRows = useMemo<OverviewRow[]>(
+    () =>
+      (data ?? [])
+        .flatMap((i) =>
+          [...i.productFeed, ...i.componentFeed].map((e) => ({
+            id: `${i.productId}-${e.id}`,
+            product: i.name,
+            message: e.message,
+            at: e.at ?? i.updatedAt,
+          })),
+        )
+        .sort((a, b) => String(b.at ?? "").localeCompare(String(a.at ?? ""))),
+    [data],
+  );
+
+  const logRows = useMemo<OverviewRow[]>(
+    () =>
+      (data ?? [])
+        .flatMap((i) =>
+          i.reportFeed.map((e) => ({
+            id: `${i.productId}-${e.id}`,
+            product: i.name,
+            message: e.message,
+            at: e.at,
+          })),
+        )
+        .sort((a, b) => String(b.at ?? "").localeCompare(String(a.at ?? ""))),
+    [data],
+  );
+
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    try {
+      await getPpwrDiagnosisService().remove(pendingDelete.productId);
+      if (selectedId === pendingDelete.productId) setSelectedId(null);
+      await qc.invalidateQueries({ queryKey: ["ppwr", "diagnosis"] });
+      toast.show("success", "성공적으로 삭제했습니다.");
+      setPendingDelete(null);
+    } catch (e) {
+      toast.show("danger", e instanceof Error ? e.message : GENERIC_ERROR);
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   return (
     <>
@@ -169,7 +223,7 @@ export default function DiagnosisPage() {
               {isLoading && <p className="py-10 text-center text-sm text-slate-400">불러오는 중…</p>}
               {!isLoading && items.length === 0 && (
                 <p className="rounded-xl border border-dashed border-slate-200 py-14 text-center text-sm text-slate-400">
-                  진단 중인 제품이 없습니다.
+                  아직 진단 관리 중인 제품이 없습니다.
                 </p>
               )}
               {items.map((item) => (
@@ -178,42 +232,76 @@ export default function DiagnosisPage() {
                   item={item}
                   selected={selected?.productId === item.productId}
                   onSelect={() => setSelectedId(item.productId)}
+                  onDelete={() => setPendingDelete(item)}
                 />
               ))}
             </div>
           </div>
 
-          <div className="space-y-8">
-            <EntryFeed
-              title="제품 피드"
-              action={
-                selected
-                  ? { label: "제품 정보", href: `/app/products/${selected.productId}` }
-                  : undefined
-              }
-              entries={selected?.productFeed ?? []}
-              emptyMessage={empty.entry}
-              requiredNotice={selected?.status === "draft"}
-            />
-            <EntryFeed
-              title="부품 피드"
-              action={
-                selected
-                  ? { label: "부품 정보", href: `/app/products/${selected.productId}` }
-                  : undefined
-              }
-              entries={selected?.componentFeed ?? []}
-              emptyMessage={empty.entry}
-              requiredNotice={selected?.status === "draft"}
-            />
-            <ReportFeed
-              entries={reportFeed}
-              emptyMessage={empty.report}
-              onDismiss={(id) => setDismissed((prev) => new Set(prev).add(id))}
-            />
-          </div>
+          {selected ? (
+            <div className="space-y-8">
+              <EntryFeed
+                title="제품 피드"
+                action={{ label: "제품 정보", href: `/app/products/${selected.productId}` }}
+                entries={selected.productFeed}
+                emptyMessage={empty.entry}
+                requiredNotice={selected.status === "draft"}
+              />
+              <EntryFeed
+                title="부품 피드"
+                action={{ label: "부품 정보", href: `/app/products/${selected.productId}` }}
+                entries={selected.componentFeed}
+                emptyMessage={empty.entry}
+                requiredNotice={selected.status === "draft"}
+              />
+              <ReportFeed
+                entries={reportFeed}
+                emptyMessage={empty.report}
+                onDismiss={(id) => setDismissed((prev) => new Set(prev).add(id))}
+              />
+            </div>
+          ) : (
+            /* 시안: 아무것도 고르지 않았을 때는 안내 문구만 */
+            <section className="flex flex-col">
+              <h2 className="text-base font-bold text-ink">제품 피드</h2>
+              <div className="mt-3 flex min-h-[420px] flex-1 items-center justify-center rounded-xl bg-slate-200/60 px-6 text-center text-sm text-slate-500">
+                왼쪽에서 제품을 선택하면 여기에 제품에 대한 피드 내용이 표시됩니다.
+              </div>
+            </section>
+          )}
+        </div>
+
+        {/* 하단: 전 제품 기준 요약 2열 */}
+        <div className="mt-10 grid gap-8 lg:grid-cols-2">
+          <OverviewList
+            title="보완해야 할 내용"
+            count={supplementRows.length}
+            rows={supplementRows}
+            emptyMessage="보완해야 할 내용이 없습니다."
+          />
+          <OverviewList
+            title="최근 진행 로그"
+            rows={logRows}
+            emptyMessage="진행 로그가 없습니다."
+          />
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingDelete != null}
+        title="정말 이 진단을 삭제하시겠습니까?"
+        description={
+          <>
+            진단을 삭제하면 해당 진단에 포함된 리포트 발행기록이 모두 삭제됩니다.
+            <br />
+            진단을 삭제해도 해당 제품과 부품 및 서류는 삭제되지 않습니다.
+          </>
+        }
+        confirmLabel="삭제"
+        pending={deleting}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => void confirmDelete()}
+      />
     </>
   );
 }

@@ -1,18 +1,23 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload } from "lucide-react";
+import { Download, Upload } from "lucide-react";
 import { Modal } from "@/components/ui/Dialog";
 import { GENERIC_ERROR, useToast } from "@/components/ui/Toast";
 import { getPpwrProductService } from "@/src/shared/api";
 import { encodeProductAttrs } from "@/src/lib/ppwr-product-attrs";
-import { CSV_COLUMNS, parseCsv } from "@/src/lib/ppwr-product-spec";
+import { CSV_COLUMNS, csvTemplate, parseCsv } from "@/src/lib/ppwr-product-spec";
 import type { PpwrProductCreateInput } from "@/src/lib/ppwr-product-service";
 
 /**
- * CSV 일괄 등록 모달.
+ * 제품 일괄 등록 모달.
  *
- * ⚠️ 시안에는 "CSV 템플릿 제작 필요"로만 표시되어 확정 컬럼 스펙이 없다.
+ * ⚠️ 시안은 "XLS로 업로드"라고 쓰여 있지만 .xlsx/.xls 는 바이너리라 파서 의존성
+ *    (SheetJS·exceljs 등)이 있어야 읽을 수 있고, ppwr-front 에는 아직 없다.
+ *    지금은 CSV 만 실제로 파싱하고, 엑셀 파일을 고르면 CSV 로 저장해 달라고 안내한다.
+ *    파서를 넣으면 read() 의 분기만 바꾸면 된다.
+ *
+ * ⚠️ 컬럼 스펙도 시안에 "템플릿 제작 필요"로만 표시되어 확정본이 없다.
  *    지금은 등록 폼 항목을 그대로 편 템플릿(ppwr-product-spec.CSV_COLUMNS)을 기준으로 파싱한다.
  *    헤더가 템플릿과 다르면 그 컬럼은 무시하고, 필수값이 빠진 행은 등록 전에 걸러 알려준다.
  */
@@ -41,6 +46,12 @@ export default function CsvUploadModal({
   async function read(file: File) {
     reset();
     setFileName(file.name);
+    if (/\.xlsx?$/i.test(file.name)) {
+      setProblems([
+        "엑셀(.xlsx/.xls) 파일은 아직 직접 읽지 못합니다. 엑셀에서 \"다른 이름으로 저장 → CSV UTF-8\" 로 내보낸 뒤 올려 주세요.",
+      ]);
+      return;
+    }
     const text = await file.text();
     const table = parseCsv(text);
     if (table.length < 2) {
@@ -114,7 +125,7 @@ export default function CsvUploadModal({
         reset();
         onClose();
       }}
-      title="CSV로 제품 일괄 등록"
+      title="XLS로 제품 일괄 등록"
       width="max-w-xl"
       footer={
         <>
@@ -145,13 +156,13 @@ export default function CsvUploadModal({
         className="flex w-full flex-col items-center gap-2 rounded-xl border border-dashed border-slate-300 px-6 py-10 text-center hover:border-primary"
       >
         <Upload className="h-6 w-6 text-slate-400" />
-        <span className="text-sm font-semibold text-ink">{fileName ?? "CSV 파일 선택"}</span>
-        <span className="text-xs text-slate-400">템플릿을 내려받아 채운 뒤 올려주세요</span>
+        <span className="text-sm font-semibold text-ink">{fileName ?? "파일 선택"}</span>
+        <span className="text-xs text-slate-400">템플릿을 내려받아 채운 뒤 CSV 로 올려주세요</span>
       </button>
       <input
         ref={fileRef}
         type="file"
-        accept=".csv"
+        accept=".csv,.xlsx,.xls"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -159,6 +170,14 @@ export default function CsvUploadModal({
           if (file) void read(file);
         }}
       />
+
+      <button
+        type="button"
+        onClick={downloadTemplate}
+        className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+      >
+        <Download className="h-4 w-4" /> 템플릿 다운로드
+      </button>
 
       {problems.length > 0 && (
         <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
@@ -183,4 +202,15 @@ export default function CsvUploadModal({
       )}
     </Modal>
   );
+}
+
+/** 브라우저에서 템플릿을 내려받는다 (서버 왕복 없이 Blob) */
+function downloadTemplate() {
+  const blob = new Blob([csvTemplate()], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "ppwr-제품등록-템플릿.csv";
+  a.click();
+  URL.revokeObjectURL(url);
 }

@@ -85,16 +85,24 @@ export default function StepProduct({
       title="제품 정보 입력"
       description="기존에 만들어진 제품과 부품의 정보를 검토합니다."
     >
-      {/* 진단할 제품 선택 */}
-      <div className="flex items-center justify-between">
+      {/* 진단할 제품 — 기존 제품에서 고르거나 새로 등록한다 */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-bold text-ink">진단할 제품 선택</h3>
-        <button
-          type="button"
-          onClick={() => setPicking((v) => !v)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-        >
-          <Search className="h-3.5 w-3.5" /> 제품 선택
-        </button>
+        <div className="flex gap-2">
+          <Link
+            href="/app/diagnosis/new/product"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-ink px-3.5 py-2 text-xs font-semibold text-white hover:bg-ink-soft"
+          >
+            <Plus className="h-3.5 w-3.5" /> 새 제품 등록
+          </Link>
+          <button
+            type="button"
+            onClick={() => setPicking((v) => !v)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            <Search className="h-3.5 w-3.5" /> 기존 제품 선택
+          </button>
+        </div>
       </div>
 
       {picking && (

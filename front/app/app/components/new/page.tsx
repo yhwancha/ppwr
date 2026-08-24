@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Topbar from "@/components/app/Topbar";
 import ComponentForm from "@/components/component/ComponentForm";
 import ChatPanel from "@/components/chat/ChatPanel";
+import { getPpwrComponentService } from "@/src/shared/api";
 import { specForType } from "@/src/lib/ppwr-component-spec";
 
 /**
@@ -18,6 +19,27 @@ function ComponentNewInner() {
   const params = useSearchParams();
   const typeKey = params.get("type") ?? "";
   const spec = specForType(typeKey);
+
+  // 진단 시작의 '새 부품 등록'으로 들어오면 저장 직후 그 제품에 바로 붙이고 되돌아간다.
+  // (부품 등록 프로세스 자체는 부품 관리에서 들어올 때와 동일하다)
+  const attachTo = Number(params.get("attachTo")) || null;
+  const attachLevel = Number(params.get("level")) || 1;
+  const returnTo = params.get("returnTo");
+
+  async function handleSaved(id: number) {
+    if (attachTo != null) {
+      try {
+        await getPpwrComponentService().addInstance(attachTo, id, {
+          packaging_level: attachLevel,
+        });
+      } catch {
+        // 붙이기에 실패해도 부품 자체는 저장됐다. 제품 쪽에서 '기존 부품 추가'로 붙일 수 있다.
+      }
+      router.push(returnTo ?? `/app/components/${id}`);
+      return;
+    }
+    router.push(`/app/components/${id}`);
+  }
 
   if (!spec) {
     return (
@@ -50,8 +72,8 @@ function ComponentNewInner() {
         aside={
           <ChatPanel className="h-[520px] xl:sticky xl:top-6 xl:h-[calc(100vh-9rem)]" />
         }
-        onSaved={(id) => router.push(`/app/components/${id}`)}
-        onCancel={() => router.push("/app/components")}
+        onSaved={(id) => void handleSaved(id)}
+        onCancel={() => router.push(returnTo ?? "/app/components")}
       />
     </>
   );

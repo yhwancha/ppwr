@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, CheckCircle2, FileText, Layers, Package } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, FileText, Layers, Package, PencilLine, Trash2 } from "lucide-react";
 import type { DiagnosisItem, DiagnosisStatus } from "@/src/lib/ppwr-diagnosis-service";
 
 export const STATUS_META: Record<DiagnosisStatus, { label: string; chip: string }> = {
@@ -90,15 +90,18 @@ export default function DiagnosisCard({
   item,
   selected,
   onSelect,
+  onDelete,
 }: {
   item: DiagnosisItem;
   selected: boolean;
   onSelect: () => void;
+  /** hover 액션의 삭제 — 확인 모달은 목록 쪽에서 띄운다 */
+  onDelete: () => void;
 }) {
   const meta = STATUS_META[item.status];
 
   return (
-    <div>
+    <div className="group relative">
       <button
         type="button"
         onClick={onSelect}
@@ -118,7 +121,13 @@ export default function DiagnosisCard({
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <p className="truncate text-sm font-bold text-ink">{item.name}</p>
-              <span className={"shrink-0 rounded px-2 py-0.5 text-[11px] font-bold " + meta.chip}>
+              {/* hover 시 이 자리를 삭제·편집 버튼이 덮는다 (시안) */}
+              <span
+                className={
+                  "shrink-0 rounded px-2 py-0.5 text-[11px] font-bold transition-opacity group-hover:opacity-0 " +
+                  meta.chip
+                }
+              >
                 {meta.label}
               </span>
             </div>
@@ -150,6 +159,23 @@ export default function DiagnosisCard({
 
         <CardFooter item={item} />
       </button>
+
+      {/* hover 액션 — 카드 button 밖에 절대배치해야 버튼 중첩이 안 된다 */}
+      <div className="pointer-events-none absolute right-4 top-4 flex gap-1.5 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100">
+        <button
+          type="button"
+          onClick={onDelete}
+          className="inline-flex items-center gap-1 rounded-lg bg-danger px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-red-700"
+        >
+          <Trash2 className="h-3.5 w-3.5" /> 삭제
+        </button>
+        <Link
+          href={`/app/diagnosis/new?productId=${item.productId}`}
+          className="inline-flex items-center gap-1 rounded-lg bg-ink px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-ink-soft"
+        >
+          <PencilLine className="h-3.5 w-3.5" /> 편집
+        </Link>
+      </div>
 
       {/* 확정 카드를 선택하면 리포트/재진단 액션이 붙는다 */}
       {selected && item.status === "confirmed" && (

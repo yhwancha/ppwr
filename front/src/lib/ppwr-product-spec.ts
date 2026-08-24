@@ -58,9 +58,94 @@ export const EU_COUNTRIES = [
 ] as const;
 
 export const WEIGHT_UNITS = ["g", "kg", "mg"] as const;
+
+/**
+ * EPR 등록 회원국 (시안 드롭다운은 "Germany" 처럼 영문).
+ * EU_COUNTRIES 는 판매 예정국가용 국문 목록이라 별도로 둔다 — EPR 등록은 현지 기관에
+ * 내는 것이라 영문 국명이 그대로 쓰인다.
+ */
+export const EU_MEMBER_STATES_EN = [
+  "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Denmark", "Estonia",
+  "Finland", "France", "Germany", "Greece", "Hungary", "Ireland", "Italy", "Latvia",
+  "Lithuania", "Luxembourg", "Malta", "Netherlands", "Poland", "Portugal", "Romania",
+  "Slovakia", "Slovenia", "Spain", "Sweden",
+] as const;
 export const DIM_UNITS = ["mm", "cm"] as const;
 
+/** EU 연간 예상 수량 단위 (시안 "units (개)" 드롭다운) */
+export const VOLUME_UNITS = ["units (개)", "cases (박스)", "pallets (팔레트)"] as const;
+
 export const YES_NO = ["예", "아니오"] as const;
+
+/**
+ * HS Code 후보 — 시안 "코드 검색 또는 선택" 드롭다운.
+ *
+ * HS 코드 전체는 5천 개가 넘어 목록으로 다 담을 수 없다. PPWR 대상이 되는 소비재
+ * 위주로만 추려 두고, 여기 없는 코드는 검색창에 직접 입력해 확정할 수 있게 한다.
+ * (SearchSelect 의 allowFreeInput)
+ */
+export const HS_CODES: { code: string; label: string }[] = [
+  { code: "3304.10", label: "입술 화장품" },
+  { code: "3304.20", label: "눈 화장품" },
+  { code: "3304.99", label: "기초화장용 제품류" },
+  { code: "3305.10", label: "샴푸" },
+  { code: "3305.90", label: "기타 두발용 제품" },
+  { code: "3307.20", label: "데오도런트·발한 억제제" },
+  { code: "3401.11", label: "화장용 비누" },
+  { code: "3402.20", label: "소매용 세제·세정제" },
+  { code: "1905.90", label: "베이커리 제품" },
+  { code: "2106.90", label: "기타 조제 식료품" },
+  { code: "2009.89", label: "기타 과실·채소 주스" },
+  { code: "2202.10", label: "설탕 첨가 음료수" },
+  { code: "2202.99", label: "기타 비알코올 음료" },
+  { code: "3005.90", label: "탈지면·거즈·붕대" },
+  { code: "3924.90", label: "플라스틱제 가정용품" },
+  { code: "6911.10", label: "도자제 식탁·주방 용품" },
+  { code: "6109.10", label: "면제 티셔츠" },
+  { code: "6203.42", label: "남성용 면제 바지" },
+  { code: "4202.22", label: "핸드백" },
+  { code: "8471.30", label: "휴대용 자동자료처리기계" },
+  { code: "8517.62", label: "통신·데이터 수신 기기" },
+  { code: "8543.70", label: "기타 전기기기" },
+  { code: "9102.11", label: "손목시계(기계식 외)" },
+  { code: "9503.00", label: "완구" },
+  { code: "9504.90", label: "기타 게임용품" },
+];
+
+/**
+ * "예시 내용 채우기" 로 폼에 밀어넣는 표본 (AI 내용 입력 도우미).
+ * 시안의 placeholder 와 같은 화장품 세럼 기준.
+ */
+export const EXAMPLE_PRODUCT: Record<string, string> = {
+  name: "Daily Radiance Serum",
+  name_ko: "데일리 래디언스 세럼",
+  sku: "SER-50-01",
+  model_name: "SER-50",
+  identifier_no: "5020305920",
+  category: "화장품 / 뷰티",
+  manufacturing_country: "대한민국",
+  hs_code: "3304.99",
+  content_form: "액상",
+  storage_condition: "직사광선 차단",
+  net_weight: "50",
+  net_weight_unit: "g",
+  net_width: "38",
+  net_height: "120",
+  net_depth: "38",
+  net_dim_unit: "mm",
+  gross_weight: "142",
+  gross_weight_unit: "g",
+  gross_width: "45",
+  gross_height: "132",
+  gross_depth: "45",
+  gross_dim_unit: "mm",
+  eu_market_status: "출시 예정",
+  eu_launch_date: "2027-03-01",
+  eu_annual_volume: "24000",
+};
+
+/** 예시 채우기에서 함께 선택되는 EU 판매 예정국가 */
+export const EXAMPLE_EU_COUNTRIES = ["독일", "프랑스", "네덜란드"];
 
 /**
  * 제품 단위 첨부 문서.

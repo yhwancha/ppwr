@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Topbar from "@/components/app/Topbar";
+import ReportSampleModal from "@/components/diagnosis/ReportSampleModal";
 import { AiAssistant, Stepper, type StepNo } from "@/components/diagnosis/wizard/parts";
 import StepIdentity, {
   EMPTY_IDENTITY,
@@ -29,6 +30,9 @@ function DiagnosisWizard() {
   const [identity, setIdentity] = useState<IdentityForm>(EMPTY_IDENTITY);
   const [productId, setProductId] = useState<number | null>(presetProduct);
   const [agreed, setAgreed] = useState(false);
+  const [sampleOpen, setSampleOpen] = useState(false);
+  // 위임 문서 — 붙일 진단 row 가 아직 없어 메모리에만 둔다 (parts.FilePickField 주석 참고)
+  const [mandateFiles, setMandateFiles] = useState<File[]>([]);
 
   const missingIdentity = IDENTITY_REQUIRED.filter((k) => !identity[k]).length;
 
@@ -60,6 +64,7 @@ function DiagnosisWizard() {
           </h1>
           <button
             type="button"
+            onClick={() => setSampleOpen(true)}
             className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
           >
             리포트 샘플
@@ -105,6 +110,8 @@ function DiagnosisWizard() {
             <StepIdentity
               value={identity}
               onChange={(patch) => setIdentity((prev) => ({ ...prev, ...patch }))}
+              mandateFiles={mandateFiles}
+              onMandateFilesChange={setMandateFiles}
             />
           )}
           {step === 2 && <StepProduct productId={productId} onSelectProduct={setProductId} />}
@@ -159,6 +166,8 @@ function DiagnosisWizard() {
           </p>
         )}
       </div>
+
+      <ReportSampleModal open={sampleOpen} onClose={() => setSampleOpen(false)} />
     </>
   );
 }

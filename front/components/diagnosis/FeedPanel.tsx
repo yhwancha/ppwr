@@ -197,3 +197,66 @@ export function ReportFeed({
     </section>
   );
 }
+
+/* ────────────────────────── 하단 전체 요약 ────────────────────────── */
+
+export type OverviewRow = {
+  id: string;
+  /** 좌측 굵은 글씨 — 제품명 */
+  product: string;
+  message: string;
+  at: string | null;
+};
+
+function formatDay(v: string | null) {
+  if (!v) return "";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return "";
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())}`;
+}
+
+/**
+ * 화면 하단 2열 — '보완해야 할 내용' · '최근 진행 로그' (시안).
+ *
+ * 위쪽 카드 목록이 선택된 제품 하나를 보여주는 것과 달리 여기는 **전 제품**을 모아 본다.
+ * 그래서 행마다 어느 제품인지 제품명을 앞에 붙인다.
+ */
+export function OverviewList({
+  title,
+  count,
+  rows,
+  emptyMessage,
+}: {
+  title: string;
+  /** 우측 상단 총 건수 — 없으면 표시하지 않는다 */
+  count?: number;
+  rows: OverviewRow[];
+  emptyMessage: string;
+}) {
+  return (
+    <section className="flex min-w-0 flex-col">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-base font-bold text-ink">{title}</h2>
+        {count != null && <span className="text-sm font-bold text-ink">{count}건</span>}
+      </div>
+
+      {rows.length === 0 ? (
+        <EmptyBox message={emptyMessage} />
+      ) : (
+        <ul className="mt-3 max-h-72 space-y-1.5 overflow-y-auto pr-1">
+          {rows.map((r) => (
+            <li
+              key={r.id}
+              className="flex items-center gap-4 rounded-xl bg-white px-5 py-3.5 ring-1 ring-slate-100"
+            >
+              <span className="w-32 shrink-0 truncate text-sm font-bold text-ink">{r.product}</span>
+              <p className="min-w-0 flex-1 truncate text-sm text-slate-600">{r.message}</p>
+              <span className="shrink-0 text-xs text-slate-400">{formatDay(r.at)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}

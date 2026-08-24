@@ -174,6 +174,31 @@ export class PpwrDiagnosisService {
     return { total: items.length, overallProgress: Math.round(sum / items.length) };
   }
 
+  /**
+   * 진단 삭제.
+   *
+   * `Diagnosis` 테이블이 따로 없고 상태가 AssessmentResult / ImprovementRequest / Report
+   * 조합으로 파생되므로, "진단을 지운다" = 그 세 종류의 행을 지운다는 뜻이다.
+   * 시안 안내 문구대로 Product · ComponentInstance · EvidenceDocument 는 건드리지 않는다.
+   *
+   * ⚠️ ImprovementRequest 는 시안 문구에 명시돼 있지 않지만 진단 결과에서 파생된 것이라
+   *    같이 지운다. 남겨두면 진단이 없는데 카드가 '보완 필요'로 남는다.
+   */
+  async remove(productId: number): Promise<void> {
+    // Report → ImprovementRequest → AssessmentResult 순. 참조가 있다면 자식부터 지운다.
+    for (const table of ['Report', 'ImprovementRequest', 'AssessmentResult'] as const) {
+      await this.deleteByProduct(table, productId);
+    }
+  }
+
+  private async deleteByProduct(table: PpwrTable, productId: number): Promise<void> {
+    const q = this.supabase.schema('ppwr').from(table).delete() as unknown as {
+      eq(c: string, v: number): PromiseLike<{ error: { message: string } | null }>;
+    };
+    const { error } = await q.eq('product_id', productId);
+    if (error) throw new PpwrDiagnosisError(error.message);
+  }
+
   private async fetch<T>(table: PpwrTable, column?: string, ids?: number[]): Promise<T[]> {
     // 스키마별 제네릭이 테이블마다 갈라져서 빌더 단계에서는 느슨하게 다루고,
     // 반환 타입만 호출부의 Row 타입으로 고정한다.

@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Send } from "lucide-react";
+import { useRef } from "react";
+import { Download, FileText, Send, Upload, X } from "lucide-react";
 
 export const WIZARD_STEPS = [
   { n: 1, label: "제조자 / 기업 식별" },
@@ -141,6 +142,213 @@ export function CheckRow({
       />
       {label}
     </label>
+  );
+}
+
+/**
+ * 체크박스 한 줄 + 켰을 때 아래로 펼쳐지는 하위 입력 섹션 (시안 "옵션 체크 시").
+ *
+ * 체크가 꺼져 있으면 children 을 아예 렌더하지 않는다 — 값이 남아 있어도 화면에서 사라지고,
+ * 저장 시점에 체크 여부로 포함/제외를 판단하면 되므로 입력값을 굳이 지우지 않는다.
+ */
+export function CheckSection({
+  label,
+  checked,
+  onChange,
+  title,
+  children,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="overflow-hidden rounded-lg bg-slate-100">
+      <label className="flex cursor-pointer items-center gap-3 px-5 py-4 text-sm text-slate-700">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="h-4 w-4 shrink-0 rounded border-slate-300 accent-primary"
+        />
+        {label}
+      </label>
+      {checked && (
+        <div className="px-5 pb-5">
+          <h4 className="text-sm font-bold text-ink">{title}</h4>
+          <div className="mt-4">{children}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** 본사 주소 (영문) — Building Number·Street / City·Country·Postal Code */
+export function AddressEnFields({
+  value,
+  onChange,
+  required,
+}: {
+  value: { buildingNumber: string; street: string; city: string; country: string; postalCode: string };
+  onChange: (patch: Partial<typeof value>) => void;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <p className="mb-1.5 text-sm font-semibold text-slate-700">
+        본사 주소 (영문) {required && <span className="text-danger">*</span>}
+      </p>
+      <div className="grid grid-cols-2 gap-3">
+        <Field
+          label="Building Number"
+          required={required}
+          value={value.buildingNumber}
+          onChange={(v) => onChange({ buildingNumber: v })}
+        />
+        <Field label="Street" required={required} value={value.street} onChange={(v) => onChange({ street: v })} />
+      </div>
+      <div className="mt-3 grid grid-cols-3 gap-3">
+        <Field label="City" required={required} value={value.city} onChange={(v) => onChange({ city: v })} />
+        <Field label="Country" required={required} value={value.country} onChange={(v) => onChange({ country: v })} />
+        <Field
+          label="Postal Code"
+          required={required}
+          value={value.postalCode}
+          onChange={(v) => onChange({ postalCode: v })}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder = "선택",
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: readonly string[];
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-sm font-semibold text-slate-700">{label}</label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={
+          "w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-primary " +
+          (value ? "text-ink" : "text-slate-300")
+        }
+      >
+        <option value="">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o} value={o} className="text-ink">
+            {o}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export function TextareaField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-sm font-semibold text-slate-700">{label}</label>
+      <textarea
+        rows={3}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none placeholder:text-slate-300 focus:border-primary"
+      />
+    </div>
+  );
+}
+
+/**
+ * 파일 첨부 한 칸 (시안 "위임 문서").
+ *
+ * ⚠️ 1단계는 아직 붙일 엔티티(진단 row)가 없어 업로드를 미룬다. 고른 파일은 메모리에만
+ *    들고 있고 칩으로 보여준다. 저장 경로가 생기면 여기서 올리면 된다.
+ */
+export function FilePickField({
+  label,
+  files,
+  onAdd,
+  onRemove,
+}: {
+  label: string;
+  files: File[];
+  onAdd: (files: File[]) => void;
+  onRemove: (index: number) => void;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  return (
+    <div>
+      <label className="mb-1.5 block text-sm font-semibold text-slate-700">{label}</label>
+      <button
+        type="button"
+        onClick={() => ref.current?.click()}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+      >
+        <Upload className="h-4 w-4" /> 파일 첨부
+      </button>
+      <input
+        ref={ref}
+        type="file"
+        multiple
+        accept=".jpg,.jpeg,.png,.pdf,.csv"
+        className="hidden"
+        onChange={(e) => {
+          const picked = Array.from(e.target.files ?? []);
+          e.target.value = "";
+          if (picked.length) onAdd(picked.slice(0, 10 - files.length));
+        }}
+      />
+      <p className="mt-1 text-[10px] text-slate-400">최대 10개 / 개당 최대 100MB / jpg,png,pdf,csv</p>
+      {files.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {files.map((f, i) => (
+            <div key={`${f.name}-${i}`} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-slate-400">
+                <FileText className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="max-w-[120px] truncate text-xs font-semibold text-ink">{f.name}</p>
+                <span className="text-[11px] text-slate-400">{Math.round(f.size / 1024)}kb</span>
+              </div>
+              <Download className="h-3.5 w-3.5 shrink-0 text-slate-300" aria-hidden />
+              <button
+                type="button"
+                onClick={() => onRemove(i)}
+                aria-label={`${f.name} 삭제`}
+                className="rounded-full bg-ink/80 p-0.5 text-white hover:bg-ink"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -13,6 +13,8 @@ import type { DocState } from "./ppwr-component-attrs";
 export const PK = {
   photos: "__photos",
   foodContact: "__food_contact",
+  /** EU 연간 예상 수량의 단위 — Product 에 대응 컬럼이 없어 memo 로 간다 */
+  euVolumeUnit: "__eu_volume_unit",
 } as const;
 
 export type ProductAttrs = Record<string, string>;
