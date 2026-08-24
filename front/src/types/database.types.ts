@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   ppwr: {
     Tables: {
       AssessmentResult: {
@@ -15,6 +20,7 @@ export type Database = {
           created_at: string
           customer_role: string | null
           doc_td_status: string
+          estimated_completion_at: string | null
           id: number
           minimization_status: string
           missing_evidence_count: number
@@ -32,6 +38,7 @@ export type Database = {
           created_at?: string
           customer_role?: string | null
           doc_td_status?: string
+          estimated_completion_at?: string | null
           id?: number
           minimization_status?: string
           missing_evidence_count?: number
@@ -49,6 +56,7 @@ export type Database = {
           created_at?: string
           customer_role?: string | null
           doc_td_status?: string
+          estimated_completion_at?: string | null
           id?: number
           minimization_status?: string
           missing_evidence_count?: number
@@ -140,13 +148,16 @@ export type Database = {
       }
       ComponentMaster: {
         Row: {
+          attributes: Json
           compostability_status: string
           created_at: string
           heavy_metal_status: string
           id: number
           material_summary: string | null
           name: string
+          name_ko: string | null
           owner_user_id: number | null
+          packaging_level: string | null
           pfas_status: string
           recycled_content: number | null
           supplier_id: number | null
@@ -154,13 +165,16 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          attributes?: Json
           compostability_status?: string
           created_at?: string
           heavy_metal_status?: string
           id?: number
           material_summary?: string | null
           name: string
+          name_ko?: string | null
           owner_user_id?: number | null
+          packaging_level?: string | null
           pfas_status?: string
           recycled_content?: number | null
           supplier_id?: number | null
@@ -168,13 +182,16 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          attributes?: Json
           compostability_status?: string
           created_at?: string
           heavy_metal_status?: string
           id?: number
           material_summary?: string | null
           name?: string
+          name_ko?: string | null
           owner_user_id?: number | null
+          packaging_level?: string | null
           pfas_status?: string
           recycled_content?: number | null
           supplier_id?: number | null
@@ -190,6 +207,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ComponentTypeConfig: {
+        Row: {
+          active: boolean
+          created_at: string
+          docs: Json
+          emoji: string | null
+          fields: Json
+          label: string
+          materials: Json
+          sort_order: number
+          sub_types: Json
+          type_key: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          docs?: Json
+          emoji?: string | null
+          fields?: Json
+          label: string
+          materials?: Json
+          sort_order?: number
+          sub_types?: Json
+          type_key: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          docs?: Json
+          emoji?: string | null
+          fields?: Json
+          label?: string
+          materials?: Json
+          sort_order?: number
+          sub_types?: Json
+          type_key?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       ConsultationRequest: {
         Row: {
@@ -418,6 +477,36 @@ export type Database = {
           },
         ]
       }
+      MaterialGroup: {
+        Row: {
+          active: boolean
+          created_at: string
+          details: Json
+          group_key: string
+          label: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          details?: Json
+          group_key: string
+          label: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          details?: Json
+          group_key?: string
+          label?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       Notification: {
         Row: {
           body: string | null
@@ -510,8 +599,184 @@ export type Database = {
           },
         ]
       }
+      Payment: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          failed_at: string | null
+          failure_reason: string | null
+          id: number
+          method: string | null
+          paid_at: string | null
+          pg_provider: string | null
+          pg_transaction_id: string | null
+          plan_id: number | null
+          product_id: number | null
+          receipt_url: string | null
+          status: string
+          subscription_id: number | null
+          updated_at: string
+          user_id: number
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          failed_at?: string | null
+          failure_reason?: string | null
+          id?: number
+          method?: string | null
+          paid_at?: string | null
+          pg_provider?: string | null
+          pg_transaction_id?: string | null
+          plan_id?: number | null
+          product_id?: number | null
+          receipt_url?: string | null
+          status?: string
+          subscription_id?: number | null
+          updated_at?: string
+          user_id: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          failed_at?: string | null
+          failure_reason?: string | null
+          id?: number
+          method?: string | null
+          paid_at?: string | null
+          pg_provider?: string | null
+          pg_transaction_id?: string | null
+          plan_id?: number | null
+          product_id?: number | null
+          receipt_url?: string | null
+          status?: string
+          subscription_id?: number | null
+          updated_at?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Payment_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "Plan"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Payment_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "Product"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Payment_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "Subscription"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      PaymentWebhookLog: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string | null
+          id: number
+          payload: Json | null
+          pg_provider: string | null
+          pg_transaction_id: string | null
+          processed: boolean
+          received_at: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type?: string | null
+          id?: number
+          payload?: Json | null
+          pg_provider?: string | null
+          pg_transaction_id?: string | null
+          processed?: boolean
+          received_at?: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string | null
+          id?: number
+          payload?: Json | null
+          pg_provider?: string | null
+          pg_transaction_id?: string | null
+          processed?: boolean
+          received_at?: string
+        }
+        Relationships: []
+      }
+      Plan: {
+        Row: {
+          billing_interval: string | null
+          billing_type: string
+          code: string
+          created_at: string
+          currency: string
+          description: string | null
+          existing_subscriber_policy: string | null
+          id: number
+          name: string
+          price: number
+          sale_end_at: string | null
+          sale_start_at: string | null
+          sale_status: string
+          sort_order: number
+          updated_at: string
+          usage_scope: string | null
+        }
+        Insert: {
+          billing_interval?: string | null
+          billing_type: string
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          existing_subscriber_policy?: string | null
+          id?: number
+          name: string
+          price?: number
+          sale_end_at?: string | null
+          sale_start_at?: string | null
+          sale_status?: string
+          sort_order?: number
+          updated_at?: string
+          usage_scope?: string | null
+        }
+        Update: {
+          billing_interval?: string | null
+          billing_type?: string
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          existing_subscriber_policy?: string | null
+          id?: number
+          name?: string
+          price?: number
+          sale_end_at?: string | null
+          sale_start_at?: string | null
+          sale_status?: string
+          sort_order?: number
+          updated_at?: string
+          usage_scope?: string | null
+        }
+        Relationships: []
+      }
       Product: {
         Row: {
+          attributes: Json
           category: string | null
           contact_sensitive: boolean
           content_form: string | null
@@ -551,6 +816,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          attributes?: Json
           category?: string | null
           contact_sensitive?: boolean
           content_form?: string | null
@@ -590,6 +856,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          attributes?: Json
           category?: string | null
           contact_sensitive?: boolean
           content_form?: string | null
@@ -629,6 +896,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      Refund: {
+        Row: {
+          amount: number
+          created_at: string
+          id: number
+          payment_id: number
+          pg_refund_id: string | null
+          processed_at: string | null
+          reason: string | null
+          requested_by: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: number
+          payment_id: number
+          pg_refund_id?: string | null
+          processed_at?: string | null
+          reason?: string | null
+          requested_by?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: number
+          payment_id?: number
+          pg_refund_id?: string | null
+          processed_at?: string | null
+          reason?: string | null
+          requested_by?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Refund_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "Payment"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       Report: {
         Row: {
@@ -680,6 +994,62 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "Product"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Subscription: {
+        Row: {
+          cancel_reason: string | null
+          canceled_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: number
+          pg_billing_key: string | null
+          pg_provider: string | null
+          plan_id: number | null
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: number
+        }
+        Insert: {
+          cancel_reason?: string | null
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: number
+          pg_billing_key?: string | null
+          pg_provider?: string | null
+          plan_id?: number | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: number
+        }
+        Update: {
+          cancel_reason?: string | null
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: number
+          pg_billing_key?: string | null
+          pg_provider?: string | null
+          plan_id?: number | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Subscription_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "Plan"
             referencedColumns: ["id"]
           },
         ]
@@ -881,6 +1251,7 @@ export type Database = {
       }
       AdClick: {
         Row: {
+          ad_click_id: string
           ad_group_id: string | null
           campaign_id: string | null
           click_id: string
@@ -890,6 +1261,7 @@ export type Database = {
           session_id: string
         }
         Insert: {
+          ad_click_id?: string
           ad_group_id?: string | null
           campaign_id?: string | null
           click_id: string
@@ -899,6 +1271,7 @@ export type Database = {
           session_id: string
         }
         Update: {
+          ad_click_id?: string
           ad_group_id?: string | null
           campaign_id?: string | null
           click_id?: string
@@ -908,6 +1281,13 @@ export type Database = {
           session_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ad_clicks_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "SessionFunnelEvent"
+            referencedColumns: ["session_id"]
+          },
           {
             foreignKeyName: "ad_clicks_session_id_fkey"
             columns: ["session_id"]
@@ -1421,6 +1801,47 @@ export type Database = {
           },
         ]
       }
+      AdSyncRun: {
+        Row: {
+          account_id: string
+          created: string
+          duration_ms: number | null
+          error_message: string | null
+          id: number
+          platform: string
+          status: string
+          task: string
+        }
+        Insert: {
+          account_id: string
+          created?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: number
+          platform: string
+          status: string
+          task: string
+        }
+        Update: {
+          account_id?: string
+          created?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: number
+          platform?: string
+          status?: string
+          task?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "AdSyncRun_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "AdAccount"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
       AttributionConfig: {
         Row: {
           attribution_model: string
@@ -1633,6 +2054,13 @@ export type Database = {
             foreignKeyName: "channel_attribution_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: true
+            referencedRelation: "SessionFunnelEvent"
+            referencedColumns: ["session_id"]
+          },
+          {
+            foreignKeyName: "channel_attribution_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
             referencedRelation: "TrackingSession"
             referencedColumns: ["session_id"]
           },
@@ -1662,6 +2090,27 @@ export type Database = {
           id?: never
           updatedat?: string | null
           validto?: string
+        }
+        Relationships: []
+      }
+      FxRate: {
+        Row: {
+          currency: string
+          note: string | null
+          rate_to_krw: number
+          updated_at: string
+        }
+        Insert: {
+          currency: string
+          note?: string | null
+          rate_to_krw: number
+          updated_at?: string
+        }
+        Update: {
+          currency?: string
+          note?: string | null
+          rate_to_krw?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2629,6 +3078,7 @@ export type Database = {
       }
       ProjectComment: {
         Row: {
+          admin_email_sent: boolean | null
           author: string | null
           comment: string | null
           created_at: string
@@ -2639,10 +3089,12 @@ export type Database = {
           profile_pk: number
           project_id: number
           project_status: Database["public"]["Enums"]["ProjectStatus"] | null
+          user_email_sent: boolean | null
           user_id: number | null
           user_profile_type: Database["public"]["Enums"]["UserProfile"]
         }
         Insert: {
+          admin_email_sent?: boolean | null
           author?: string | null
           comment?: string | null
           created_at?: string
@@ -2653,10 +3105,12 @@ export type Database = {
           profile_pk: number
           project_id: number
           project_status?: Database["public"]["Enums"]["ProjectStatus"] | null
+          user_email_sent?: boolean | null
           user_id?: number | null
           user_profile_type?: Database["public"]["Enums"]["UserProfile"]
         }
         Update: {
+          admin_email_sent?: boolean | null
           author?: string | null
           comment?: string | null
           created_at?: string
@@ -2667,6 +3121,7 @@ export type Database = {
           profile_pk?: number
           project_id?: number
           project_status?: Database["public"]["Enums"]["ProjectStatus"] | null
+          user_email_sent?: boolean | null
           user_id?: number | null
           user_profile_type?: Database["public"]["Enums"]["UserProfile"]
         }
@@ -3475,6 +3930,13 @@ export type Database = {
             foreignKeyName: "tracking_events_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: false
+            referencedRelation: "SessionFunnelEvent"
+            referencedColumns: ["session_id"]
+          },
+          {
+            foreignKeyName: "tracking_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
             referencedRelation: "TrackingSession"
             referencedColumns: ["session_id"]
           },
@@ -3559,6 +4021,62 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      TrafficGroup: {
+        Row: {
+          created_at: string
+          id: number
+          kind: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          kind: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          kind?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      TrafficSource: {
+        Row: {
+          display: string
+          group_id: number
+          medium_key: string
+          source_key: string
+          updated_at: string
+        }
+        Insert: {
+          display: string
+          group_id: number
+          medium_key: string
+          source_key: string
+          updated_at?: string
+        }
+        Update: {
+          display?: string
+          group_id?: number
+          medium_key?: string
+          source_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "TrafficSource_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "TrafficGroup"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       User: {
         Row: {
@@ -3719,8 +4237,101 @@ export type Database = {
           },
         ]
       }
+      IsNewIdentifyEvent: {
+        Row: {
+          anonymous_id: string | null
+          event_id: string | null
+          event_timestamp: string | null
+          is_new: boolean | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_events_anonymous_id_fkey"
+            columns: ["anonymous_id"]
+            isOneToOne: false
+            referencedRelation: "TrackingUser"
+            referencedColumns: ["anonymous_id"]
+          },
+        ]
+      }
+      SessionFunnelEvent: {
+        Row: {
+          anonymous_id: string | null
+          campaign: string | null
+          channel_group: string | null
+          device: string | null
+          entry_time: string | null
+          identified: boolean | null
+          is_new_user: boolean | null
+          medium: string | null
+          quotation_entered: boolean | null
+          quotation_form_completed: boolean | null
+          quotation_submitted: boolean | null
+          session_id: string | null
+          source: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_sessions_anonymous_id_fkey"
+            columns: ["anonymous_id"]
+            isOneToOne: false
+            referencedRelation: "TrackingUser"
+            referencedColumns: ["anonymous_id"]
+          },
+        ]
+      }
     }
     Functions: {
+      ad_metrics_by_campaign: {
+        Args: { from_date: string; to_date: string }
+        Returns: {
+          account_id: string
+          account_name: string
+          campaign_id: string
+          campaign_name: string
+          clicks: number
+          cost: number
+          cost_original: number
+          currency: string
+          fx_rate: number
+          impressions: number
+          platform: string
+        }[]
+      }
+      ad_sync_health: {
+        Args: never
+        Returns: {
+          account_id: string
+          consecutive_failures: number
+          last_error_head: string
+          last_run_at: string
+          last_status: string
+          last_success_at: string
+          platform: string
+          task: string
+        }[]
+      }
+      assign_traffic_pair: {
+        Args: {
+          p_display: string
+          p_group_id: number
+          p_medium_key: string
+          p_source_key: string
+        }
+        Returns: undefined
+      }
+      create_traffic_group: {
+        Args: {
+          p_display: string
+          p_kind: string
+          p_medium_key: string
+          p_name: string
+          p_source_key: string
+        }
+        Returns: number
+      }
+      delete_traffic_group: { Args: { p_id: number }; Returns: undefined }
       get_projects_with_old_unread_comments: {
         Args: never
         Returns: Database["public"]["CompositeTypes"]["project_with_assigns"][]
@@ -3791,6 +4402,98 @@ export type Database = {
       }
       invoke_sync_ads: { Args: { task: string }; Returns: number }
       invoke_sync_inblog: { Args: never; Returns: number }
+      is_active_admin: { Args: never; Returns: boolean }
+      is_marketing_analytics_admin: { Args: never; Returns: boolean }
+      list_traffic_assignments: {
+        Args: never
+        Returns: {
+          group_id: number
+          group_name: string
+          kind: string
+          medium_key: string
+          source_key: string
+        }[]
+      }
+      list_traffic_groups: {
+        Args: never
+        Returns: {
+          id: number
+          kind: string
+          name: string
+        }[]
+      }
+      marketing_funnel_by_channel: {
+        Args: {
+          channel_group_filter?: string
+          device_filter?: string
+          from_ts: string
+          source_filter?: string
+          to_ts: string
+        }
+        Returns: {
+          campaign: string
+          channel_group: string
+          medium: string
+          quotation_entries: number
+          quotation_form_completed: number
+          quotation_submitted: number
+          source: string
+          visits: number
+        }[]
+      }
+      marketing_traffic_daily: {
+        Args: {
+          channel_group_filter?: string
+          device_filter?: string
+          from_ts: string
+          granularity?: string
+          source_filter?: string
+          to_ts: string
+        }
+        Returns: {
+          bucket: string
+          new_visits: number
+          quotation_entries: number
+          total_visits: number
+        }[]
+      }
+      mask_http_content: { Args: { p_text: string }; Returns: string }
+      recent_ad_sync_runs: {
+        Args: { p_limit?: number; p_only_failures?: boolean; p_task?: string }
+        Returns: {
+          account_id: string
+          created: string
+          duration_ms: number
+          error_head: string
+          id: number
+          platform: string
+          status: string
+          task: string
+        }[]
+      }
+      recent_http_responses: {
+        Args: { p_limit?: number; p_only_failures?: boolean }
+        Returns: {
+          content_head: string
+          created: string
+          error_msg: string
+          id: number
+          status_code: number
+          timed_out: boolean
+        }[]
+      }
+      rename_traffic_group: {
+        Args: { p_id: number; p_name: string }
+        Returns: undefined
+      }
+      set_traffic_group_kind: {
+        Args: { p_id: number; p_kind: string }
+        Returns: undefined
+      }
+      unassign_traffic_pair: {
+        Args: { p_medium_key: string; p_source_key: string }
+        Returns: undefined
+      }
       validate_certifications_format: {
         Args: { certifications: Json }
         Returns: boolean
@@ -3807,6 +4510,15 @@ export type Database = {
     }
     Enums: {
       AddressType: "domestic" | "international"
+      ChatbotKbKind: "faq" | "glossary" | "guide_section"
+      ChatbotLeadEntryPath:
+        | "direct_quote"
+        | "via_eco_package"
+        | "via_about_restudio"
+        | "ai_freeform"
+      ChatbotMessageRole: "user" | "bot" | "system"
+      ChatbotRateLimitKind: "minute" | "day"
+      ChatbotTrack: "button" | "ai"
       InquiryStatus: "waiting" | "completed" | "replying"
       InvitationStatus: "PENDING" | "ACCEPTED" | "EXPIRED" | "CANCELLED"
       ProjectAssignRole: "manager" | "client"
@@ -3963,6 +4675,16 @@ export const Constants = {
   public: {
     Enums: {
       AddressType: ["domestic", "international"],
+      ChatbotKbKind: ["faq", "glossary", "guide_section"],
+      ChatbotLeadEntryPath: [
+        "direct_quote",
+        "via_eco_package",
+        "via_about_restudio",
+        "ai_freeform",
+      ],
+      ChatbotMessageRole: ["user", "bot", "system"],
+      ChatbotRateLimitKind: ["minute", "day"],
+      ChatbotTrack: ["button", "ai"],
       InquiryStatus: ["waiting", "completed", "replying"],
       InvitationStatus: ["PENDING", "ACCEPTED", "EXPIRED", "CANCELLED"],
       ProjectAssignRole: ["manager", "client"],
@@ -3985,4 +4707,3 @@ export const Constants = {
     },
   },
 } as const
-
