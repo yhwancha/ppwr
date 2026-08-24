@@ -41,7 +41,7 @@ git am --3way --directory=front /tmp/p/*.patch
 
 | 이 repo | = mono | 시점 |
 |---|---|---|
-| tag `mono-sync` | `89d151df` (`feat/ppwr-all`) | 2026-08-24 (3차) |
+| tag `mono-sync` | `3902ce54` (`feat/ppwr-all`) | 2026-08-24 (4차) |
 
 > 이송 기준점은 **`mono-sync` 태그**다. 커밋 hash 는 amend/rebase 로 바뀌므로 쓰지 않는다.
 > 이송을 끝낼 때마다 태그를 옮긴다: `git tag -f mono-sync HEAD` (그리고 위 표의 mono 쪽을 갱신).
@@ -153,3 +153,34 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
     `rm -rf front/.next` 로 해소했다(추적되지 않는 빌드 산출물).
   - **판단 대기 항목은 그대로 4건** — `e48f4e2b`(제품 필터 5종) + `facbb8f3`·`b207508a`·
     `a6d0ba68`. 위 "mono 에만 있는, 가져오지 않은 작업" 절 참고. 이번에도 손대지 않았다.
+
+- **2026-08-24 (4차)** — **이송 1건.** mono 정본 라인 `feat/ppwr-all` 이 `89d151df` → `3902ce54`
+  로 **18 커밋 전진**했고, 그 중 `ppwr/` 를 건드리는 것은 **`3902ce54` 하나뿐**이다
+  (`git log 89d151df..feat/ppwr-all -- ppwr/`). 패치 단위로 가져왔다 → 여기 `0dfe63e`.
+  - `3902ce54` — `front/src/types/database.types.ts` **재생성**(+722/-1). 3차 때 기록한
+    "프론트가 새 컬럼으로 넘어가려면 타입 재생성이 선행돼야 한다"가 이번에 해소된 것.
+    변경은 전부 **추가**이고 삭제는 없다. 들어온 것: `ComponentMaster.attributes`·`name_ko`·
+    `packaging_level`, `Product.attributes`, `AssessmentResult.estimated_completion_at`,
+    그리고 파일이 오래돼 그 사이 생긴 테이블(`ComponentTypeConfig`·`Payment`·
+    `PaymentWebhookLog`·`Plan`·`Refund`·`FxRate`·`MaterialGroup`·`AdSyncRun`·
+    `SessionFunnelEvent` 등).
+  - **이송하지 않은 나머지 17 커밋**: `ppwr/` 를 한 줄도 바꾸지 않는다. ppwr 관련 4건
+    (`cef5c985`·`4adec403` 부품 필터 컬럼 승격·공급사 FK 정규화, `54fb490a` 마이그레이션
+    버전 재배치, `c455c2b7` dev 머지)은 전부 `supabase/migrations/**` 또는 `web/`·`admin/`
+    이고, 이 repo 는 SQL 을 추적하지 않는다(경로 매핑은 `front/` 하나뿐).
+  - **프론트는 아직 새 컬럼을 쓰지 않는다.** `estimated_completion_at`·`supplier_id` 는
+    `front/` 소스에서 `grep` 0건이고, `ComponentMaster` 의 국문명·포장단계는 여전히
+    `src/lib/ppwr-component-attrs.ts` 의 `__name_ko`·`__packaging_level` 센티널 키로
+    TEXT 에 직렬화된다. 즉 타입만 먼저 왔고 **화면 전환은 mono 쪽 후속 작업**이다.
+    (기존 `name_ko`·`packaging_level` 사용처는 `Product`·`ComponentInstance` 쪽이라
+    이번 변경과 무관하다.)
+  - 검증: `front/` 가 `3902ce54:ppwr/front` 와 **blob hash 까지 일치**(182 vs 183 파일,
+    차이는 상시 예외 4개뿐 — `next.config.ts`·`.claude/launch.json`·`pnpm-lock.yaml`·
+    `.env.local.example`). `tsc --noEmit` **에러 0**. mono 워크트리 6개 전부 clean.
+  - 새로 눈에 띈 mono 브랜치 2개는 **판단 대기 항목이 아니다** — `feat/ppwr-payment`
+    (`d876796e`, 1 ahead)는 `admin/` + 마이그레이션이고, `feat/ppwr-prod-proxy`
+    (27 ahead)는 `web/`·`docker/`·워크플로우다. 둘 다 merge-base 대비 `ppwr/` diff 가 비어 있다.
+  - **판단 대기 항목은 그대로 4건** — `e48f4e2b`(제품 필터 5종) + `facbb8f3`·`b207508a`·
+    `a6d0ba68`. 위 "mono 에만 있는, 가져오지 않은 작업" 절 참고. 이번에도 손대지 않았다.
+    (`feat/ppwr-products` 는 `feat/ppwr-all` 대비 0 ahead 로 보이지만 이는 도달 가능하다는
+    뜻일 뿐이고, 머지 `14ba7d81` 이 내용을 통째로 ppwr-all 쪽으로 해소해 트리에는 없다.)
