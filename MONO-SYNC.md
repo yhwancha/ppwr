@@ -41,7 +41,7 @@ git am --3way --directory=front /tmp/p/*.patch
 
 | 이 repo | = mono | 시점 |
 |---|---|---|
-| tag `mono-sync` | `3902ce54` (`feat/ppwr-all`) | 2026-08-24 (4차) |
+| tag `mono-sync` | `188ddd3f` (`feat/ppwr-all`) | 2026-08-24 (5차) |
 
 > 이송 기준점은 **`mono-sync` 태그**다. 커밋 hash 는 amend/rebase 로 바뀌므로 쓰지 않는다.
 > 이송을 끝낼 때마다 태그를 옮긴다: `git tag -f mono-sync HEAD` (그리고 위 표의 mono 쪽을 갱신).
@@ -184,3 +184,36 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
     `a6d0ba68`. 위 "mono 에만 있는, 가져오지 않은 작업" 절 참고. 이번에도 손대지 않았다.
     (`feat/ppwr-products` 는 `feat/ppwr-all` 대비 0 ahead 로 보이지만 이는 도달 가능하다는
     뜻일 뿐이고, 머지 `14ba7d81` 이 내용을 통째로 ppwr-all 쪽으로 해소해 트리에는 없다.)
+
+- **2026-08-24 (5차)** — **이송 3건.** mono 정본 라인 `feat/ppwr-all` 이 `3902ce54` → `188ddd3f`
+  로 **3 커밋 전진**했고, **세 개 전부 `ppwr/front/` 만 건드린다**(마이그레이션·`web/`·`admin/`
+  변경 없음). 패치 단위로 그대로 가져왔다 → 여기 `bb9297d`·`70c74b3`·`6854f2d`. **충돌 0건**.
+  - `7ff4722f` → `bb9297d` — 상세 속성을 `attributes`(JSONB) 기반으로 전환. 읽기는
+    `readAttrs()`/`readProductAttrs()` 가 `attributes` 를 먼저 보고 **비어 있을 때만**
+    구 컬럼(`material_summary`·`memo`)으로 폴백한다. 쓰기는 **양쪽을 함께 채우는 전환기
+    이중쓰기** — 배포 중 구버전 클라이언트가 읽어도 깨지지 않게 하려는 것이고, 앱이 완전히
+    넘어간 뒤 구 컬럼 쓰기를 지우는 것이 남은 일이다. 부품 저장 시 승격 컬럼
+    (`name_ko`·`packaging_level`)도 함께 반영한다.
+  - `85a71dd2` → `70c74b3` — '진행 중' 진단 카드가 **예상 완료일시 자리에 `assessed_at`
+    (진단 *시작* 시각)을 보여주던 버그**를 고쳤다. 3차·4차 기록에서 예고된 그 자리다.
+    이제 `estimated_completion_at` 을 읽고, 아직 `null` 이면 **그 줄 자체를 렌더하지 않는다**.
+    값을 채우는 주체(진단 파이프라인)는 아직 없다 — 즉 현재는 이 줄이 항상 숨는다.
+  - `188ddd3f` → `6854f2d` — 부품 공급사를 `Supplier` 테이블 기반 선택/생성으로.
+    `PpwrSupplierService`(`list()`/`ensureByName()`) 신규. 마이그레이션 `20260908002000`
+    이 `supplier_id` 를 백필해 놓고도 폼은 자유 텍스트만 넣고 있어 **새로 저장할 때마다 FK 가
+    비던** 것을 막는다. 콤보 선택지는 DB 공급사 ∪ 기존 프리셋(신규 계정용). `attrs.__supplier`
+    도 계속 쓴다 — 목록·상세가 아직 그 값을 읽기 때문이고, `supplier_id` 로 완전히 옮긴 뒤 정리한다.
+  - **4차의 "프론트는 아직 새 컬럼을 쓰지 않는다"가 이번에 해소됐다.** `front/` 소스 grep
+    (`database.types.ts` 제외): `attributes` 19건 · `supplier_id` 2건 ·
+    `estimated_completion_at` 1건. 구 경로도 아직 남아 있다(`material_summary` 12건,
+    센티널 `__name_ko`·`__packaging_level`·`__supplier` 각 1건) — 위에 적은 **전환기 이중쓰기**
+    때문이지 드리프트가 아니다.
+  - 검증: 이송 전 `front/` 가 `3902ce54:ppwr/front` 와, 이송 후 `188ddd3f:ppwr/front` 와
+    **blob hash 까지 일치**(183 vs 182 파일, 차이는 상시 예외 4개뿐 — `next.config.ts`·
+    `.claude/launch.json`·`pnpm-lock.yaml`·`.env.local.example`). `tsc --noEmit` **에러 0**
+    (`rm -rf front/.next` 후). `package.json` 무변경이라 lockfile 재생성 불필요.
+    mono 워크트리 6개 전부 clean, `origin/feat/ppwr-all` 도 `188ddd3f` 로 동일.
+  - **판단 대기 항목은 그대로 4건** — `e48f4e2b`(제품 필터 5종) + `facbb8f3`·`b207508a`·
+    `a6d0ba68`. 이번에도 손대지 않았다. 브랜치 전수 확인 결과 **새로 생긴 항목은 없다**:
+    `feat/ppwr-payment`(1 ahead)·`feat/ppwr-prod-proxy`(27 ahead)·`origin/dev`(3 ahead)
+    모두 merge-base 대비 `ppwr/` diff 가 비어 있다.
