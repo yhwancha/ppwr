@@ -41,7 +41,7 @@ git am --3way --directory=front /tmp/p/*.patch
 
 | 이 repo | = mono | 시점 |
 |---|---|---|
-| tag `mono-sync` | `a12d8cc3` (`feat/ppwr-all`) | 2026-08-24 (7차) |
+| tag `mono-sync` | `a12d8cc3` (`feat/ppwr-all`) | 2026-08-24 (7차 이송 · 8차 검증에서 동일 확인) |
 
 > 이송 기준점은 **`mono-sync` 태그**다. 커밋 hash 는 amend/rebase 로 바뀌므로 쓰지 않는다.
 > 이송을 끝낼 때마다 태그를 옮긴다: `git tag -f mono-sync HEAD` (그리고 위 표의 mono 쪽을 갱신).
@@ -268,3 +268,34 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
     `a6d0ba68`. 이번에도 손대지 않았다. 브랜치 전수 스캔(merge-base 대비 `ppwr/` diff 가
     비지 않은 ref) 결과 **새로 생긴 항목은 없다** — 6차와 똑같이 `feat/dashboard`·
     `feat/profile`·`origin/feat/profile`·`feat/ppwr`/`origin/feat/ppwr` 뿐이다.
+
+- **2026-08-24 (8차, 검증만)** — **이송할 것 없음.** mono 정본 라인 `feat/ppwr-all` 이
+  7차와 같은 `a12d8cc3` 에서 **한 커밋도 움직이지 않았다**(`git fetch` 직후 확인,
+  `origin/feat/ppwr-all` 도 동일). 여기 `main`(`85a97be`, tag `mono-sync`)의 `front/` 는
+  `a12d8cc3:ppwr/front` 와 **blob hash 까지 일치**(184 vs 183 파일, 차이는 상시 예외
+  4개뿐 — `next.config.ts`·`.claude/launch.json`·`pnpm-lock.yaml`·`.env.local.example`).
+  `tsc --noEmit` **에러 0**(`rm -rf front/.next` 후).
+  - **새로 확인: mono `feat/ppwr-all` 워크트리에 미커밋 작업이 있다.** 7차 이송 직후
+    (파일 mtime 19:11~19:14, 7차 시점 19:10) 만들어진 **untracked 3덩이**다 —
+    `ppwr/front/src/lib/ppwr-csv-mapping.ts`(10.6 KB) ·
+    `ppwr/front/app/api/csv-mapping/route.ts`(3.1 KB) ·
+    `ppwr/front/public/samples/*.csv`(3개). CSV 헤더를 제품 필드로 자동 매핑하는 기능으로,
+    규칙 기반(정규화·동의어·토큰 겹침) 1단계 + 못 붙인 헤더만 `gpt-4o-mini` 로 넘기는
+    2단계 구성이고, 키가 없으면 200 + 빈 매핑을 줘서 AI 없이도 업로드가 되게 해 놨다.
+    - **이송하지 않았다.** 경로 매핑상 이송 대상 트리가 맞지만(`front/**`), 이 repo 의
+      이송 단위는 **커밋**이다(`format-patch`/`git am`). 커밋이 없으면 옮길 패치가 없다.
+      진행 중 세션의 중간 상태를 파일 복사로 가져오는 것은 "디렉터리 복사 금지" 원칙에
+      정면으로 걸린다.
+    - 아직 **완성 전이기도 하다** — 이 3덩이를 참조하는 추적 파일이 **0곳**이다(호출할 UI가
+      없다). 의존하는 `src/lib/ppwr-product-spec.ts`·`src/shared/llm/openai-provider.ts` 는
+      양쪽 트리에 이미 있으므로, 커밋되면 다음 회차에 패치로 그냥 따라온다.
+    - `BASE_PATH` 관점 확인: 세 파일에 절대 URL 생성(`http(s)://`·`window.location`)이 없다.
+      다만 `public/samples/*.csv` 를 **클라이언트에서 링크로 내려받게** 붙일 때는 mono 에서
+      `/ppwr` 프리픽스가 필요하다 — 커밋이 올 때 이 지점을 본다.
+  - **판단 대기 항목은 그대로 4건** — `e48f4e2b`(제품 필터 5종) + `facbb8f3`·`b207508a`·
+    `a6d0ba68`. 이번에도 손대지 않았다. 브랜치 전수 스캔(merge-base 대비 `ppwr/` diff 가
+    비지 않은 ref) 결과 **새로 생긴 항목은 없다** — 7차와 똑같이 `feat/dashboard`·
+    `feat/profile`·`origin/feat/profile`·`feat/ppwr`/`origin/feat/ppwr` 뿐이다.
+    `feat/ppwr-payment`(1 ahead)·`feat/ppwr-prod-proxy`(27 ahead)·`origin/dev`(3 ahead) 는
+    merge-base 대비 `ppwr/` diff 가 비어 있다. mono 워크트리 6개 중 5개 clean,
+    `restudio-ppwr-products`(`feat/ppwr-all`)만 위의 untracked 3덩이로 더럽다.
