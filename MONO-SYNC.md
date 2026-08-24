@@ -41,7 +41,7 @@ git am --3way --directory=front /tmp/p/*.patch
 
 | 이 repo | = mono | 시점 |
 |---|---|---|
-| tag `mono-sync` | `a12d8cc3` (`feat/ppwr-all`) | 2026-08-24 (7차 이송 · 8차 검증에서 동일 확인) |
+| tag `mono-sync` | `b4528c3b` (`feat/ppwr-all`) | 2026-08-24 (9차 이송) |
 
 > 이송 기준점은 **`mono-sync` 태그**다. 커밋 hash 는 amend/rebase 로 바뀌므로 쓰지 않는다.
 > 이송을 끝낼 때마다 태그를 옮긴다: `git tag -f mono-sync HEAD` (그리고 위 표의 mono 쪽을 갱신).
@@ -267,6 +267,40 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
   - **판단 대기 항목은 그대로 4건** — `e48f4e2b`(제품 필터 5종) + `facbb8f3`·`b207508a`·
     `a6d0ba68`. 이번에도 손대지 않았다. 브랜치 전수 스캔(merge-base 대비 `ppwr/` diff 가
     비지 않은 ref) 결과 **새로 생긴 항목은 없다** — 6차와 똑같이 `feat/dashboard`·
+    `feat/profile`·`origin/feat/profile`·`feat/ppwr`/`origin/feat/ppwr` 뿐이다.
+
+- **2026-08-24 (9차)** — **이송 1건.** mono 정본 라인 `feat/ppwr-all` 이 `a12d8cc3` → `b4528c3b`
+  로 **1 커밋 전진**했고, 그 커밋이 `ppwr/front/` 만 건드린다(파일 8개). 패치로 그대로 가져왔다 →
+  여기 `81470f5`. **충돌 0건.**
+  - `b4528c3b` → `81470f5` — 진단 카드의 **"삭제" 를 "진단 결과 초기화" 로 정정**하고, 지울
+    기록이 없으면 버튼을 비활성화한다. "삭제해도 반응이 없다"는 신고가 버그가 아니라 **용어
+    문제**였다는 것 — 목록 카드는 `Product` 를 순회해 만들고 `remove()` 는 `AssessmentResult`·
+    `Report`·`ImprovementRequest` 세 테이블만 지운 뒤 `Product` 는 의도적으로 남긴다. 즉 이
+    동작으로 카드가 사라지는 일은 **원리상 없고** 상태가 '임시 저장' 으로 돌아갈 뿐인데,
+    이름이 '삭제'라 카드가 사라질 것이라는 기대를 만들었다. 그래서 이름부터 바꿨다
+    (`remove()` → `reset()`, 휴지통 → `RotateCcw`). `DiagnosisItem.hasDiagnosis` 가 새로
+    생겨 기록이 없으면 `disabled` + "초기화할 진단 기록이 없습니다" 툴팁이 뜬다.
+  - **커밋 메시지에 적히지 않은 것이 같이 들어왔다.** 이 커밋은 8차에서 "mono 워크트리의
+    untracked 3덩이" 로 기록해 둔 **CSV 헤더 자동매핑 작업**을 함께 담고 있다 —
+    `src/lib/ppwr-csv-mapping.ts`(233줄) · `app/api/csv-mapping/route.ts`(84줄) ·
+    `public/samples/*.csv`(3개). 8차의 "커밋되면 다음 회차에 패치로 그냥 따라온다"는 예측대로
+    따라온 것이지만, **진단 수정과 한 커밋에 묶여 있어서 메시지만 읽으면 드러나지 않는다.**
+    이 repo 의 `git log` 에서도 마찬가지이므로 여기에 적어 둔다. 이송 단위가 커밋이라
+    쪼개지 않고 그대로 받았다.
+  - **CSV 매핑은 아직 호출부가 없다.** 8차와 동일하게 이 3덩이를 참조하는 추적 파일이
+    **0곳**이고(`grep`), `public/samples/*.csv` 를 가리키는 링크도 **0곳**이다. 따라서 8차에
+    예고한 `BASE_PATH` 검토 지점은 **이번에도 발생하지 않았다** — 샘플 CSV 를 클라이언트에서
+    내려받게 붙이는 커밋이 올 때 다시 본다. 바뀐 5개 소스에 절대 URL 생성
+    (`http(s)://`·`window.location`) 없음.
+  - 검증: 이송 전 `front/` 가 `a12d8cc3:ppwr/front` 와, 이송 후 `b4528c3b:ppwr/front` 와
+    **blob hash 까지 일치**(189 vs 188 파일, 차이는 상시 예외 4개뿐 — `next.config.ts`·
+    `.claude/launch.json`·`pnpm-lock.yaml`·`.env.local.example`). `tsc --noEmit` **에러 0**
+    (`rm -rf front/.next` 후). `package.json` 무변경이라 lockfile 재생성 불필요.
+    `origin/feat/ppwr-all` 도 `b4528c3b` 로 동일. mono 워크트리 6개 **전부 clean**
+    (8차에서 더러웠던 `restudio-ppwr-products` 는 위 커밋으로 정리됐다).
+  - **판단 대기 항목은 그대로 4건** — `e48f4e2b`(제품 필터 5종) + `facbb8f3`·`b207508a`·
+    `a6d0ba68`. 이번에도 손대지 않았다. 브랜치 전수 스캔(merge-base 대비 `ppwr/` diff 가
+    비지 않은 ref) 결과 **새로 생긴 항목은 없다** — 8차와 똑같이 `feat/dashboard`·
     `feat/profile`·`origin/feat/profile`·`feat/ppwr`/`origin/feat/ppwr` 뿐이다.
 
 - **2026-08-24 (8차, 검증만)** — **이송할 것 없음.** mono 정본 라인 `feat/ppwr-all` 이
