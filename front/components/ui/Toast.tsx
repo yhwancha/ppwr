@@ -27,7 +27,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ show }}>
       {children}
-      <div className="pointer-events-none fixed bottom-6 left-1/2 z-[70] flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4">
+      <div className="pointer-events-none fixed bottom-6 left-1/2 z-[70] flex w-full max-w-[400px] -translate-x-1/2 flex-col items-stretch gap-2 px-4">
         {toasts.map((t) => (
           <ToastItem key={t.id} toast={t} onDone={() => setToasts((p) => p.filter((x) => x.id !== t.id))} />
         ))}
@@ -44,12 +44,17 @@ function ToastItem({ toast, onDone }: { toast: Toast; onDone: () => void }) {
 
   const success = toast.tone === "success";
   const Icon = success ? CheckCircle2 : XCircle;
+  // 시안 스펙(Success/Danger Alert): 400×52(min 269) · radius 8 · 좌측 6px 강조선
+  //   · padding 15/18 · gap 12 · bg #DAF8E6 / #FEF3F3
   return (
     <div
       role="status"
       className={cx(
-        "pointer-events-auto flex items-center gap-2.5 rounded-xl border px-4 py-3 text-sm font-semibold shadow-lg",
-        success ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-danger",
+        "pointer-events-auto flex w-full min-w-[269px] max-w-[400px] items-center gap-3",
+        "rounded-lg border-l-[6px] px-[18px] py-[15px] text-sm font-semibold shadow-lg",
+        success
+          ? "border-l-emerald-500 bg-[#DAF8E6] text-emerald-700"
+          : "border-l-red-500 bg-[#FEF3F3] text-danger",
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />
