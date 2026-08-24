@@ -41,7 +41,7 @@ git am --3way --directory=front /tmp/p/*.patch
 
 | 이 repo | = mono | 시점 |
 |---|---|---|
-| tag `mono-sync` | `7895b829` (`feat/ppwr-all`) | 2026-08-24 |
+| tag `mono-sync` | `89d151df` (`feat/ppwr-all`) | 2026-08-24 (3차) |
 
 > 이송 기준점은 **`mono-sync` 태그**다. 커밋 hash 는 amend/rebase 로 바뀌므로 쓰지 않는다.
 > 이송을 끝낼 때마다 태그를 옮긴다: `git tag -f mono-sync HEAD` (그리고 위 표의 mono 쪽을 갱신).
@@ -128,3 +128,28 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
     참조하는 것 — `rm -rf front/.next` 로 사라진다.
   - 이번에 새로 확인: 위 **"mono 에만 있는, 가져오지 않은 작업"** 절. `e48f4e2b` 와 같은 종류의
     판단 대기 항목이 3건 더 있다(`facbb8f3`·`b207508a`·`a6d0ba68`).
+
+- **2026-08-24 (3차, 검증만)** — 이송할 것 없음. mono 정본 라인 `feat/ppwr-all` 이
+  `7895b829` → `89d151df` 로 **2 커밋 전진했지만 `ppwr/` 를 한 줄도 바꾸지 않는다**
+  (`git diff --stat 7895b829 89d151df -- ppwr/` 가 비어 있음). 두 커밋 모두
+  `supabase/migrations/**` 전용이고, 이 repo 는 SQL 을 추적하지 않는다(경로 매핑은
+  `front/` 하나뿐) — 그래서 이송 대상이 아니다. SYNC POINT 만 `89d151df` 로 옮긴다.
+  - `2788e171` — `ComponentMaster`·`Product` 에 `attributes` JSONB + GIN 인덱스.
+    시안 입력값이 `material_summary`·`memo` TEXT 에 JSON 으로 직렬화돼 있던 부채를 푸는 것.
+    원본 TEXT 컬럼은 비우지 않았다(롤백 여지).
+  - `89d151df` — `AssessmentResult.estimated_completion_at` TIMESTAMPTZ + 부분 인덱스.
+    '진행 중' 카드가 `assessed_at`(진단 *시작* 시각)을 '예상 완료' 자리에 넣고 있던 것을
+    받아 줄 컬럼. 백필 없음.
+  - **프론트는 아직 두 컬럼 중 어느 것도 쓰지 않는다** — 여기도 mono 도 `grep` 결과 0건이고,
+    `front/src/types/database.types.ts`(마지막 갱신 `9a6db9f`)에 두 컬럼이 **없다**.
+    양쪽 트리가 같은 스테일 상태라 드리프트가 아니라 **mono 쪽 후속 작업**이다.
+    프론트가 이 컬럼들로 넘어갈 때 타입 재생성이 선행돼야 한다.
+  - 검증: `front/` 가 `89d151df:ppwr/front` 와 **blob hash 까지 일치**(182 vs 183 파일,
+    차이는 상시 예외 4개뿐 — `next.config.ts`·`.claude/launch.json`·`pnpm-lock.yaml`·
+    `.env.local.example`). mono 워크트리 6개 전부 clean. `feat/ppwr-front-sync`·
+    `feat/ppwr-sku`·`feat/ppwr-chat`·`feat/ppwr-diagnosis`·`feat/ppwr-products` 는
+    모두 `feat/ppwr-all` 에 머지 완료(0 ahead).
+  - `tsc --noEmit`: **에러 0**. 지난 회차의 스테일 `.next/types/validator.ts` 에러는
+    `rm -rf front/.next` 로 해소했다(추적되지 않는 빌드 산출물).
+  - **판단 대기 항목은 그대로 4건** — `e48f4e2b`(제품 필터 5종) + `facbb8f3`·`b207508a`·
+    `a6d0ba68`. 위 "mono 에만 있는, 가져오지 않은 작업" 절 참고. 이번에도 손대지 않았다.
