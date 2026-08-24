@@ -51,10 +51,13 @@ function CardFooter({ item }: { item: DiagnosisItem }) {
         <div className="mt-1.5 h-1.5 w-full rounded-full bg-slate-100">
           <div className="h-1.5 rounded-full bg-amber-400" style={{ width: `${item.progress}%` }} />
         </div>
-        <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-400">
-          <span>예상 완료일시</span>
-          <span>{formatDateTime(item.estimatedCompletionAt)}</span>
-        </div>
+        {/* 완료 예정이 산정되기 전에는 줄 자체를 숨긴다 — 빈 값이나 엉뚱한 시각을 보이지 않게 */}
+        {item.estimatedCompletionAt && (
+          <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-400">
+            <span>예상 완료일시</span>
+            <span>{formatDateTime(item.estimatedCompletionAt)}</span>
+          </div>
+        )}
       </div>
     );
   }

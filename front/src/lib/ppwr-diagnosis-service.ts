@@ -270,7 +270,10 @@ export class PpwrDiagnosisService {
       missingCount,
 
       progress: computeProgress(status, product, assessment, openImprovements.length),
-      estimatedCompletionAt: status === 'in_progress' ? assessment?.assessed_at ?? null : null,
+      // 전용 컬럼(20260908001000). 산정 전에는 null 이고, 화면은 그 줄을 숨긴다.
+      // assessed_at(진단 *시작* 시각)으로 대체하지 않는다 — 라벨과 값이 달라진다.
+      estimatedCompletionAt:
+        status === 'in_progress' ? assessment?.estimated_completion_at ?? null : null,
       confirmedAt: status === 'confirmed' ? issuedReport?.issued_at ?? null : null,
       needsRediagnosis,
 
