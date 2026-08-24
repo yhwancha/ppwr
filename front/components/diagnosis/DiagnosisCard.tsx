@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, CheckCircle2, FileText, Layers, Package, PencilLine, Trash2 } from "lucide-react";
+import { RotateCcw, AlertTriangle, ArrowRight, CheckCircle2, FileText, Layers, Package, PencilLine } from "lucide-react";
 import type { DiagnosisItem, DiagnosisStatus } from "@/src/lib/ppwr-diagnosis-service";
 
 export const STATUS_META: Record<DiagnosisStatus, { label: string; chip: string }> = {
@@ -101,7 +101,7 @@ export default function DiagnosisCard({
   thumbUrl?: string;
   selected: boolean;
   onSelect: () => void;
-  /** hover 액션의 삭제 — 확인 모달은 목록 쪽에서 띄운다 */
+  /** hover 액션의 진단 초기화 — 확인 모달은 목록 쪽에서 띄운다 */
   onDelete: () => void;
 }) {
   const meta = STATUS_META[item.status];
@@ -136,7 +136,7 @@ export default function DiagnosisCard({
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <p className="truncate text-sm font-bold text-ink">{item.name}</p>
-              {/* hover 시 이 자리를 삭제·편집 버튼이 덮는다 (시안) */}
+              {/* hover 시 이 자리를 초기화·편집 버튼이 덮는다 (시안) */}
               <span
                 className={
                   "shrink-0 rounded px-2 py-0.5 text-[11px] font-bold transition-opacity group-hover:opacity-0 " +
@@ -180,9 +180,15 @@ export default function DiagnosisCard({
         <button
           type="button"
           onClick={onDelete}
-          className="inline-flex items-center gap-1 rounded-lg bg-danger px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-red-700"
+          disabled={!item.hasDiagnosis}
+          title={
+            item.hasDiagnosis
+              ? "진단 결과를 지우고 임시 저장 상태로 되돌립니다"
+              : "초기화할 진단 기록이 없습니다"
+          }
+          className="inline-flex items-center gap-1 rounded-lg bg-danger px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
-          <Trash2 className="h-3.5 w-3.5" /> 삭제
+          <RotateCcw className="h-3.5 w-3.5" /> 초기화
         </button>
         <Link
           href={`/app/diagnosis/new?productId=${item.productId}`}

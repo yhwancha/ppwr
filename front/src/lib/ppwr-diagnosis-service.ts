@@ -53,6 +53,12 @@ export type DiagnosisItem = {
   category: string | null;
   /** 카드 썸네일용 첫 제품 사진의 스토리지 경로. 서명 URL 발급은 화면에서 한다. */
   photoKey: string | null;
+  /**
+   * 진단 기록(AssessmentResult·Report·ImprovementRequest)이 하나라도 있는지.
+   * 목록은 진단 여부와 무관하게 전 제품을 보여주므로, 초기화할 대상이 있는지는
+   * 이 값으로 판단한다 — 없으면 초기화 버튼을 비활성화한다.
+   */
+  hasDiagnosis: boolean;
   status: DiagnosisStatus;
   updatedAt: string;
 
@@ -178,16 +184,20 @@ export class PpwrDiagnosisService {
   }
 
   /**
-   * 진단 삭제.
+   * 진단 결과 초기화.
    *
    * `Diagnosis` 테이블이 따로 없고 상태가 AssessmentResult / ImprovementRequest / Report
    * 조합으로 파생되므로, "진단을 지운다" = 그 세 종류의 행을 지운다는 뜻이다.
-   * 시안 안내 문구대로 Product · ComponentInstance · EvidenceDocument 는 건드리지 않는다.
+   * Product · ComponentInstance · EvidenceDocument 는 건드리지 않는다.
    *
-   * ⚠️ ImprovementRequest 는 시안 문구에 명시돼 있지 않지만 진단 결과에서 파생된 것이라
-   *    같이 지운다. 남겨두면 진단이 없는데 카드가 '보완 필요'로 남는다.
+   * ⚠️ 이름이 remove 가 아니라 reset 인 이유 — 목록 카드는 Product 에서 나오므로
+   *    이 작업으로 카드가 사라지지 않는다. 상태가 '임시 저장' 으로 돌아갈 뿐이다.
+   *    "삭제"로 부르면 사용자가 카드가 없어질 거라 기대하고, 실제로는 아무 일도
+   *    일어나지 않은 것처럼 보인다.
+   *
+   * ⚠️ ImprovementRequest 도 함께 지운다. 남겨두면 진단이 없는데 카드가 '보완 필요'로 남는다.
    */
-  async remove(productId: number): Promise<void> {
+  async reset(productId: number): Promise<void> {
     // Report → ImprovementRequest → AssessmentResult 순. 참조가 있다면 자식부터 지운다.
     for (const table of ['Report', 'ImprovementRequest', 'AssessmentResult'] as const) {
       await this.deleteByProduct(table, productId);
@@ -262,6 +272,7 @@ export class PpwrDiagnosisService {
       category: product.category,
       photoKey:
         productAttrList(readProductAttrs(product), PK.photos)[0] ?? null,
+      hasDiagnosis: Boolean(assessment) || reports.length > 0 || improvements.length > 0,
       status,
       updatedAt: product.updated_at,
 

@@ -143,10 +143,10 @@ export default function DiagnosisPage() {
     if (!pendingDelete) return;
     setDeleting(true);
     try {
-      await getPpwrDiagnosisService().remove(pendingDelete.productId);
+      await getPpwrDiagnosisService().reset(pendingDelete.productId);
       if (selectedId === pendingDelete.productId) setSelectedId(null);
       await qc.invalidateQueries({ queryKey: ["ppwr", "diagnosis"] });
-      toast.show("success", "성공적으로 삭제했습니다.");
+      toast.show("success", "진단 결과를 초기화했습니다.");
       setPendingDelete(null);
     } catch (e) {
       toast.show("danger", e instanceof Error ? e.message : GENERIC_ERROR);
@@ -302,15 +302,15 @@ export default function DiagnosisPage() {
 
       <ConfirmDialog
         open={pendingDelete != null}
-        title="정말 이 진단을 삭제하시겠습니까?"
+        title="이 제품의 진단 결과를 초기화할까요?"
         description={
           <>
-            진단을 삭제하면 해당 진단에 포함된 리포트 발행기록이 모두 삭제됩니다.
+            진단 결과와 리포트 발행기록이 모두 삭제되고 상태가 &ldquo;임시 저장&rdquo;으로 돌아갑니다.
             <br />
-            진단을 삭제해도 해당 제품과 부품 및 서류는 삭제되지 않습니다.
+            제품·부품·첨부 서류는 그대로 유지되며, 목록에서 사라지지 않습니다.
           </>
         }
-        confirmLabel="삭제"
+        confirmLabel="초기화"
         // 안내 첫 줄이 한 줄에 들어가야 해서 기본 폭(max-w-md)보다 넓힌다
         width="max-w-xl"
         pending={deleting}
