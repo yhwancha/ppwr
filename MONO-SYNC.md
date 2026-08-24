@@ -41,7 +41,7 @@ git am --3way --directory=front /tmp/p/*.patch
 
 | 이 repo | = mono | 시점 |
 |---|---|---|
-| tag `mono-sync` | `188ddd3f` (`feat/ppwr-all`) | 2026-08-24 (5차) |
+| tag `mono-sync` | `fccc5db5` (`feat/ppwr-all`) | 2026-08-24 (6차) |
 
 > 이송 기준점은 **`mono-sync` 태그**다. 커밋 hash 는 amend/rebase 로 바뀌므로 쓰지 않는다.
 > 이송을 끝낼 때마다 태그를 옮긴다: `git tag -f mono-sync HEAD` (그리고 위 표의 mono 쪽을 갱신).
@@ -217,3 +217,23 @@ patch 가 이 파일들을 건드리면 반드시 손으로 확인한다.
     `a6d0ba68`. 이번에도 손대지 않았다. 브랜치 전수 확인 결과 **새로 생긴 항목은 없다**:
     `feat/ppwr-payment`(1 ahead)·`feat/ppwr-prod-proxy`(27 ahead)·`origin/dev`(3 ahead)
     모두 merge-base 대비 `ppwr/` diff 가 비어 있다.
+
+- **2026-08-24 (6차)** — **이송 1건.** mono 정본 라인 `feat/ppwr-all` 이 `188ddd3f` → `fccc5db5`
+  로 **1 커밋 전진**했고, 그 커밋이 `ppwr/front/` 만 건드린다. 패치로 그대로 가져왔다 →
+  여기 `3d35497`. **충돌 0건.**
+  - `fccc5db5` → `3d35497` — 진단 위저드 3단계(`components/diagnosis/wizard/StepRun.tsx`)의
+    유의사항 5개 중 **3~5번이 "유의 사항에 대한 내용입니다." 플레이스홀더 그대로 사용자에게
+    노출되던 것**을 지웠다. 확정 문구 2개만 남는다. 임의로 채우지 않은 이유가 파일 주석에
+    남아 있다 — 오진단 책임·재진단 비용 같은 **면책 조항**이라 그럴듯하게 지어내면 실제
+    분쟁에서 그대로 문제가 된다. 문구가 확정되면 `NOTICES` 배열에 추가하면 되고 번호는
+    자동으로 매겨진다.
+  - 검증: 이송 전 `front/` 가 `188ddd3f:ppwr/front` 와, 이송 후 `fccc5db5:ppwr/front` 와
+    **blob hash 까지 일치**(184 vs 183 파일, 차이는 상시 예외 4개뿐 — `next.config.ts`·
+    `.claude/launch.json`·`pnpm-lock.yaml`·`.env.local.example`). `tsc --noEmit` **에러 0**
+    (`rm -rf front/.next` 후). `package.json` 무변경이라 lockfile 재생성 불필요.
+    mono 워크트리 6개 전부 clean, `origin/feat/ppwr-all` 도 `fccc5db5` 로 동일.
+  - **판단 대기 항목은 그대로 4건** — `e48f4e2b`(제품 필터 5종) + `facbb8f3`·`b207508a`·
+    `a6d0ba68`. 이번에도 손대지 않았다. 브랜치 전수 스캔(merge-base 대비 `ppwr/` diff 가
+    비지 않은 ref) 결과 **새로 생긴 항목은 없다** — 걸린 것은 `feat/dashboard`(`a6d0ba68`)·
+    `feat/profile`(`facbb8f3`·`b207508a`)·`origin/feat/profile`(`facbb8f3`)·
+    `feat/ppwr`/`origin/feat/ppwr`(7월 폐기 라인) 뿐이고 전부 이미 기록된 것이다.
